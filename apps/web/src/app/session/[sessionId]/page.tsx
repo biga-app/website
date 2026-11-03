@@ -26,7 +26,14 @@ export default async function SessionPage({
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
     const { sessionId } = await params;
-    const { embed } = await searchParams;
+    const { embed, checkpoint } = await searchParams;
+    const seq = typeof checkpoint === "string" && /^\d{1,10}$/.test(checkpoint) ? Number(checkpoint) : undefined;
 
-    return <SessionViewer sessionId={sessionId} embed={embed === "1"} />;
+    return (
+        <SessionViewer
+            sessionId={sessionId}
+            embed={embed === "1"}
+            initialCheckpointSeq={seq !== undefined && seq <= 2147483647 ? seq : undefined}
+        />
+    );
 }

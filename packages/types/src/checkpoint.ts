@@ -36,6 +36,7 @@ export const CheckpointSchema = z.object({
     sessionId: z.string().min(1),
     seq: z.number().int().nonnegative(),
     label: z.string(),
+    named: z.boolean().optional(),
     createdAt: z.string(),
     filesChanged: z.number().int().nonnegative(),
     additions: z.number().int().nonnegative(),
@@ -61,6 +62,7 @@ export type CheckpointSummary = z.infer<typeof CheckpointSummarySchema>;
 export const FileHistoryEntrySchema = z.object({
     seq: z.number().int().nonnegative(),
     label: z.string(),
+    named: z.boolean().optional(),
     createdAt: z.string(),
     changeType: ChangeTypeSchema,
     beforeHash: z.string().length(64).nullable(),

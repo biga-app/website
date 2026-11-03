@@ -95,7 +95,7 @@ function FollowToggle() {
     );
 }
 
-function CopyLinkButton({ sessionId }: { sessionId: string }) {
+function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string; checkpointSeq?: number }) {
     const { copied, copy } = useCopyFeedback();
 
     return (
@@ -105,14 +105,14 @@ function CopyLinkButton({ sessionId }: { sessionId: string }) {
                     <Button
                         variant="ghost"
                         size="xs"
-                        onClick={() => void copy(shareUrlFor(sessionId))}
+                        onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq))}
                         className="text-muted-foreground hover:text-foreground"
                     >
                         {copied ? <CopyGlyph copied /> : <LinkIcon className="size-3.5" />}
-                        <span className="max-sm:sr-only">{copied ? "Copied" : "Copy link"}</span>
+                        <span className="max-sm:sr-only">{copied ? "Copied" : checkpointSeq === undefined ? "Copy link" : "Copy checkpoint link"}</span>
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent>Copy the share link for this session</TooltipContent>
+                <TooltipContent>{checkpointSeq === undefined ? "Copy the share link for this session" : "Copy the share link for this checkpoint"}</TooltipContent>
             </Tooltip>
             <span aria-live="polite" className="sr-only">
                 {copied ? "Link copied" : ""}
@@ -142,6 +142,7 @@ function GoToFileTrigger({ onClick }: { onClick: () => void }) {
 
 export function SessionHeader({
     sessionId,
+    checkpointSeq,
     status,
     embed,
     isMobile,
@@ -150,6 +151,7 @@ export function SessionHeader({
     onOpenQuickOpen,
 }: {
     sessionId: string;
+    checkpointSeq?: number;
     status: StreamStatus;
     embed: boolean;
     isMobile: boolean;
@@ -195,7 +197,7 @@ export function SessionHeader({
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
                 <GoToFileTrigger onClick={onOpenQuickOpen} />
                 {canFollow && <FollowToggle />}
-                <CopyLinkButton sessionId={sessionId} />
+                <CopyLinkButton sessionId={sessionId} checkpointSeq={checkpointSeq} />
                 <ThemePicker />
             </div>
         </header>

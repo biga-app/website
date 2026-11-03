@@ -167,7 +167,7 @@ function toLoadError(caught: unknown): LoadError {
     return { kind: caught instanceof ApiError ? caught.kind : "server" };
 }
 
-export function useSessionStream(sessionId: string): StreamResult {
+export function useSessionStream(sessionId: string, initialCheckpointSeq?: number): StreamResult {
     const [status, setStatus] = useState<StreamStatus>("connecting");
     const [error, setError] = useState<LoadError | null>(null);
     const [ready, setReady] = useState(false);
@@ -216,8 +216,15 @@ export function useSessionStream(sessionId: string): StreamResult {
         });
 
         const readInitialCheckpoint = async (state: SessionState, signal: AbortSignal) => {
+            if (initialCheckpointSeq !== undefined) {
+                try {
+                    return await fetchCheckpoint(sessionId, initialCheckpointSeq, signal);
+                } catch {
+                    if (signal.aborted) return undefined;
+                }
+            }
             const latest = state.checkpoints[0];
-            if (!latest || latest.seq === 0) return undefined;
+            if (!latest || latest.seq === 0 || latest.seq === initialCheckpointSeq) return undefined;
             try {
                 return await fetchCheckpoint(sessionId, latest.seq, signal);
             } catch {
@@ -237,7 +244,11 @@ export function useSessionStream(sessionId: string): StreamResult {
             );
             let path = fallbackFile;
             if (checkpoint) {
-                useHistoryStore.getState().cacheCheckpoint(checkpoint);
+                const history = useHistoryStore.getState();
+                history.cacheCheckpoint(checkpoint);
+                if (checkpoint.seq === initialCheckpointSeq) {
+                    history.selectSeq(checkpoint.seq);
+                }
                 const tree = useFileTreeStore.getState();
                 tree.setDecorations(decorationsFromChanges(checkpoint.changes));
                 const changed = firstViewableChange(checkpoint.changes);
@@ -349,7 +360,7 @@ export function useSessionStream(sessionId: string): StreamResult {
             useSessionStore.getState().clearSession();
             contentCache.clear();
         };
-    }, [sessionId, retryNonce]);
+    }, [sessionId, initialCheckpointSeq, retryNonce]);
 
     const retry = useCallback(() => {
         setError(null);

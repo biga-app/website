@@ -102,8 +102,10 @@ export function CheckpointDiffPane({
             return (
                 <EmptyState
                     icon={GitCommitVerticalIcon}
-                    title="No file changes"
-                    description={`Checkpoint #${checkpoint.seq} didn't change any files.`}
+                    title={checkpoint.named ? checkpoint.label : "No file changes"}
+                    description={checkpoint.named
+                        ? `Checkpoint #${checkpoint.seq} marks the synced state at this point in the session.`
+                        : `Checkpoint #${checkpoint.seq} didn't change any files.`}
                 />
             );
         }

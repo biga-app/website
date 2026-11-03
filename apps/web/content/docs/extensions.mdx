@@ -70,7 +70,11 @@ Persist the cursor after processing succeeds. Keep a separate cursor for each
 installation. A retry can return events you've already seen, so use the
 event ID as an idempotency key within that installation. A checkpoint can
 come from an initial snapshot or a later batch of edits. File names, hashes,
-contents, and diff bodies are excluded from the payload.
+contents, and diff bodies are excluded from the payload. A marker created with
+`biga checkpoint mark` emits a version 1 `checkpoint.marked` event with the
+name the owner chose. Its file change counts are zero. Use its session ID and
+sequence to open `/session/{id}?checkpoint={seq}` on the viewer origin.
+Consumers can skip event types they do not handle and still advance the cursor.
 
 ## Try a consumer
 
