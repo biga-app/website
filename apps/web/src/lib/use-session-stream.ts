@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeType, CheckpointChange, SSEEvent } from "@biga/types";
+import type { ChangeType, Checkpoint, CheckpointChange, SSEEvent } from "@biga/types";
 import { useEditorStore } from "@biga/stores/editor-store";
 import { useFileTreeStore } from "@biga/stores/file-tree-store";
 import { useHistoryStore } from "@biga/stores/history-store";
@@ -11,6 +11,7 @@ import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
 import { apiUrl } from "./api-url";
 import { contentCache } from "./content-cache";
 import { firstViewableChange, preferredFilePath } from "./reconstruct";
+import { createSessionEventBuffer } from "./session-event-buffer";
 import {
     ApiError,
     fetchCheckpoint,
@@ -166,13 +167,6 @@ function toLoadError(caught: unknown): LoadError {
     return { kind: caught instanceof ApiError ? caught.kind : "server" };
 }
 
-/**
- * Hydrates all session stores from the `/state` endpoint on mount, then
- * subscribes to the live SSE stream for checkpoint, snapshot, and session-ended
- * events. All session data lives in the shared Zustand stores and the content-
- * addressed cache — this hook only surfaces the connection status and, when the
- * first load fails, why.
- */
 export function useSessionStream(sessionId: string): StreamResult {
     const [status, setStatus] = useState<StreamStatus>("connecting");
     const [error, setError] = useState<LoadError | null>(null);
@@ -184,10 +178,9 @@ export function useSessionStream(sessionId: string): StreamResult {
 
     useEffect(() => {
         let eventSource: EventSource | null = null;
-        const abortController = new AbortController();
+        let syncController: AbortController | undefined;
         let cancelled = false;
-        // True once the stream has dropped, so the next open knows to catch up.
-        let interrupted = false;
+        let hydrated = false;
         let ended = false;
 
         const markEnded = () => {
@@ -196,7 +189,8 @@ export function useSessionStream(sessionId: string): StreamResult {
             eventSource?.close();
         };
 
-        const handleEvent = (event: SSEEvent) => {
+        const events = createSessionEventBuffer((event) => {
+            if (ended) return;
             applySSEEvent(
                 event,
                 {
@@ -219,173 +213,135 @@ export function useSessionStream(sessionId: string): StreamResult {
                     revealFile(path);
                 }
             }
+        });
+
+        const readInitialCheckpoint = async (state: SessionState, signal: AbortSignal) => {
+            const latest = state.checkpoints[0];
+            if (!latest || latest.seq === 0) return undefined;
+            try {
+                return await fetchCheckpoint(sessionId, latest.seq, signal);
+            } catch {
+                return undefined;
+            }
         };
 
-        /**
-         * Catch up after the stream was interrupted. Events published while the
-         * browser was reconnecting were never delivered, so re-read the current
-         * state and merge it in without disturbing open tabs or the selection.
-         */
-        const resync = async () => {
+        const hydrate = (state: SessionState, checkpoint?: Checkpoint) => {
+            const { fallbackFile } = hydrateStoresFromState(
+                state,
+                {
+                    session: useSessionStore.getState(),
+                    history: useHistoryStore.getState(),
+                    tree: useFileTreeStore.getState(),
+                },
+                contentCache
+            );
+            let path = fallbackFile;
+            if (checkpoint) {
+                useHistoryStore.getState().cacheCheckpoint(checkpoint);
+                const tree = useFileTreeStore.getState();
+                tree.setDecorations(decorationsFromChanges(checkpoint.changes));
+                const changed = firstViewableChange(checkpoint.changes);
+                if (changed && tree.headMeta.has(changed)) path = changed;
+            }
+            if (path) revealFile(path);
+            hydrated = true;
+            setReady(true);
+        };
+
+        const synchronize = async (source: EventSource, subscribed: boolean) => {
+            syncController?.abort();
+            const controller = new AbortController();
+            syncController = controller;
             try {
-                const state = await fetchSessionState(sessionId, abortController.signal);
-                if (cancelled) {
-                    return;
+                const state = await fetchSessionState(sessionId, controller.signal);
+                if (controller.signal.aborted) return;
+                if (hydrated) {
+                    if (state.contents) contentCache.prefill(state.contents);
+                    if (state.snapshot) useFileTreeStore.getState().setTree(state.snapshot.tree);
+                    useHistoryStore.getState().mergeNewer(state.checkpoints);
+                    useSessionStore.getState().setSession(state.session);
+                    useSessionStore.getState().setLoadMode(state.mode);
+                } else {
+                    const checkpoint = await readInitialCheckpoint(state, controller.signal);
+                    if (controller.signal.aborted) return;
+                    hydrate(state, checkpoint);
                 }
-                if (state.contents) {
-                    contentCache.prefill(state.contents);
-                }
-                if (state.snapshot) {
-                    useFileTreeStore.getState().setTree(state.snapshot.tree);
-                }
-                useHistoryStore.getState().mergeNewer(state.checkpoints);
-                useSessionStore.getState().setSession(state.session);
+
                 if (state.session.status !== "active") {
                     markEnded();
+                } else {
+                    if (subscribed) events.resume(state);
+                    if (!ended) {
+                        if (subscribed && source.readyState === EventSource.OPEN) {
+                            setStatus("live");
+                        } else {
+                            setStatus(source.readyState === EventSource.CLOSED ? "offline" : "reconnecting");
+                        }
+                    }
                 }
-            } catch {
-                // Best effort: the stream is back, and the next save will
-                // bring the tree up to date regardless.
+            } catch (caught) {
+                if (controller.signal.aborted) return;
+                source.close();
+                if (hydrated) {
+                    setStatus("offline");
+                } else {
+                    setError(toLoadError(caught));
+                    setStatus("unavailable");
+                }
+            } finally {
+                if (syncController === controller) syncController = undefined;
             }
         };
 
         const connect = () => {
+            syncController?.abort();
             eventSource?.close();
+            events.pause();
             const source = new EventSource(apiUrl(`/api/sessions/${sessionId}/stream`));
             eventSource = source;
+            const isCurrent = () => source === eventSource && !cancelled && !ended;
 
             const forward = (raw: MessageEvent<string>) => {
+                if (!isCurrent()) return;
                 let event: SSEEvent;
                 try {
                     event = JSON.parse(raw.data) as SSEEvent;
                 } catch {
-                    /**
-                     * Malformed or non-JSON frames (such as SSE keepalive comments) are
-                     * silently discarded — they do not represent application events.
-                     * Only parsing is guarded: a bug while applying an event should
-                     * surface, not vanish.
-                     */
                     return;
                 }
-                handleEvent(event);
-            };
-
-            const onOpen = () => {
-                if (ended) {
-                    return;
-                }
-                setStatus("live");
-                if (interrupted) {
-                    interrupted = false;
-                    void resync();
-                }
+                events.push(event);
             };
 
             source.addEventListener("checkpoint", forward);
             source.addEventListener("snapshot", forward);
             source.addEventListener("session_ended", forward);
-            source.addEventListener("connected", onOpen);
-            source.onopen = onOpen;
+            source.addEventListener("connected", () => {
+                if (!isCurrent()) return;
+                events.pause();
+                void synchronize(source, true);
+            });
             source.onerror = () => {
-                if (ended) {
-                    return;
+                if (!isCurrent()) return;
+                if (hydrated) {
+                    setStatus(source.readyState === EventSource.CLOSED ? "offline" : "reconnecting");
+                } else if (!syncController) {
+                    void synchronize(source, false);
                 }
-                interrupted = true;
-                // CONNECTING means the browser is already retrying; CLOSED
-                // means it gave up (e.g. the server answered with an error).
-                setStatus(source.readyState === EventSource.CLOSED ? "offline" : "reconnecting");
             };
         };
 
         reconnectRef.current = () => {
-            if (ended || cancelled) {
-                return;
-            }
-            interrupted = true;
+            if (ended || cancelled) return;
             setStatus("reconnecting");
             connect();
         };
 
-        /**
-         * Open the most recently changed file so a new viewer lands where the
-         * action is, with the tree marking what that save touched. Falls back
-         * to the README or first file when there is no change to point at.
-         */
-        const openInitialFile = async (state: SessionState, fallbackFile: string | undefined) => {
-            const latest = state.checkpoints.reduce<SessionState["checkpoints"][number] | undefined>(
-                (best, checkpoint) => (!best || checkpoint.seq > best.seq ? checkpoint : best),
-                undefined
-            );
-            if (latest && latest.seq > 0) {
-                try {
-                    const checkpoint = await fetchCheckpoint(sessionId, latest.seq, abortController.signal);
-                    if (cancelled) {
-                        return;
-                    }
-                    useHistoryStore.getState().cacheCheckpoint(checkpoint);
-                    useFileTreeStore
-                        .getState()
-                        .setDecorations(decorationsFromChanges(checkpoint.changes));
-                    const path = firstViewableChange(checkpoint.changes);
-                    if (path && useFileTreeStore.getState().headMeta.has(path)) {
-                        revealFile(path);
-                        return;
-                    }
-                } catch {
-                    if (cancelled) {
-                        return;
-                    }
-                }
-            }
-            if (fallbackFile) {
-                revealFile(fallbackFile);
-            }
-        };
-
-        const hydrate = async () => {
-            try {
-                const state = await fetchSessionState(sessionId, abortController.signal);
-                if (cancelled) {
-                    return;
-                }
-
-                const { fallbackFile } = hydrateStoresFromState(
-                    state,
-                    {
-                        session: useSessionStore.getState(),
-                        history: useHistoryStore.getState(),
-                        tree: useFileTreeStore.getState(),
-                    },
-                    contentCache
-                );
-                await openInitialFile(state, fallbackFile);
-                if (cancelled) {
-                    return;
-                }
-                setReady(true);
-
-                if (state.session.status !== "active") {
-                    ended = true;
-                    setStatus("ended");
-                    return;
-                }
-
-                connect();
-            } catch (caught) {
-                if (cancelled || abortController.signal.aborted) {
-                    return;
-                }
-                setError(toLoadError(caught));
-                setStatus("unavailable");
-            }
-        };
-
-        void hydrate();
+        connect();
 
         return () => {
             cancelled = true;
             reconnectRef.current = () => {};
-            abortController.abort();
+            syncController?.abort();
             eventSource?.close();
             useEditorStore.getState().clearAll();
             useFileTreeStore.getState().clearTree();

@@ -8,6 +8,7 @@
     "build": "node scripts/copy-file-icons.mjs && next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
+    "test": "node --experimental-strip-types --test src/lib/session-event-buffer.test.mjs",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {

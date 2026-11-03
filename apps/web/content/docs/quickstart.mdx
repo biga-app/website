@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: From nothing to a shared link in two commands.
+description: Install biga, connect to a server, and share a folder live.
 ---
 
 <Steps>
@@ -37,14 +37,33 @@ go install github.com/biga-sh/cli/cmd/biga@latest
 
 ### Start a broadcast
 
-From the folder you want to share:
+You need a running biga server. Choose where to broadcast before starting the CLI.
+
+<Tabs items={["Hosted server", "Local server"]}>
+<Tab value="Hosted server">
+
+Ask the server operator for its URL and an access key if the server requires one.
+From the folder you want to share, replace the example URL with that server's URL.
 
 ```sh
-biga start
+biga start --api-url https://biga.example.com
 ```
 
-biga uploads the folder, prints a link, and keeps streaming every saved change
-until you stop it.
+For a server that requires a key, set `BIGA_ACCESS_KEY` before you run the command.
+See [configuration](/docs/configuration).
+
+</Tab>
+<Tab value="Local server">
+
+Follow the [Docker setup](/docs/docker) and choose HTTP mode with `localhost` as the
+domain. Wait for the stack to become healthy. From the folder you want to share,
+run the broadcast command that the setup script printed. It includes your server
+URL and access key.
+
+</Tab>
+</Tabs>
+
+biga uploads the folder, prints a link, and streams changes until you stop it.
 
 </Step>
 <Step>
@@ -52,24 +71,17 @@ until you stop it.
 ### Send the link
 
 Press <kbd>c</kbd> in the live panel to copy it, or <kbd>o</kbd> to open it
-yourself. Anyone with the link sees the same tree and the same files, and
-they follow along as you save.
+yourself. Anyone who can reach the server and has the link can follow along as
+you save. A link on `localhost` opens only on the machine running the server.
 
 </Step>
 <Step>
 
 ### Stop, and pick it back up
 
-Press <kbd>q</kbd> to stop. Running `biga start` in the same folder later
+Press <kbd>q</kbd> to stop. Running the same start command in the same folder later
 **rejoins** the same session, so a link you already shared keeps working, and
 only what changed while you were away is uploaded.
 
 </Step>
 </Steps>
-
-<Callout type="info" title="Which server?">
-By default the CLI talks to `http://localhost:3000`, which is a local copy of
-the server. To get a link people outside your machine can open, point it at a
-hosted instance with `BIGA_API_URL` or `--api-url`. See
-[configuration](/docs/configuration).
-</Callout>
