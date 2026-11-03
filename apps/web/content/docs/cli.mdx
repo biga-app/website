@@ -9,6 +9,9 @@ biga status [dir] [--json]
 biga list [--json]
 biga open [dir]
 biga stop [dir] [--all]
+biga extensions [--dir <path>] create <name> [--json]
+biga extensions [--dir <path>] list [--json]
+biga extensions [--dir <path>] revoke <id>
 ```
 
 Run `biga` with no command in a terminal to pick one interactively, and
@@ -110,3 +113,9 @@ Opens a directory's link in your browser.
 Pressing <kbd>Ctrl+C</kbd> before a broadcast is live prints `Cancelled.` and
 exits with status 130. Errors print a message and exit non-zero; if the server
 cannot be reached the message says which URL was tried and how to change it.
+
+## `biga extensions`
+
+Create, list, or revoke credentials for your session’s checkpoint feed.
+Creation prints the token once. Use `--dir` to select a saved broadcast.
+See [Build an extension](/docs/extensions) for the API and a working consumer.

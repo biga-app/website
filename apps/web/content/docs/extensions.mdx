@@ -1,0 +1,118 @@
+---
+title: Build an extension
+description: Connect your own service to a biga session and react to new checkpoints.
+---
+
+Run your extension as a script, bot, or service on your own infrastructure. It
+can read checkpoint events from a biga session you own. Use those events to
+update a dashboard, send a team notification, or start another job.
+
+## Create a credential
+
+Start a broadcast once. From the same directory, run:
+
+```sh
+biga extensions create "Build monitor"
+```
+
+Copy the feed URL and the token into the extension's server-side secret store.
+The token appears only at creation. It grants read access to the checkpoint
+feed for that session. It carries no authority to publish, manage other
+extensions, or fetch files. The session's existing viewer permissions still
+apply to its ordinary share link.
+
+Use `biga extensions list` to see the installed extensions, and run
+`biga extensions revoke <id>` to disconnect one. Add `--dir <path>` to manage a
+different local broadcast.
+
+## Read the feed
+
+Send a GET request to the feed URL using `Authorization: Bearer <token>`.
+An owner who creates credentials through the API instead of the CLI can use
+the endpoints below. Include the server's access key on management requests
+when required.
+
+| Method | Session API path | Credential |
+| --- | --- | --- |
+| POST | `/api/sessions/{id}/extensions` with JSON `{ "name": "Build monitor" }` | Session owner token |
+| GET | `/api/sessions/{id}/extensions` | Session owner token |
+| DELETE | `/api/sessions/{id}/extensions/{extensionId}` | Session owner token |
+| GET | `/api/sessions/{id}/extension-events` | Extension token |
+
+The feed returns `data.events` and `data.nextAfter` in the usual API response
+envelope. Start with `after=-1` to read all retained checkpoints in order.
+Each request returns events with sequence numbers greater than `after`.
+Use `limit` to choose a page size between 1 and 500. The default is 100.
+
+```json
+{
+  "ok": true,
+  "data": {
+    "events": [
+      {
+        "id": "my-session:0",
+        "type": "checkpoint.created",
+        "version": 1,
+        "sessionId": "my-session",
+        "seq": 0,
+        "createdAt": "2026-01-01T00:00:00Z",
+        "filesChanged": 3,
+        "additions": 42,
+        "deletions": 0
+      }
+    ],
+    "nextAfter": 0
+  }
+}
+```
+
+Persist the cursor after processing succeeds. Keep a separate cursor for each
+installation. A retry can return events you've already seen, so use the
+event ID as an idempotency key within that installation. A checkpoint can
+come from an initial snapshot or a later batch of edits. File names, hashes,
+contents, and diff bodies are excluded from the payload.
+
+## Try a consumer
+
+Save this as `extension.mjs`. Supply `BIGA_FEED_URL` and `BIGA_EXTENSION_TOKEN`
+in the process environment, then run `node extension.mjs`. Run it periodically
+with the same working directory to resume from the saved cursor. Use a separate
+working directory per installation and run one process at a time.
+
+```js
+import { readFile, rename, writeFile } from "node:fs/promises";
+
+const { BIGA_FEED_URL, BIGA_EXTENSION_TOKEN } = process.env;
+if (!BIGA_FEED_URL || !BIGA_EXTENSION_TOKEN) {
+  throw new Error("Set BIGA_FEED_URL and BIGA_EXTENSION_TOKEN");
+}
+
+const cursorFile = "biga-extension.cursor";
+const cursor = await readFile(cursorFile, "utf8").catch((error) => {
+  if (error.code === "ENOENT") return "-1";
+  throw error;
+});
+
+const url = new URL(BIGA_FEED_URL);
+url.searchParams.set("after", cursor.trim());
+const response = await fetch(url, {
+  headers: { Authorization: `Bearer ${BIGA_EXTENSION_TOKEN}` },
+  redirect: "error",
+  signal: AbortSignal.timeout(10000),
+});
+if (!response.ok) throw new Error(`biga feed returned HTTP ${response.status}`);
+
+const { data } = await response.json();
+for (const event of data.events) {
+  if (event.type === "checkpoint.created" && event.version === 1) {
+    console.log(event.id, event.filesChanged);
+  }
+}
+await writeFile(`${cursorFile}.tmp`, String(data.nextAfter));
+await rename(`${cursorFile}.tmp`, cursorFile);
+```
+
+In a long-running consumer, fetch the next page immediately while you are
+catching up. Wait between polls once caught up, honor `Retry-After` when rate
+limited, and stop polling when the token is revoked. The feed is available
+while the session is retained, including when the broadcast is stopped.
