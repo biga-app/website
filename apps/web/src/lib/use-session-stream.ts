@@ -189,31 +189,36 @@ export function useSessionStream(sessionId: string, initialCheckpointSeq?: numbe
             eventSource?.close();
         };
 
-        const events = createSessionEventBuffer((event) => {
-            if (ended) return;
-            applySSEEvent(
-                event,
-                {
-                    history: useHistoryStore.getState(),
-                    tree: useFileTreeStore.getState(),
-                    session: useSessionStore.getState(),
-                },
-                markEnded
-            );
+        const events = createSessionEventBuffer(
+            (event) => {
+                if (ended) return;
+                applySSEEvent(
+                    event,
+                    {
+                        history: useHistoryStore.getState(),
+                        tree: useFileTreeStore.getState(),
+                        session: useSessionStore.getState(),
+                    },
+                    markEnded
+                );
 
-            // Follow mode: bring the file the broadcaster just saved to the
-            // front, unless the viewer is busy browsing an older checkpoint.
-            if (
-                event.type === "checkpoint" &&
-                useViewerPrefsStore.getState().follow &&
-                useHistoryStore.getState().selectedSeq === null
-            ) {
-                const path = firstViewableChange(event.payload.changes);
-                if (path) {
-                    revealFile(path);
+                // Follow mode: bring the file the broadcaster just saved to the
+                // front, unless the viewer is busy browsing an older checkpoint.
+                if (
+                    event.type === "checkpoint" &&
+                    useViewerPrefsStore.getState().follow &&
+                    useHistoryStore.getState().selectedSeq === null
+                ) {
+                    const path = firstViewableChange(event.payload.changes);
+                    if (path) {
+                        revealFile(path);
+                    }
                 }
+            },
+            () => {
+                if (eventSource) void synchronize(eventSource, true);
             }
-        });
+        );
 
         const readInitialCheckpoint = async (state: SessionState, signal: AbortSignal) => {
             if (initialCheckpointSeq !== undefined) {
