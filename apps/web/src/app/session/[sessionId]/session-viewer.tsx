@@ -111,14 +111,16 @@ function openPath(path: string) {
 export function SessionViewer({
     sessionId,
     embed = false,
+    initialCheckpointSeq,
 }: {
     sessionId: string;
     embed?: boolean;
+    initialCheckpointSeq?: number;
 }) {
-    const { status, ready, error, retry, reconnect } = useSessionStream(sessionId);
+    const { status, ready, error, retry, reconnect } = useSessionStream(sessionId, initialCheckpointSeq);
     const session = useSessionStore((state) => state.session);
     const isMobile = useIsMobile();
-    const [view, setView] = useState<ActivityView>("explorer");
+    const [view, setView] = useState<ActivityView>(initialCheckpointSeq === undefined ? "explorer" : "timeline");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [quickOpen, setQuickOpen] = useState(false);
     const [selectedChange, setSelectedChange] = useState<CheckpointChange | null>(null);
@@ -132,6 +134,19 @@ export function SessionViewer({
         }
     }, [session]);
 
+    useEffect(() => {
+        if (!ready || initialCheckpointSeq === undefined) return;
+        const checkpoint = useHistoryStore.getState().bySeq.get(initialCheckpointSeq);
+        if (checkpoint) {
+            setView("timeline");
+            setSelectedChange(firstDiffable(checkpoint.changes));
+        } else {
+            setView("explorer");
+            toast.error("This checkpoint is unavailable");
+        }
+    }, [ready, sessionId, initialCheckpointSeq]);
+
+    const selectedSeq = useHistoryStore((state) => state.selectedSeq);
     // Checkpoints that landed while the timeline wasn't on screen earn a dot
     // on the Timeline button.
     const latestSeq = useHistoryStore((state) => state.checkpoints[0]?.seq ?? null);
@@ -284,6 +299,7 @@ export function SessionViewer({
             </a>
             <SessionHeader
                 sessionId={sessionId}
+                checkpointSeq={view === "timeline" ? selectedSeq ?? undefined : undefined}
                 status={status}
                 embed={embed}
                 isMobile={isMobile}

@@ -25,6 +25,7 @@ export function displayTitle(session: Pick<SessionResponse, "id" | "title" | "cr
 }
 
 /** Canonical share URL for a session, without viewer-only query params. */
-export function shareUrlFor(sessionId: string): string {
-    return `${window.location.origin}/session/${encodeURIComponent(sessionId)}`;
+export function shareUrlFor(sessionId: string, checkpointSeq?: number): string {
+    const url = `${window.location.origin}/session/${encodeURIComponent(sessionId)}`;
+    return checkpointSeq === undefined ? url : `${url}?checkpoint=${checkpointSeq}`;
 }

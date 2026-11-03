@@ -119,3 +119,15 @@ cannot be reached the message says which URL was tried and how to change it.
 Create, list, or revoke credentials for your session’s checkpoint feed.
 Creation prints the token once. Use `--dir` to select a saved broadcast.
 See [Build an extension](/docs/extensions) for the API and a working consumer.
+
+## `biga checkpoint mark`
+
+Use a name to mark the latest state synced to the server.
+
+```sh
+biga checkpoint mark "Ready for review"
+```
+
+The command prints a link that opens the marker in the session timeline.
+Use `--dir <path>` for another broadcast directory or `--json` for scripts.
+The marker records the synced state even when you have edits pending locally.
