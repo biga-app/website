@@ -268,7 +268,7 @@ erDiagram
   }
   blobs {
     text hash PK
-    bytea content "raw or brotli"
+    bytea content "raw or brotli, or null when in object storage"
   }
 ```
 
@@ -276,6 +276,13 @@ erDiagram
   once, as raw UTF-8 or brotli, and referenced by hash from the tree, the head
   files and every checkpoint change. `hash` and `size` always describe the raw
   bytes, so the encoding is invisible to callers.
+- **Content can live outside Postgres.** With an S3-compatible bucket
+  configured, the server puts each new blob in the bucket first, under
+  `sessions/<id>/<hash>`, and then records a row that points at it. Rows know
+  where their content is, so a database can hold both kinds while
+  `biga-server blobs migrate` moves the rest. A blob counts as used once a
+  snapshot or checkpoint refers to it; the retention sweep removes ones that
+  never are, and a session's objects before its rows.
 - **Binary files are recorded, not stored.** They get a row with `binary` set
   and no bytes.
 - **An upload is one transaction.** The checkpoint, its changes, new blobs and

@@ -270,6 +270,40 @@ location / {
 Behind Cloudflare's proxy, keep public mode and set `BIGA_UPSTREAM_PROXIES` to
 Cloudflare's published IP ranges, or every visitor looks like Cloudflare.
 
+## HTTP/3 and HTTP/2
+
+Browsers and the CLI reach Caddy over HTTP/3 (QUIC, UDP 443) when the network
+allows it, and over HTTP/2 or HTTP/1.1 when it does not. Between Caddy and the
+API server, on the private network, requests travel over HTTP/2 without TLS
+(h2c): one connection carries every request and live stream, so a busy server
+does not need a TCP connection per viewer.
+
+The CLI starts on TCP. The `Alt-Svc` header of the first response says the
+server also speaks HTTP/3, and from then on uploads use it, which recovers
+faster on flaky Wi-Fi and has no head-of-line blocking between requests. If UDP
+is blocked, the CLI notices within a few seconds, finishes the request over TCP
+and does not try QUIC again for ten minutes. QUIC cannot pass through an HTTP
+proxy, so a CLI behind `HTTPS_PROXY` stays on TCP.
+
+`BIGA_HTTP3=off` keeps one CLI on TCP; `BIGA_HTTP3=on` makes it try HTTP/3
+before it has been told the server offers it.
+
+### Without Caddy
+
+A server that terminates TLS itself (`BIGA_TLS_CERT_FILE` and
+`BIGA_TLS_KEY_FILE`) also listens on the same port over UDP and advertises
+HTTP/3 with `Alt-Svc`. Publish both protocols:
+
+```sh
+docker run -p 443:8080/tcp -p 443:8080/udp \
+  -e BIGA_TLS_CERT_FILE=/certs/fullchain.pem -e BIGA_TLS_KEY_FILE=/certs/key.pem …
+```
+
+`BIGA_HTTP3=off` on the server turns QUIC off. Without TLS the server speaks
+HTTP/1.1 and h2c on its TCP port, which is what a reverse proxy in front
+wants. nginx cannot proxy h2c to an upstream, so it uses HTTP/1.1; that works,
+but each viewer then holds a connection.
+
 ## Ports
 
 | Port | Protocol | Purpose |

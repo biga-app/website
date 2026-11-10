@@ -55,10 +55,46 @@ The settings you are most likely to need:
 | `BIGA_CORS_ORIGINS` | unset | Browser origins allowed to read the API cross-origin. |
 | `BIGA_RETENTION_DAYS` | `30` | Days an ended session is kept. The server sweeps hourly. |
 | `REDIS_URL` | unset | Redis or Valkey, to share live events and rate limits across instances. |
+| `BIGA_S3_BUCKET`, `BIGA_S3_ENDPOINT` | unset | Keep file content in S3-compatible object storage instead of Postgres. See [Object storage](#object-storage). |
+| `BIGA_TLS_CERT_FILE`, `BIGA_TLS_KEY_FILE` | unset | Terminate TLS in the server, which then also serves HTTP/3 on the same port over UDP. `BIGA_HTTP3=off` turns that off. |
 
 Every option, including body limits, rate limits, stream caps and TLS, is in
 the [server README](https://github.com/biga-app/server#configuration). Secrets
 can be read from files by adding `_FILE` to the name.
+
+## Object storage
+
+By default Postgres holds file content as well as metadata. With an
+S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2, MinIO, SeaweedFS)
+the content goes there and Postgres keeps only the metadata, so it stays small
+and its backups stay fast.
+
+| Variable | Description |
+| --- | --- |
+| `BIGA_S3_ENDPOINT` | Host and optional port of the service, without a scheme. `s3.amazonaws.com` for AWS. |
+| `BIGA_S3_BUCKET` | The bucket. It must exist, unless `BIGA_S3_CREATE_BUCKET=true`. |
+| `BIGA_S3_REGION` | Region, if the service needs one. |
+| `BIGA_S3_ACCESS_KEY`, `BIGA_S3_SECRET_KEY` | Credentials. Leave both unset to use the AWS environment variables or an instance role. |
+| `BIGA_S3_INSECURE` | `true` to talk plain HTTP, for a store on a private network. |
+
+Keep the bucket private: the server is its only reader, and viewers get
+content through the API. Each object is named `sessions/<id>/<hash>`, and a
+session's objects are deleted with it. `/readyz` checks the bucket.
+
+To move content that is already in Postgres, set the variables and run:
+
+```sh
+biga-server blobs migrate
+```
+
+It can be stopped and run again, and until it finishes the server reads
+whatever has not moved from Postgres. Once content is in the bucket, keep the
+variables set: a server without them cannot read it.
+
+The sweep also removes content that was uploaded but never used by a snapshot or
+checkpoint, as happens when a first upload is interrupted for good, after 24
+hours. Back up the bucket with the database. Objects never change, so a copy
+taken after the database dump holds everything the dump refers to.
 
 ## The site
 
