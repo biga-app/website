@@ -5,10 +5,10 @@ description: Run the biga server on your own infrastructure.
 
 biga has two server-side parts:
 
-- **The API server**, [biga-sh/server](https://github.com/biga-sh/server): one
+- **The API server**, [biga-app/server](https://github.com/biga-app/server): one
   Go binary on Postgres. It stores sessions and streams every save to viewers.
   Redis or Valkey is optional, for running several instances.
-- **The site and viewer**, [biga-sh/website](https://github.com/biga-sh/website):
+- **The site and viewer**, [biga-app/website](https://github.com/biga-app/website):
   a Next.js app that renders sessions. It holds no data.
 
 Both need to answer on one origin, with `/api/sessions/*` going to the API
@@ -29,7 +29,7 @@ docker run -p 8080:8080 \
   -e DATABASE_URL='postgres://biga:…@db:5432/biga' \
   -e BIGA_PUBLIC_URL=https://biga.example.com \
   -e BIGA_TRUSTED_PROXIES=private \
-  ghcr.io/biga-sh/server:1
+  ghcr.io/biga-app/server:1
 ```
 
 Or build it with Go 1.26+: `go build ./cmd/biga-server`. It applies its
@@ -57,7 +57,7 @@ The settings you are most likely to need:
 | `REDIS_URL` | unset | Redis or Valkey, to share live events and rate limits across instances. |
 
 Every option, including body limits, rate limits, stream caps and TLS, is in
-the [server README](https://github.com/biga-sh/server#configuration). Secrets
+the [server README](https://github.com/biga-app/server#configuration). Secrets
 can be read from files by adding `_FILE` to the name.
 
 ## The site

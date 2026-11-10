@@ -11,8 +11,9 @@ import { HatchBand } from "@/components/site/frame";
 import { CLI_REPO_URL, WEB_REPO_URL } from "@/components/site/links";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 import { DEMO_SESSION_ID } from "@/lib/demo-session";
+import { siteConfig } from "@/lib/site-config";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = siteConfig.url;
 const sessionPath = `/session/${DEMO_SESSION_ID}`;
 
 const jsonLd = {
@@ -27,11 +28,11 @@ const jsonLd = {
         "Broadcast a local directory so others can watch it live in real time. No accounts; the session ID is the share link.",
       url: siteUrl,
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-      author: { "@type": "Organization", name: "ZenshiLabs" },
+      author: { "@type": "Organization", name: siteConfig.author },
     },
     {
       "@type": "Organization",
-      name: "ZenshiLabs",
+      name: siteConfig.author,
       url: siteUrl,
       sameAs: [CLI_REPO_URL, WEB_REPO_URL],
     },

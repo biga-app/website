@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
 import { DEMO_SESSION_ID } from "@/lib/demo-session";
+import { siteConfig } from "@/lib/site-config";
 
 export const alt = "biga: stream your saves, not your screen";
 export const size = { width: 1200, height: 630 };
@@ -18,7 +19,7 @@ const MARK_FG = "#09090b";
 
 const MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = siteConfig.url;
 const share = `${siteUrl}/session/${DEMO_SESSION_ID}`.replace(/^https?:\/\//, "");
 
 /** The pixel "b" from the site mark, with its green "just saved" cell. */

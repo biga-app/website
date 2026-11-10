@@ -3,7 +3,7 @@ title: Docker
 description: Run the whole of biga on your own machine or network with one Compose file.
 ---
 
-[biga-sh/docker](https://github.com/biga-sh/docker) runs the site and viewer,
+[biga-app/docker](https://github.com/biga-app/docker) runs the site and viewer,
 the API server, Postgres and Caddy together. It works on a public server, on
 an office network, or on one laptop.
 
@@ -18,7 +18,7 @@ Desktop is fine for trying it) and about 2 GB of RAM for the first build.
 ### Get the files and configure
 
 ```sh
-git clone https://github.com/biga-sh/docker.git biga && cd biga
+git clone https://github.com/biga-app/docker.git biga && cd biga
 ./scripts/setup.sh
 ```
 
@@ -101,8 +101,8 @@ IPv4, IPv6, intranets, VPNs and existing proxies are covered in
 | Service | Role |
 | --- | --- |
 | `caddy` | TLS, HTTP/3 and routing: `/api/sessions/*` to the server, everything else to the site. The only published ports. |
-| `server` | The Go API server: sessions, uploads, live streams. Built from [biga-sh/server](https://github.com/biga-sh/server). |
-| `web` | The site and the viewer. Built from [biga-sh/website](https://github.com/biga-sh/website). |
+| `server` | The Go API server: sessions, uploads, live streams. Built from [biga-app/server](https://github.com/biga-app/server). |
+| `web` | The site and the viewer. Built from [biga-app/website](https://github.com/biga-app/website). |
 | `postgres` | Every session, in the `pgdata` volume, on a network with no route out. |
 
 ### Secure by default

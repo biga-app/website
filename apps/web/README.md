@@ -2,7 +2,7 @@
 
 The Next.js app behind biga: the landing page, the documentation and the
 read-only session viewer. Sessions come from the Go
-[API server](https://github.com/biga-sh/server), which `/api/sessions/*` is
+[API server](https://github.com/biga-app/server), which `/api/sessions/*` is
 proxied to.
 
 See the [repository README](../../README.md) for setup, configuration and how

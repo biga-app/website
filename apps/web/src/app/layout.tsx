@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, Geist, Geist_Mono, Manrope } from "next/font/googl
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,7 @@ const manrope = Manrope({
   variable: "--font-manrope",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = siteConfig.url;
 const title = "biga: stream your saves, not your screen";
 const description =
   "Broadcast the files you're working on to a browser tab. Run one command, share the link, and anyone can follow along as you save. Read-only, syntax-highlighted, no account or install.";
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
     "mentoring",
     "developer tools",
   ],
-  authors: [{ name: "ZenshiLabs" }],
+  authors: [{ name: siteConfig.author }],
   openGraph: {
     type: "website",
     siteName: "biga",

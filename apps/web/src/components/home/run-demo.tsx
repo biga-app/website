@@ -440,7 +440,7 @@ export function RunDemo({ host }: { host: string }) {
                         spellCheck={false}
                         className={cn(
                           BARE_INPUT,
-                          "biga-shrink block text-[12.5px] text-white caret-[var(--brand-mark)] [--shrink:0.78] placeholder:text-white/40 md:text-[12.5px]"
+                          "biga-apprink block text-[12.5px] text-white caret-[var(--brand-mark)] [--shrink:0.78] placeholder:text-white/40 md:text-[12.5px]"
                         )}
                       />
                     </span>
@@ -479,7 +479,7 @@ export function RunDemo({ host }: { host: string }) {
                     spellCheck={false}
                     className={cn(
                       BARE_INPUT,
-                      "biga-shrink placeholder:text-muted-foreground block font-mono text-xs [--shrink:0.75] md:text-xs"
+                      "biga-apprink placeholder:text-muted-foreground block font-mono text-xs [--shrink:0.75] md:text-xs"
                     )}
                   />
                 </label>

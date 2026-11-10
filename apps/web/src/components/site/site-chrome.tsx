@@ -5,6 +5,7 @@ import { GitHubGlyph } from "@/components/landing/primitives";
 import { BigaLogo, BigaMark } from "@/components/site/biga-mark";
 import { Frame, HatchBand, INSET } from "@/components/site/frame";
 import { CLI_REPO_URL, ISSUES_URL, RELEASES_URL, SECTIONS, WEB_REPO_URL } from "@/components/site/links";
+import { siteConfig } from "@/lib/site-config";
 import { ThemeSwitch } from "@/components/site/theme-switch";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
@@ -158,7 +159,7 @@ export function SiteFooter() {
           </span>
         </div>
         <div className="border-rail font-body text-muted-foreground flex flex-wrap items-center justify-between gap-2 border-t px-4 py-4 text-xs sm:px-8 lg:px-12">
-          <span>MIT licensed. © 2026 ZenshiLabs</span>
+          <span>MIT licensed. © 2026 {siteConfig.author}</span>
           <span>Made for people who teach, pair and build in public.</span>
         </div>
       </Frame>

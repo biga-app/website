@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 export const INSTALL = {
   unix: {
     label: "macOS / Linux",
-    command: "curl -fsSL https://raw.githubusercontent.com/biga-sh/cli/main/install.sh | sh",
+    command: "curl -fsSL https://raw.githubusercontent.com/biga-app/cli/main/install.sh | sh",
   },
   windows: {
     label: "Windows",
-    command: "irm https://raw.githubusercontent.com/biga-sh/cli/main/install.ps1 | iex",
+    command: "irm https://raw.githubusercontent.com/biga-app/cli/main/install.ps1 | iex",
   },
   go: {
     label: "Go",
-    command: "go install github.com/biga-sh/cli/cmd/biga@latest",
+    command: "go install github.com/biga-app/cli/cmd/biga@latest",
   },
 } as const;
 

@@ -4,7 +4,7 @@ description: Install the biga CLI on macOS, Linux, Windows or FreeBSD, and verif
 ---
 
 biga is distributed through
-[GitHub releases](https://github.com/biga-sh/cli/releases/latest). Each
+[GitHub releases](https://github.com/biga-app/cli/releases/latest). Each
 release has builds for Linux (x64, arm64, armv7), macOS (one universal
 binary), Windows (x64, arm64) and FreeBSD (x64, arm64).
 
@@ -14,7 +14,7 @@ binary), Windows (x64, arm64) and FreeBSD (x64, arm64).
 <Tab value="macOS, Linux, FreeBSD">
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/biga-sh/cli/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/biga-app/cli/main/install.sh | sh
 ```
 
 Installs to `~/.local/bin`.
@@ -23,7 +23,7 @@ Installs to `~/.local/bin`.
 <Tab value="Windows">
 
 ```powershell
-irm https://raw.githubusercontent.com/biga-sh/cli/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/biga-app/cli/main/install.ps1 | iex
 ```
 
 Installs to `%LOCALAPPDATA%\Programs\biga` and adds it to your `PATH`.
@@ -55,7 +55,7 @@ sudo apt install ./biga_1.0.0_amd64.deb
 **With Go** 1.26 or newer:
 
 ```sh
-go install github.com/biga-sh/cli/cmd/biga@latest
+go install github.com/biga-app/cli/cmd/biga@latest
 ```
 
 ## Verify a download
@@ -67,7 +67,7 @@ commit.
 
 ```sh
 cosign verify-blob \
-  --certificate-identity "https://github.com/biga-sh/cli/.github/workflows/release.yml@refs/tags/v1.0.0" \
+  --certificate-identity "https://github.com/biga-app/cli/.github/workflows/release.yml@refs/tags/v1.0.0" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   --bundle checksums.txt.sigstore.json checksums.txt
 sha256sum --check --ignore-missing checksums.txt
@@ -76,7 +76,7 @@ sha256sum --check --ignore-missing checksums.txt
 Or check one file's build provenance with the GitHub CLI:
 
 ```sh
-gh attestation verify biga_1.0.0_linux_amd64.tar.gz --repo biga-sh/cli
+gh attestation verify biga_1.0.0_linux_amd64.tar.gz --repo biga-app/cli
 ```
 
 Every archive also ships with an SBOM (`*.sbom.json`) listing its

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 
+import { siteConfig } from "@/lib/site-config";
 import { source } from "@/lib/source";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = siteConfig.url;
 
 /** Only the stable, indexable surfaces. Sessions are ephemeral and noindex. */
 export default function sitemap(): MetadataRoute.Sitemap {

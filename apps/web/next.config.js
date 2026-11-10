@@ -7,11 +7,11 @@ import { createMDX } from "fumadocs-mdx/next";
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Where the Go API server (github.com/biga-sh/server) answers. `/api/sessions`
+ * Where the Go API server (github.com/biga-app/server) answers. `/api/sessions`
  * is proxied there, so the viewer and the CLI can keep talking to this origin.
  * In development it defaults to a server on :8080; in production it is only
  * proxied when set, because a reverse proxy in front of both (see
- * github.com/biga-sh/docker) or NEXT_PUBLIC_BIGA_API_URL usually covers it.
+ * github.com/biga-app/docker) or NEXT_PUBLIC_BIGA_API_URL usually covers it.
  */
 const serverUrl =
     process.env.BIGA_SERVER_URL ??

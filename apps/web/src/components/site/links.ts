@@ -1,6 +1,8 @@
+import { siteConfig } from "@/lib/site-config";
+
 /** Where biga lives. The CLI and the server are separate repositories. */
-export const CLI_REPO_URL = "https://github.com/biga-sh/cli";
-export const WEB_REPO_URL = "https://github.com/biga-sh/website";
+export const CLI_REPO_URL = siteConfig.cliRepoUrl;
+export const WEB_REPO_URL = siteConfig.webRepoUrl;
 export const RELEASES_URL = `${CLI_REPO_URL}/releases/latest`;
 export const ISSUES_URL = `${CLI_REPO_URL}/issues`;
 

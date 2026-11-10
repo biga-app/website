@@ -2,7 +2,7 @@
 
 # The site and viewer as a self-contained Node server (Next's standalone
 # output). Sessions live in the Go server; put a reverse proxy in front of
-# both that sends /api/sessions/* to it (see github.com/biga-sh/docker).
+# both that sends /api/sessions/* to it (see github.com/biga-app/docker).
 ARG NODE_VERSION=22
 
 FROM node:${NODE_VERSION}-alpine AS base
