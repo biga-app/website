@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Checkpoint, CheckpointSummary } from "@biga/types";
+import { summarizeCheckpoint, type Checkpoint, type CheckpointSummary } from "@biga/types";
 
 interface HistoryState {
     /**
@@ -43,12 +43,6 @@ interface HistoryState {
     clear: () => void;
 }
 
-function toSummary(checkpoint: Checkpoint): CheckpointSummary {
-    const { changes: _changes, ...summary } = checkpoint;
-    void _changes;
-    return summary;
-}
-
 export const useHistoryStore = create<HistoryState>((set) => ({
     checkpoints: [],
     bySeq: new Map(),
@@ -71,7 +65,7 @@ export const useHistoryStore = create<HistoryState>((set) => ({
             const bySeq = new Map(state.bySeq);
             bySeq.set(checkpoint.seq, checkpoint);
             return {
-                checkpoints: [toSummary(checkpoint), ...state.checkpoints],
+                checkpoints: [summarizeCheckpoint(checkpoint), ...state.checkpoints],
                 bySeq,
                 newWhileBrowsing:
                     state.selectedSeq === null

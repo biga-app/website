@@ -25,13 +25,3 @@ export type FileContent = z.infer<typeof FileContentSchema>;
 export const FileHistoryResponseSchema = z.object({ history: z.array(FileHistoryEntrySchema) });
 
 export const CheckpointsResponseSchema = z.object({ checkpoints: z.array(CheckpointSummarySchema) });
-
-export const ServerLimits = {
-    eagerMaxBytes: 1536 * 1024,
-    eagerMaxFiles: 400,
-    maxFileBytes: 6 * 1024 * 1024,
-    maxSnapshotFiles: 50_000,
-    maxCheckpointEntries: 10_000,
-    subscriberBacklog: 64,
-    keepaliveMs: 15_000,
-} as const;

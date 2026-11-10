@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import {
+    ancestorPaths,
     baseName,
     flattenTree,
     indexTree,
@@ -146,12 +147,8 @@ export const useFileTreeStore = create<FileTreeState>((set) => ({
     expandAncestors: (filePath) =>
         set((state) => {
             const expandedPaths = new Set(state.expandedPaths);
-            const segments = filePath.split("/");
-            segments.pop();
-            let prefix = "";
-            for (const segment of segments) {
-                prefix = prefix ? `${prefix}/${segment}` : segment;
-                expandedPaths.add(prefix);
+            for (const ancestor of ancestorPaths(filePath)) {
+                expandedPaths.add(ancestor);
             }
             return {
                 expandedPaths,

@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { produce } from "immer";
-import type { SessionResponse, SessionStatus } from "@biga/types";
-
-export type LoadMode = "eager" | "lazy";
+import type { LoadMode, SessionResponse, SessionStatus } from "@biga/types";
 
 interface SessionState {
     sessionId: string | null;
