@@ -46,3 +46,6 @@ export const SSEEventSchema = z.discriminatedUnion("type", [
     SessionEndedEventSchema,
 ]);
 export type SSEEvent = z.infer<typeof SSEEventSchema>;
+
+export const StreamEventSchema = SSEEventSchema;
+export type StreamEvent = SSEEvent;

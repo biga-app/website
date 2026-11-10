@@ -3,6 +3,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "allowImportingTsExtensions": true,
     "allowJs": true,
     "esModuleInterop": true,
     "incremental": false,
