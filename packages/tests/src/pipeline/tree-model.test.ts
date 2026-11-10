@@ -333,3 +333,11 @@ test("a 50,000 file tree loads and patches within the budget", () => {
     assert.ok(patchMs < 100, `patch took ${patchMs}ms`);
     assert.ok(rowsMs < 100, `rows took ${rowsMs}ms`);
 });
+
+test("filePaths lists every file and no directory", () => {
+    const model = createTreeModel();
+    model.apply(patchesFromChanges([makeChange("a/b.ts", "added"), makeChange("a/c/d.ts", "added"), makeChange("e.ts", "added")]));
+    assert.deepEqual(model.filePaths().sort(), ["a/b.ts", "a/c/d.ts", "e.ts"]);
+    model.apply(patchesFromChanges([makeChange("e.ts", "deleted")]));
+    assert.deepEqual(model.filePaths().sort(), ["a/b.ts", "a/c/d.ts"]);
+});

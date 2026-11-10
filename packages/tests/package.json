@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --experimental-strip-types --test \"src/**/*.test.mjs\" \"src/**/*.test.ts\"",
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "fixture": "node --experimental-strip-types src/dev/fixture-server.ts"
   },
   "dependencies": {
     "@biga/types": "workspace:*",
