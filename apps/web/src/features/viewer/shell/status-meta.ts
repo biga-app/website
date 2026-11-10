@@ -1,4 +1,4 @@
-import type { StreamStatus } from "@biga/types";
+import type { StreamStatus } from "@biga/types/stream";
 
 export const STATUS_LABELS: Record<StreamStatus, string> = {
     connecting: "Connecting",

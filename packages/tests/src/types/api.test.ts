@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { ApiRequestError } from "@biga/types";
+import { ApiRequestError } from "@biga/types/api";
 
 test("a request error carries its kind, status and retry delay", () => {
     const error = new ApiRequestError("rate_limited", "slow down", 429, 2000);

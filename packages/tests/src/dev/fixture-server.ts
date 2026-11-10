@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { parseArgs } from "node:util";
 
-import type { Checkpoint, CheckpointChange, FileNode, SessionResponse } from "@biga/types";
+import type { Checkpoint, CheckpointChange } from "@biga/types/checkpoint";
+import type { FileNode } from "@biga/types/file";
+import type { SessionResponse } from "@biga/types/session";
 
 type Scenario = "demo" | "big" | "ended";
 

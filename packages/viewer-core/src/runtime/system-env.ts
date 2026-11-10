@@ -1,4 +1,4 @@
-import type { Clock } from "@biga/types";
+import type { Clock } from "@biga/types/stream";
 
 export const systemClock: Clock = {
     now: () => Date.now(),

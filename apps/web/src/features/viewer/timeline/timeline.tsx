@@ -1,6 +1,6 @@
 "use client";
 
-import type { Checkpoint, CheckpointChange, CheckpointSummary } from "@biga/types";
+import type { Checkpoint, CheckpointChange, CheckpointSummary } from "@biga/types/checkpoint";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { GitGraphIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +13,7 @@ import { PanelHeader } from "@/components/viewer/panel-header";
 import { CHANGE_META, formatRelativeTime } from "@/lib/change-meta";
 import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
-import { baseName } from "@biga/types";
+import { baseName } from "@biga/types/file-identity";
 
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
 import { useViewerView } from "../runtime/navigation-context";

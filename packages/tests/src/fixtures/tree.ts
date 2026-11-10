@@ -1,4 +1,4 @@
-import type { FileNode } from "@biga/types";
+import type { FileNode } from "@biga/types/file";
 
 import { hash } from "./hash.ts";
 

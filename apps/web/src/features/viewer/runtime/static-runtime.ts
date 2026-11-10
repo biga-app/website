@@ -1,4 +1,4 @@
-import type { ApiClient } from "@biga/types";
+import type { ApiClient } from "@biga/types/content";
 
 import { createRuntimeCore, type SessionRuntime } from "./runtime";
 

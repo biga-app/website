@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChangeType } from "@biga/types";
+import type { ChangeType } from "@biga/types/checkpoint";
 import { useMemo } from "react";
 
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";

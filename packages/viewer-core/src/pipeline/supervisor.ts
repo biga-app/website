@@ -1,13 +1,9 @@
-import {
-    ApiRequestError,
-    type ApiErrorKind,
-    type Checkpoint,
-    type SessionState,
-    type StreamEvent,
-    type StreamStatus,
-    type SupervisorOptions,
-    type TransportEvent,
-} from "@biga/types";
+import { ApiRequestError, type ApiErrorKind } from "@biga/types/api";
+import type { Checkpoint } from "@biga/types/checkpoint";
+import type { StreamEvent } from "@biga/types/events";
+import type { SupervisorOptions } from "@biga/types/pipeline";
+import type { SessionState } from "@biga/types/state";
+import type { StreamStatus, TransportEvent } from "@biga/types/stream";
 
 import { createDecoder } from "./decoder.ts";
 import { createSequencer } from "./sequencer.ts";

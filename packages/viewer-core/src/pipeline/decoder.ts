@@ -1,4 +1,5 @@
-import { StreamEventSchema, type DecodeResult, type DecoderOptions } from "@biga/types";
+import { StreamEventSchema } from "@biga/types/events";
+import type { DecodeResult, DecoderOptions } from "@biga/types/pipeline";
 
 export function decodeFrame(name: string, data: string): DecodeResult {
     let json: unknown;

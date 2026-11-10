@@ -1,4 +1,5 @@
-import type { Checkpoint, CheckpointSummary, HistoryStoreState } from "@biga/types";
+import type { Checkpoint, CheckpointSummary } from "@biga/types/checkpoint";
+import type { HistoryStoreState } from "@biga/types/stores";
 import { createStore } from "zustand/vanilla";
 
 const MAX_LOADED = 20;

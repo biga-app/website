@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { Batch, Hydration } from "@biga/types";
+import type { Batch, Hydration } from "@biga/types/pipeline";
 import { createCoalescer } from "@biga/viewer-core/pipeline/coalescer";
 import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 

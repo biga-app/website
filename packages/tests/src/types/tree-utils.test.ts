@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { firstFilePath, firstViewableChange, preferredFilePath } from "@biga/types";
+import { firstFilePath, firstViewableChange, preferredFilePath } from "@biga/types/tree-utils";
 
 import { directoryNode, fileNode, rootNode } from "../fixtures/tree.ts";
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { TreeReader } from "@biga/types";
+import type { TreeReader } from "@biga/types/stores";
 import { pickInitialFile } from "@biga/viewer-core/runtime/initial-file";
 
 function reader(files: Record<string, { binary?: boolean }>): TreeReader {

@@ -1,15 +1,5 @@
-import {
-    ancestorPaths,
-    baseName,
-    KIND_DIRECTORY,
-    KIND_FILE,
-    parentPath,
-    ROOT_PATH,
-    type TreeEntry,
-    type TreePatch,
-    type TreePosition,
-    type TreeTable,
-} from "@biga/types";
+import { ancestorPaths, baseName, parentPath, ROOT_PATH } from "@biga/types/file-identity";
+import { KIND_DIRECTORY, KIND_FILE, type TreeEntry, type TreePatch, type TreePosition, type TreeTable } from "@biga/types/tree-table";
 
 import { compareSiblings } from "./tree-table.ts";
 

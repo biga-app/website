@@ -1,6 +1,6 @@
 "use client";
 
-import type { StreamStatus } from "@biga/types";
+import type { StreamStatus } from "@biga/types/stream";
 import { InfoIcon, RotateCwIcon, WifiOffIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

@@ -1,4 +1,4 @@
-import type { ChangeType } from "@biga/types";
+import type { ChangeType } from "@biga/types/checkpoint";
 
 /**
  * Visual treatment for each change kind (source-control decorations). Colour

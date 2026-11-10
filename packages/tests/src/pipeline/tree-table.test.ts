@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { KIND_DIRECTORY, KIND_FILE, KIND_IGNORED } from "@biga/types";
+import { KIND_DIRECTORY, KIND_FILE, KIND_IGNORED } from "@biga/types/tree-table";
 
 import { buildTreeTable, compareSiblings, patchesFromChanges } from "@biga/viewer-core/pipeline/tree-table";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SidebarView } from "@biga/types";
+import type { SidebarView } from "@biga/types/stores";
 import { FilesIcon, GitGraphIcon } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";

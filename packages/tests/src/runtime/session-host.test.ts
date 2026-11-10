@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { Batch } from "@biga/types";
-import { ApiRequestError, PROTOCOL_VERSION } from "@biga/types";
+import type { Batch } from "@biga/types/pipeline";
+import { ApiRequestError } from "@biga/types/api";
+import { PROTOCOL_VERSION } from "@biga/types/worker";
 import { createInThreadPort } from "@biga/viewer-core/runtime/session-host";
 import { createSessionClient } from "@biga/viewer-core/runtime/session-client";
 

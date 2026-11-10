@@ -1,6 +1,6 @@
 "use client";
 
-import type { StreamStatus } from "@biga/types";
+import type { StreamStatus } from "@biga/types/stream";
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
 import { LinkIcon, LocateFixedIcon, SearchIcon } from "lucide-react";
 

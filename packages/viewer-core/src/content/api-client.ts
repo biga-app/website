@@ -1,21 +1,8 @@
-import {
-    ApiRequestError,
-    CheckpointSchema,
-    CheckpointsResponseSchema,
-    FileContentSchema,
-    FileHistoryResponseSchema,
-    SessionStateSchema,
-    isValidHash,
-    type ApiClient,
-    type ApiClientOptions,
-    type ApiErrorKind,
-    type Checkpoint,
-    type CheckpointSummary,
-    type FileContent,
-    type FileHistoryEntry,
-    type RequestOptions,
-    type SessionState,
-} from "@biga/types";
+import { ApiRequestError, type ApiErrorKind } from "@biga/types/api";
+import { CheckpointSchema, type Checkpoint, type CheckpointSummary, type FileHistoryEntry } from "@biga/types/checkpoint";
+import type { ApiClient, ApiClientOptions, RequestOptions } from "@biga/types/content";
+import { isValidHash } from "@biga/types/file-identity";
+import { CheckpointsResponseSchema, FileContentSchema, FileHistoryResponseSchema, SessionStateSchema, type FileContent, type SessionState } from "@biga/types/state";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
 

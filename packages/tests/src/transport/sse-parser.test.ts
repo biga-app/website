@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { SseItem } from "@biga/types";
+import type { SseItem } from "@biga/types/stream";
 import { createSseParser } from "@biga/viewer-core/transport/sse-parser";
 
 function parseAll(chunks: string[]): SseItem[] {

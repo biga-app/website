@@ -1,4 +1,4 @@
-import { baseName } from "@biga/types";
+import { baseName } from "@biga/types/file-identity";
 import { toast } from "sonner";
 
 /** Copy text to the clipboard (best-effort). */

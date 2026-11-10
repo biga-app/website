@@ -1,4 +1,4 @@
-import type { SseItem } from "@biga/types";
+import type { SseItem } from "@biga/types/stream";
 
 const DEFAULT_EVENT = "message";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import type { BlobEntry } from "@biga/types";
+import type { BlobEntry } from "@biga/types/content";
 import { useCallback, useEffect, useState } from "react";
 
 import { useRuntime } from "../runtime/runtime-provider";

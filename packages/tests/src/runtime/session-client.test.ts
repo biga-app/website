@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { Batch, SessionPort, WorkerRequest, WorkerResponse } from "@biga/types";
-import { PROTOCOL_VERSION } from "@biga/types";
+import type { Batch } from "@biga/types/pipeline";
+import type { SessionPort, WorkerRequest, WorkerResponse } from "@biga/types/worker";
+import { PROTOCOL_VERSION } from "@biga/types/worker";
 import { createSessionClient } from "@biga/viewer-core/runtime/session-client";
 
 function fakePort() {

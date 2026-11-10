@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { baseName, indexTree, type CheckpointChange, type FileNode } from "@biga/types";
+import type { CheckpointChange } from "@biga/types/checkpoint";
+import type { FileNode } from "@biga/types/file";
+import { baseName } from "@biga/types/file-identity";
+import { indexTree } from "@biga/types/tree-utils";
 
 import { createTreeModel } from "@biga/viewer-core/pipeline/tree-model";
 import { buildTreeTable, patchesFromChanges } from "@biga/viewer-core/pipeline/tree-table";

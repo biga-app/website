@@ -39,13 +39,10 @@ export const SessionEndedEventSchema = z.object({
 });
 export type SessionEndedEvent = z.infer<typeof SessionEndedEventSchema>;
 
-export const SSEEventSchema = z.discriminatedUnion("type", [
+export const StreamEventSchema = z.discriminatedUnion("type", [
     ConnectedEventSchema,
     CheckpointEventSchema,
     SnapshotEventSchema,
     SessionEndedEventSchema,
 ]);
-export type SSEEvent = z.infer<typeof SSEEventSchema>;
-
-export const StreamEventSchema = SSEEventSchema;
-export type StreamEvent = SSEEvent;
+export type StreamEvent = z.infer<typeof StreamEventSchema>;

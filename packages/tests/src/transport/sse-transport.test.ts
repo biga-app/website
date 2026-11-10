@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createSseTransport } from "@biga/viewer-core/transport/sse-transport";
-import type { TransportEvent } from "@biga/types";
+import type { TransportEvent } from "@biga/types/stream";
 
 const encoder = new TextEncoder();
 

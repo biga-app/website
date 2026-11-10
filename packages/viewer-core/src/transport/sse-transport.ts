@@ -1,4 +1,4 @@
-import type { SseTransportOptions, StreamTransport, TransportEvent } from "@biga/types";
+import type { SseTransportOptions, StreamTransport, TransportEvent } from "@biga/types/stream";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
 import { createSseParser } from "./sse-parser.ts";

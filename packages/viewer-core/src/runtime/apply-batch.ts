@@ -1,4 +1,4 @@
-import type { Batch } from "@biga/types";
+import type { Batch } from "@biga/types/pipeline";
 
 import type { createConnectionStore } from "../stores/connection-store.ts";
 import type { createHistoryStore } from "../stores/history-store.ts";

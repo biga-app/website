@@ -1,4 +1,6 @@
-import { summarizeCheckpoint, type Checkpoint, type CheckpointChange, type FileNode, type SessionResponse } from "@biga/types";
+import { summarizeCheckpoint, type Checkpoint, type CheckpointChange } from "@biga/types/checkpoint";
+import type { FileNode } from "@biga/types/file";
+import type { SessionResponse } from "@biga/types/session";
 import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 
 import type { SessionRuntime } from "@/features/viewer/runtime/runtime";

@@ -1,4 +1,4 @@
-import type { SessionResponse } from "@biga/types";
+import type { SessionResponse } from "@biga/types/session";
 
 const ISO_TIMESTAMP_RE = /^(?:session\s+)?(\d{4}-\d{2}-\d{2}T[\d:.]+Z?)$/i;
 

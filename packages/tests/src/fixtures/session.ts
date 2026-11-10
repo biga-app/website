@@ -1,4 +1,5 @@
-import type { SessionResponse, SessionState } from "@biga/types";
+import type { SessionResponse } from "@biga/types/session";
+import type { SessionState } from "@biga/types/state";
 
 import { makeSummary, TIME } from "./checkpoints.ts";
 import { hash } from "./hash.ts";

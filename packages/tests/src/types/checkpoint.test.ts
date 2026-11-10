@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { summarizeCheckpoint } from "@biga/types";
+import { summarizeCheckpoint } from "@biga/types/checkpoint";
 
 import { makeChange, makeCheckpoint, TIME } from "../fixtures/checkpoints.ts";
 

@@ -1,11 +1,3 @@
-import summary from "./summary.json";
-
-/**
- * What the landing page's server-rendered copy needs from the showcase
- * snapshot, kept apart from `fixture.json` so it costs nothing to import.
- */
-export const SHOWCASE = summary;
-
 /** The CLI's own size formatter (1024-based, one decimal), so the page prints what it prints. */
 export function humanBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

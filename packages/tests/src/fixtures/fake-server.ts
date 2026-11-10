@@ -1,4 +1,4 @@
-import type { SessionState } from "@biga/types";
+import type { SessionState } from "@biga/types/state";
 
 import type { Frame } from "./frames.ts";
 import { makeState } from "./session.ts";

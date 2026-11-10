@@ -12,8 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { languageForPath } from "@/lib/languages";
 import { resolveEditorTheme } from "@/lib/shiki";
 
-export { languageForPath };
-
 export const MONACO_OPTIONS = {
   readOnly: true,
   domReadOnly: true,

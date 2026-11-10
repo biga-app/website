@@ -1,6 +1,6 @@
 "use client";
 
-import { baseName } from "@biga/types";
+import { baseName } from "@biga/types/file-identity";
 import { XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 

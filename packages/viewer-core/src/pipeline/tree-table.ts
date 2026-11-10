@@ -1,4 +1,6 @@
-import { KIND_DIRECTORY, KIND_FILE, KIND_IGNORED, type CheckpointChange, type FileNode, type TreePatch, type TreeTable } from "@biga/types";
+import type { CheckpointChange } from "@biga/types/checkpoint";
+import type { FileNode } from "@biga/types/file";
+import { KIND_DIRECTORY, KIND_FILE, KIND_IGNORED, type TreePatch, type TreeTable } from "@biga/types/tree-table";
 
 const collator = new Intl.Collator();
 

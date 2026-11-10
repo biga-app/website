@@ -5,7 +5,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
 import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { baseName } from "@biga/types";
+import { baseName } from "@biga/types/file-identity";
 
 import { useRuntime } from "../runtime/runtime-provider";
 

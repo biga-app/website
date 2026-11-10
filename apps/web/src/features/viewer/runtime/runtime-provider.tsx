@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import type { ReadableStore } from "@biga/types";
+import type { ReadableStore } from "@biga/types/stores";
 import { viewerParsers } from "@biga/viewer-core/location/search-params";
 import { useQueryState } from "nuqs";
 

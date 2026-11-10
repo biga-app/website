@@ -1,4 +1,4 @@
-import type { BlobEntry, BlobStoreOptions } from "@biga/types";
+import type { BlobEntry, BlobStoreOptions } from "@biga/types/content";
 
 const BYTES_PER_UNIT = 2;
 const DEFAULT_BUDGET_BYTES = 32 * 1024 * 1024;

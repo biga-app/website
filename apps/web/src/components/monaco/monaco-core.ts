@@ -1,5 +1,3 @@
-import * as monaco from "monaco-editor/editor/editor.api";
-
 import "monaco-editor/editor/browser/coreCommands";
 import "monaco-editor/editor/browser/widget/codeEditor/codeEditorWidget";
 import "monaco-editor/editor/browser/widget/diffEditor/diffEditor.contribution";
@@ -20,5 +18,3 @@ import "monaco-editor/editor/contrib/unicodeHighlighter/browser/unicodeHighlight
 import "monaco-editor/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode";
 import "monaco-editor/editor/standalone/browser/quickAccess/standaloneGotoLineQuickAccess";
 import "monaco-editor/editor/common/standaloneStrings";
-
-export { monaco };

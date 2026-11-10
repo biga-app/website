@@ -1,4 +1,4 @@
-import type { CompareBase, ViewerView } from "@biga/types";
+import type { CompareBase, ViewerView } from "@biga/types/viewer-location";
 import { createParser, createSearchParamsCache, createSerializer, parseAsString } from "nuqs/server";
 
 const MAX_SEQ = 2147483647;

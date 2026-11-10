@@ -1,4 +1,4 @@
-import type { Clock } from "@biga/types";
+import type { Clock } from "@biga/types/stream";
 
 type Timer = { id: number; at: number; run: () => void };
 

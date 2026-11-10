@@ -1,4 +1,4 @@
-import type { WorkspaceStoreState } from "@biga/types";
+import type { WorkspaceStoreState } from "@biga/types/stores";
 import { createStore } from "zustand/vanilla";
 
 function neighbour(tabs: readonly string[], index: number): string | null {

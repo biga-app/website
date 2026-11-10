@@ -1,15 +1,8 @@
-import {
-    firstViewableChange,
-    summarizeCheckpoint,
-    type Batch,
-    type Checkpoint,
-    type CoalescerOptions,
-    type CheckpointSummary,
-    type Hydration,
-    type StreamStatus,
-    type TreePatch,
-    type TreeTable,
-} from "@biga/types";
+import { summarizeCheckpoint, type Checkpoint, type CheckpointSummary } from "@biga/types/checkpoint";
+import type { Batch, CoalescerOptions, Hydration } from "@biga/types/pipeline";
+import type { StreamStatus } from "@biga/types/stream";
+import type { TreePatch, TreeTable } from "@biga/types/tree-table";
+import { firstViewableChange } from "@biga/types/tree-utils";
 
 import { patchesFromChanges } from "./tree-table.ts";
 

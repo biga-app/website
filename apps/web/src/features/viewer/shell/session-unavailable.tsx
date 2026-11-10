@@ -6,7 +6,7 @@ import Link from "next/link";
 import { JoinForm } from "@/components/landing/join-form";
 import { BigaMark } from "@/components/site/biga-mark";
 import { Button } from "@/components/ui/button";
-import type { ApiErrorKind } from "@biga/types";
+import type { ApiErrorKind } from "@biga/types/api";
 
 const SERVER_COPY = {
     icon: TriangleAlertIcon,

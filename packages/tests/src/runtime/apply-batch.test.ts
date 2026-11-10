@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { Batch } from "@biga/types";
+import type { Batch } from "@biga/types/pipeline";
 import { applyBatch, type WritableStores } from "@biga/viewer-core/runtime/apply-batch";
 import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 import { createConnectionStore } from "@biga/viewer-core/stores/connection-store";

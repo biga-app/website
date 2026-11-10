@@ -1,4 +1,5 @@
-import type { TreeStoreState, TreeTable } from "@biga/types";
+import type { TreeStoreState } from "@biga/types/stores";
+import type { TreeTable } from "@biga/types/tree-table";
 import { createStore } from "zustand/vanilla";
 
 import { createTreeModel } from "../pipeline/tree-model.ts";

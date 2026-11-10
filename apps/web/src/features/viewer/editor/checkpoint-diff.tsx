@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import { useEffect } from "react";
 
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
-import { firstViewableChange, type CheckpointChange } from "@biga/types";
+import type { CheckpointChange } from "@biga/types/checkpoint";
+import { firstViewableChange } from "@biga/types/tree-utils";
 
 import { CodeSkeleton } from "@/components/viewer/code-skeleton";
 import { EmptyState } from "@/components/viewer/empty-state";

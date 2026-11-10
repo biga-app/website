@@ -1,6 +1,6 @@
 "use client";
 
-import type { StreamStatus } from "@biga/types";
+import type { StreamStatus } from "@biga/types/stream";
 import { PanelLeftIcon } from "lucide-react";
 import Link from "next/link";
 

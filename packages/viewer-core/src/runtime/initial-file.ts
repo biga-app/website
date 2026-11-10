@@ -1,4 +1,5 @@
-import { isReadmeName, type TreeReader } from "@biga/types";
+import type { TreeReader } from "@biga/types/stores";
+import { isReadmeName } from "@biga/types/tree-utils";
 
 export function pickInitialFile(reader: TreeReader): string | undefined {
     const paths = reader.filePaths();

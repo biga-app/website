@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { Checkpoint, SessionState, SupervisorOptions, TransportEvent } from "@biga/types";
-import { ApiRequestError } from "@biga/types";
+import type { Checkpoint } from "@biga/types/checkpoint";
+import type { SupervisorOptions } from "@biga/types/pipeline";
+import type { SessionState } from "@biga/types/state";
+import type { TransportEvent } from "@biga/types/stream";
+import { ApiRequestError } from "@biga/types/api";
 import { backoffMs, createSupervisor, HEALTHY_MS, MAX_ATTEMPTS, WATCHDOG_MS } from "@biga/viewer-core/pipeline/supervisor";
 import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 

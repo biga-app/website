@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiRequestError } from "@biga/types";
+import { ApiRequestError } from "@biga/types/api";
 import { useCallback, useEffect, useState } from "react";
 
 import { useRuntime } from "../runtime/runtime-provider";

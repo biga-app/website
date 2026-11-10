@@ -1,6 +1,7 @@
 "use client";
 
-import { KIND_DIRECTORY, KIND_IGNORED, type ChangeType, type TreeEntry } from "@biga/types";
+import type { ChangeType } from "@biga/types/checkpoint";
+import { KIND_DIRECTORY, KIND_IGNORED, type TreeEntry } from "@biga/types/tree-table";
 import { defaultRangeExtractor, useVirtualizer, type Range } from "@tanstack/react-virtual";
 import { ChevronRight, ClockIcon, CopyIcon, DownloadIcon, FileTextIcon, FolderClosedIcon, ListCollapseIcon, SearchIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type HTMLAttributes } from "react";

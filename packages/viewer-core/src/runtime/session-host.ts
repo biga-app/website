@@ -1,10 +1,4 @@
-import {
-    PROTOCOL_VERSION,
-    type SessionHostEnv,
-    type SessionPort,
-    type WorkerRequest,
-    type WorkerResponse,
-} from "@biga/types";
+import { PROTOCOL_VERSION, type SessionHostEnv, type SessionPort, type WorkerRequest, type WorkerResponse } from "@biga/types/worker";
 
 import { createApiClient } from "../content/api-client.ts";
 import { createCoalescer } from "../pipeline/coalescer.ts";

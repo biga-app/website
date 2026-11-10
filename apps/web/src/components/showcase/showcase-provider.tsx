@@ -1,6 +1,6 @@
 "use client";
 
-import type { ViewerNavigation } from "@biga/types";
+import type { ViewerNavigation } from "@biga/types/viewer-location";
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 
 import { NavigationProvider } from "@/features/viewer/runtime/navigation-context";

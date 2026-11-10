@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { ApiRequestError } from "@biga/types";
+import { ApiRequestError } from "@biga/types/api";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
 
 import { makeChange, makeCheckpoint, makeSummary } from "../fixtures/checkpoints.ts";

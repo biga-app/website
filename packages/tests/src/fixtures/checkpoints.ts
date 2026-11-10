@@ -1,4 +1,4 @@
-import type { Checkpoint, CheckpointChange, CheckpointSummary } from "@biga/types";
+import type { Checkpoint, CheckpointChange, CheckpointSummary } from "@biga/types/checkpoint";
 
 import { hash } from "./hash.ts";
 

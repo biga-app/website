@@ -1,7 +1,8 @@
 "use client";
 
-import type { CompareBase, FileHistoryEntry } from "@biga/types";
-import { baseName } from "@biga/types";
+import type { FileHistoryEntry } from "@biga/types/checkpoint";
+import type { CompareBase } from "@biga/types/viewer-location";
+import { baseName } from "@biga/types/file-identity";
 import { CheckIcon, FlagIcon, HistoryIcon, RotateCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 

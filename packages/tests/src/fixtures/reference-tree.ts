@@ -1,4 +1,4 @@
-import type { FileNode } from "@biga/types";
+import type { FileNode } from "@biga/types/file";
 
 export type FlatNode = { node: FileNode; depth: number };
 

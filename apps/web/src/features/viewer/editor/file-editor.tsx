@@ -1,7 +1,8 @@
 "use client";
 
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
-import { baseName, type CompareBase } from "@biga/types";
+import { baseName } from "@biga/types/file-identity";
+import type { CompareBase } from "@biga/types/viewer-location";
 import { baseToRef } from "@biga/viewer-core/location/compare-base";
 import {
     ChevronDownIcon,

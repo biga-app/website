@@ -1,4 +1,4 @@
-import type { CompareBase } from "@biga/types";
+import type { CompareBase } from "@biga/types/viewer-location";
 
 const START_REF = "0";
 

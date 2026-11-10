@@ -1,4 +1,4 @@
-import type { SessionStoreState } from "@biga/types";
+import type { SessionStoreState } from "@biga/types/stores";
 import { createStore } from "zustand/vanilla";
 
 export function createSessionStore() {

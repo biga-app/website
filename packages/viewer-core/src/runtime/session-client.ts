@@ -1,11 +1,4 @@
-import {
-    PROTOCOL_VERSION,
-    type SessionClientOptions,
-    type SessionConfig,
-    type SessionPort,
-    type WorkerRequest,
-    type WorkerResponse,
-} from "@biga/types";
+import { PROTOCOL_VERSION, type SessionClientOptions, type SessionConfig, type SessionPort, type WorkerRequest, type WorkerResponse } from "@biga/types/worker";
 
 type Message<Type extends WorkerRequest["type"]> = Omit<Extract<WorkerRequest, { type: Type }>, "version">;
 

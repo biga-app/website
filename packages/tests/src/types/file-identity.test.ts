@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { ancestorPaths, baseName, isValidHash, parentPath, ROOT_PATH } from "@biga/types";
+import { ancestorPaths, baseName, isValidHash, parentPath, ROOT_PATH } from "@biga/types/file-identity";
 
 test("baseName returns the last path segment", () => {
     assert.equal(baseName("a/b/c.ts"), "c.ts");

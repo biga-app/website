@@ -1,6 +1,6 @@
 "use client";
 
-import type { CompareBase, HistoryMode, ViewerNavigation } from "@biga/types";
+import type { CompareBase, HistoryMode, ViewerNavigation } from "@biga/types/viewer-location";
 import { deriveView, viewerParsers } from "@biga/viewer-core/location/search-params";
 import { useQueryStates } from "nuqs";
 import { useMemo, type ReactNode } from "react";

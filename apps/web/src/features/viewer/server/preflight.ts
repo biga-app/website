@@ -1,4 +1,4 @@
-import type { SessionPreflight } from "@biga/types";
+import type { SessionPreflight } from "@biga/types/state";
 import { cache } from "react";
 
 const TIMEOUT_MS = 1500;

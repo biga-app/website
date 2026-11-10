@@ -1,4 +1,6 @@
-import type { ApiClient, BlobEntry, Checkpoint, SessionPort } from "@biga/types";
+import type { Checkpoint } from "@biga/types/checkpoint";
+import type { ApiClient, BlobEntry } from "@biga/types/content";
+import type { SessionPort } from "@biga/types/worker";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
 import { createBlobStore, defaultBudgetBytes } from "@biga/viewer-core/content/blob-store";
 import { applyBatch, type WritableStores } from "@biga/viewer-core/runtime/apply-batch";

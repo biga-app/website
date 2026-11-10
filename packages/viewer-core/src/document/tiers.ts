@@ -1,4 +1,4 @@
-import type { DocumentMeasure, DocumentTier, TierFeatures } from "@biga/types";
+import type { DocumentMeasure, DocumentTier, TierFeatures } from "@biga/types/content";
 
 const REDUCED_BYTES = 256 * 1024;
 const PLAIN_BYTES = 2 * 1024 * 1024;

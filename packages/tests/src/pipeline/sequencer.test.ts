@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { StreamEvent } from "@biga/types";
+import type { StreamEvent } from "@biga/types/events";
 
 import { createSequencer } from "@biga/viewer-core/pipeline/sequencer";
 

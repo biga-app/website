@@ -1,4 +1,4 @@
-import type { CheckpointChange } from "@biga/types";
+import type { CheckpointChange } from "@biga/types/checkpoint";
 
 import { makeCheckpoint } from "./checkpoints.ts";
 

@@ -1,6 +1,7 @@
 "use client";
 
-import type { SidebarView, StreamStatus } from "@biga/types";
+import type { SidebarView } from "@biga/types/stores";
+import type { StreamStatus } from "@biga/types/stream";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 

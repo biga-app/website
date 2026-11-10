@@ -1,4 +1,5 @@
-import type { SequencerOptions, SequencerState, StreamEvent } from "@biga/types";
+import type { StreamEvent } from "@biga/types/events";
+import type { SequencerOptions, SequencerState } from "@biga/types/pipeline";
 
 const DEFAULT_MAX_PENDING = 48;
 
