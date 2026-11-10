@@ -156,13 +156,64 @@ kinds of event on it:
 | `session_ended` | The broadcast stopped, or went quiet for too long. |
 
 Viewers only receive, so plain server-sent events are enough: ordinary HTTP,
-and the browser reconnects on its own. When a stream drops, the viewer
-re-reads the state and merges what it missed.
+with no second channel to keep open. The viewer reads the stream itself rather
+than leaving reconnection to the browser, so it can see why a connection was
+refused and wait as long as the server asks. When a stream drops, the viewer
+re-reads the state and merges what it missed. [How the viewer handles
+this](#how-the-viewer-applies-events) is covered below.
 
 A broadcast that stops sending heartbeats is marked ended once its session has
 been quiet for 45 seconds, so a laptop that died doesn't look live forever.
 The CLI sends a heartbeat every 10 seconds, and skips one when a checkpoint
 was just sent, since the server counts that as a sign of life too.
+
+### How the viewer applies events
+
+The viewer treats the stream as a source of facts about the tree, never as
+text. A `checkpoint` event says which paths changed and their new hashes, and a
+file's content is fetched by hash only when someone opens it. That keeps a busy
+broadcast from costing more than the part of it on screen.
+
+```mermaid title="Inside the viewer" summary="The browser reads the event stream with fetch. Each event is validated, then ordered by sequence number, with duplicates dropped and gaps detected. Pending changes are merged into one batch, and only one batch is in flight at a time. The batch is applied once per animation frame to the tree and timeline stores, which the tree, timeline and editor read. When a file is opened, its content is fetched by hash and cached." caption="Everything before the stores runs off the main thread when the browser allows it. A slow page gets fewer, larger batches instead of a growing queue."
+flowchart LR
+  stream["<b>Event stream</b><br/>GET /stream"] --> decode["<b>Validate</b><br/>drop malformed events"]
+  decode --> order["<b>Order</b><br/>duplicates · gaps"]
+  order --> merge["<b>Merge</b><br/>one batch in flight"]
+  merge -- "once per frame" --> stores["<b>Stores</b><br/>tree · timeline"]
+  stores --> ui["<b>Tree · timeline · editor</b>"]
+  ui -. "a file is opened" .-> cache["<b>Content cache</b><br/>by hash"]
+  cache -- "GET file" --> api["<b>REST API</b>"]
+```
+
+- **Validation.** Every event is checked against its schema before it is used.
+  Three bad events in a row make the viewer re-read the state instead of
+  guessing.
+- **Ordering.** Events carry a sequence number. Duplicates are dropped, and a
+  gap makes the viewer re-read the state. While it does, new events wait and
+  are replayed afterwards. If more than 48 pile up, it stops replaying and
+  re-reads instead, well before the server would drop a slow reader at 64.
+- **Merging.** Changes that arrive close together are combined: a file saved
+  five times is one update with its last hash, and a file added then deleted
+  is no update at all. The next batch is held until the page has applied the
+  last one, with at least 50 ms between them.
+- **Large sessions.** Building the tree for 50,000 files is split into slices
+  across animation frames and published in one step, so the page stays
+  responsive while it loads.
+- **Content.** Files are cached by hash, so a version seen once is not fetched
+  again. Hovering or focusing a file for a moment fetches it ahead of time, and
+  the browser's own cache keeps any hash-addressed file for a year.
+
+#### When the connection drops
+
+| What happens | What the viewer does |
+| --- | --- |
+| The stream closes or errors | Shows **Reconnecting**, keeps the last state on screen, and retries after a delay that starts at one second, grows to 30, and is randomised so viewers don't retry together. |
+| The server answers 429 or 503 | Waits for the `Retry-After` it was given. |
+| Nothing arrives for 45 seconds | Treats the stream as dead and reconnects. The server sends a keepalive comment every 15 seconds, so this means three missed in a row. |
+| It reconnects | Opens the stream first, then re-reads the state and applies whatever it missed in order. |
+| Eight attempts in a row fail | Shows **Offline** with a reconnect button. The browser coming back online also tries again. |
+| The tab was hidden for more than 30 seconds | Re-reads the state when it is visible again, before showing anything new. |
+| `session_ended` arrives | Shows the final state and stops reconnecting. |
 
 ### More than one server
 
