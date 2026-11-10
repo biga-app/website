@@ -4,6 +4,7 @@ import { DiffEditor, Editor, useMonaco } from "@monaco-editor/react";
 import "./monaco/monaco-loader";
 import { PlainTextNotice } from "./monaco/plain-text-notice";
 import { enableShiki } from "./monaco/shiki-monaco";
+import { type EditorHost, useChangeHighlight } from "./monaco/use-change-highlight";
 import { useDocumentTier } from "./monaco/use-document-tier";
 import { useThemeStore } from "@biga/stores/theme-store";
 import type * as Monaco from "monaco-editor";
@@ -131,6 +132,8 @@ export function MonacoViewer({
   const tier = useDocumentTier(path, value);
   const { ready } = useShikiMonaco(tier.language, shikiTheme);
   const theme = ready ? shikiTheme : fallback;
+  const [host, setHost] = useState<EditorHost | null>(null);
+  useChangeHighlight(host, path, value, tier.changeHighlight);
 
   return (
     <div className="flex h-full flex-col">
@@ -144,9 +147,10 @@ export function MonacoViewer({
           theme={theme}
           loading={<Skeleton className="size-full rounded-none" />}
           options={{ ...MONACO_OPTIONS, ...tier.options, wordWrap }}
-          onMount={(editor, monacoInstance) =>
-            remeasureOnFontLoad(editor, monacoInstance)
-          }
+          onMount={(editor, monacoInstance) => {
+            setHost({ editor, monaco: monacoInstance });
+            remeasureOnFontLoad(editor, monacoInstance);
+          }}
         />
       </div>
     </div>

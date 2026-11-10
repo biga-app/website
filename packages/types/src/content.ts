@@ -63,3 +63,8 @@ export type PrefetcherOptions = {
     concurrency: number;
     run: (path: string) => Promise<unknown>;
 };
+
+export type LineRange = {
+    start: number;
+    end: number;
+};
