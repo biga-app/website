@@ -17,6 +17,26 @@ const serverUrl =
     process.env.BIGA_SERVER_URL ??
     (process.env.NODE_ENV === "development" ? "http://localhost:8080" : undefined);
 
+const dev = process.env.NODE_ENV === "development";
+
+function apiOrigin() {
+    const configured = process.env.NEXT_PUBLIC_BIGA_API_URL;
+    return configured ? new URL(configured).origin : "";
+}
+
+const viewerPolicy = [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${dev ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${apiOrigin()}${dev ? " ws: wss:" : ""}`.trim(),
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+].join("; ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     transpilePackages: ["@biga/viewer-core"],
@@ -25,6 +45,17 @@ const nextConfig = {
     // Trace dependencies from the monorepo root so workspace packages are
     // included in the standalone output.
     outputFileTracingRoot: path.join(here, "../.."),
+    async headers() {
+        return [
+            {
+                source: "/session/:path*",
+                headers: [
+                    { key: "Content-Security-Policy", value: viewerPolicy },
+                    { key: "Referrer-Policy", value: "same-origin" },
+                ],
+            },
+        ];
+    },
     async rewrites() {
         if (!serverUrl) {
             return [];

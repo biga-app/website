@@ -43,3 +43,16 @@ display the label the broadcaster gave them.
 A stopped broadcast stays viewable: the files show their final state and the
 timeline is intact. If the same directory is started again, the same link wakes
 up with the new changes.
+
+## What the viewer loads
+
+The viewer makes requests to its own origin and to the biga server, and to
+nothing else. The editor, its syntax highlighter, the fonts and the file icons
+are all bundled with the site, so opening a link does not tell a third party
+that you did. The page enforces this with a Content Security Policy that only
+allows the site and the API, and it sends no referrer to other sites, so the
+session link is never passed on.
+
+If you serve the site and the server from different origins, set
+`NEXT_PUBLIC_BIGA_API_URL` when you build the site. That origin is added to the
+policy automatically; see [Self-hosting](/docs/self-hosting).

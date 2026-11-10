@@ -1,6 +1,7 @@
 "use client";
 
 import { DiffEditor, Editor, useMonaco } from "@monaco-editor/react";
+import "./monaco/monaco-loader";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { useThemeStore } from "@biga/stores/theme-store";
 import type * as Monaco from "monaco-editor";
