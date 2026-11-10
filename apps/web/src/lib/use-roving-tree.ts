@@ -62,8 +62,10 @@ export function useRovingTree({
 
     // Follow outside selection changes (a file opened from Go to file, say)
     // so Tab lands on the selected row.
+    const appliedSelection = useRef<string | null>(null);
     useEffect(() => {
-        if (selectedKey && indexByKey.has(selectedKey)) {
+        if (selectedKey && selectedKey !== appliedSelection.current && indexByKey.has(selectedKey)) {
+            appliedSelection.current = selectedKey;
             setActiveKey(selectedKey);
         }
     }, [selectedKey, indexByKey]);

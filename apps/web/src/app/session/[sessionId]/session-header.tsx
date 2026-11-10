@@ -22,10 +22,16 @@ import { STATUS_DOT, STATUS_LABELS } from "@/lib/use-session-stream";
 import { cn } from "@/lib/utils";
 
 /** Connection state plus the one fact that makes it useful: how fresh the files are. */
-function LiveStatus({ status }: { status: StreamStatus }) {
+export function LiveStatusView({
+    status,
+    latestAt,
+    endedAt,
+}: {
+    status: StreamStatus;
+    latestAt: string | null;
+    endedAt: string | null;
+}) {
     const now = useNow();
-    const latestAt = useHistoryStore((state) => state.checkpoints[0]?.createdAt ?? null);
-    const endedAt = useSessionStore((state) => state.session?.endedAt ?? null);
 
     let detail: string | null = null;
     let fullDetail: string | null = null;
@@ -68,7 +74,13 @@ function LiveStatus({ status }: { status: StreamStatus }) {
     );
 }
 
-function FollowToggle() {
+function LiveStatus({ status }: { status: StreamStatus }) {
+    const latestAt = useHistoryStore((state) => state.checkpoints[0]?.createdAt ?? null);
+    const endedAt = useSessionStore((state) => state.session?.endedAt ?? null);
+    return <LiveStatusView status={status} latestAt={latestAt} endedAt={endedAt} />;
+}
+
+export function FollowToggle() {
     const follow = useViewerPrefsStore((state) => state.follow);
 
     return (
@@ -96,7 +108,7 @@ function FollowToggle() {
     );
 }
 
-function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string; checkpointSeq?: number }) {
+export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string; checkpointSeq?: number }) {
     const { copied, copy } = useCopyFeedback();
 
     return (
@@ -123,7 +135,7 @@ function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string; check
 }
 
 /** Looks like a search field so ⌘P is discoverable; opens Go to file. */
-function GoToFileTrigger({ onClick }: { onClick: () => void }) {
+export function GoToFileTrigger({ onClick }: { onClick: () => void }) {
     const mod = useModKey();
     return (
         <button

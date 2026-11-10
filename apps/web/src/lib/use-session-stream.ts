@@ -24,24 +24,7 @@ import { apiUrl } from "./api-url";
 import { contentCache } from "./content-cache";
 import { fetchCheckpoint, fetchSessionState } from "./session-api";
 
-export const STATUS_LABELS: Record<StreamStatus, string> = {
-    connecting: "Connecting",
-    live: "Live",
-    reconnecting: "Reconnecting",
-    offline: "Offline",
-    ended: "Ended",
-    unavailable: "Unavailable",
-};
-
-/** Dot colour per status. Live uses the viewer blue: the one accent means "now". */
-export const STATUS_DOT: Record<StreamStatus, string> = {
-    connecting: "bg-warning",
-    live: "bg-biga",
-    reconnecting: "bg-warning",
-    offline: "bg-destructive",
-    ended: "bg-muted-foreground",
-    unavailable: "bg-destructive",
-};
+export { STATUS_DOT, STATUS_LABELS } from "@/features/viewer/shell/status-meta";
 
 export type LoadError = { kind: ApiErrorKind };
 

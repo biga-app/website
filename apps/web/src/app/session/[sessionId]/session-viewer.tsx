@@ -14,10 +14,9 @@ import { ActivityBar, type ActivityView } from "@/components/activity-bar";
 import { QuickOpen } from "@/components/quick-open";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { CodeSkeleton } from "@/components/viewer/code-skeleton";
+import { FrameSkeleton } from "@/features/viewer/shell/frame-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchCheckpoint, fetchFileHistory } from "@/lib/session-api";
 import { displayTitle } from "@/lib/session-title";
@@ -30,40 +29,6 @@ import { firstDiffable, HistoryPanel } from "./history-panel";
 import { SessionHeader } from "./session-header";
 import { SessionNotice } from "./session-notice";
 import { SessionUnavailable } from "./session-unavailable";
-
-/** Mirrors the loaded layout so nothing jumps when the session arrives. */
-function ViewerSkeleton() {
-    return (
-        <div className="flex h-svh flex-col">
-            <div className="flex h-12 shrink-0 items-center gap-3 border-b px-3">
-                <Skeleton className="size-7" />
-                <Skeleton className="h-3.5 w-40" />
-                <div className="ml-auto flex items-center gap-2">
-                    <Skeleton className="h-3 w-14" />
-                    <Skeleton className="hidden h-7 w-52 lg:block" />
-                    <Skeleton className="size-7" />
-                </div>
-            </div>
-            <div className="flex min-h-0 flex-1">
-                <div className="bg-sidebar hidden w-11 shrink-0 border-r md:block" />
-                <div className="bg-sidebar hidden w-[22%] max-w-80 shrink-0 space-y-3 border-r px-3 py-3 md:block">
-                    <Skeleton className="h-2.5 w-12" />
-                    {Array.from({ length: 10 }).map((_, i) => (
-                        <Skeleton key={i} className="h-3" style={{ width: `${45 + ((i * 17) % 45)}%` }} />
-                    ))}
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="h-10 shrink-0 border-b" />
-                    <div className="h-8 shrink-0 border-b" />
-                    <CodeSkeleton />
-                </div>
-            </div>
-            <p role="status" className="sr-only">
-                Loading session…
-            </p>
-        </div>
-    );
-}
 
 const ANNOUNCEMENTS: Partial<Record<StreamStatus, string>> = {
     live: "Connected. Watching live.",
@@ -242,7 +207,7 @@ export function SessionViewer({
     }
 
     if (!ready || !session) {
-        return <ViewerSkeleton />;
+        return <FrameSkeleton />;
     }
 
     // Only reached in the browser: the session is never loaded during SSR.
