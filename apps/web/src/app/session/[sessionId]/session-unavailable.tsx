@@ -8,6 +8,12 @@ import { BigaMark } from "@/components/site/biga-mark";
 import { Button } from "@/components/ui/button";
 import type { LoadError } from "@/lib/use-session-stream";
 
+const SERVER_COPY = {
+    icon: TriangleAlertIcon,
+    title: "Unable to load this session",
+    body: "The server ran into a problem loading it. This is usually temporary, so try again in a moment.",
+} as const;
+
 const COPY = {
     not_found: {
         icon: SearchXIcon,
@@ -24,11 +30,8 @@ const COPY = {
         title: "Unable to reach biga",
         body: "Check your internet connection, then try again.",
     },
-    server: {
-        icon: TriangleAlertIcon,
-        title: "Unable to load this session",
-        body: "The server ran into a problem loading it. This is usually temporary, so try again in a moment.",
-    },
+    server: SERVER_COPY,
+    invalid: SERVER_COPY,
 } as const;
 
 /**

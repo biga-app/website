@@ -19,6 +19,7 @@ const serverUrl =
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    transpilePackages: ["@biga/viewer-core"],
     // The Docker image runs the self-contained server Next emits with this.
     output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
     // Trace dependencies from the monorepo root so workspace packages are

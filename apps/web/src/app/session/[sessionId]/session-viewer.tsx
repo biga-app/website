@@ -1,6 +1,6 @@
 "use client";
 
-import type { CheckpointChange } from "@biga/types";
+import type { CheckpointChange, StreamStatus } from "@biga/types";
 import { useEditorStore } from "@biga/stores/editor-store";
 import { useFileTreeStore } from "@biga/stores/file-tree-store";
 import { useHistoryStore } from "@biga/stores/history-store";
@@ -21,7 +21,7 @@ import { CodeSkeleton } from "@/components/viewer/code-skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchCheckpoint, fetchFileHistory } from "@/lib/session-api";
 import { displayTitle } from "@/lib/session-title";
-import { decorationsFromChanges, useSessionStream, type StreamStatus } from "@/lib/use-session-stream";
+import { decorationsFromChanges, useSessionStream } from "@/lib/use-session-stream";
 
 import { CheckpointDiffPane } from "./checkpoint-diff-pane";
 import { CodeViewer } from "./code-viewer";

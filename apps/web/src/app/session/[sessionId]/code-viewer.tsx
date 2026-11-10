@@ -1,6 +1,6 @@
 "use client";
 
-import { baseName } from "@biga/types";
+import { baseName, firstViewableChange } from "@biga/types";
 import { useEditorStore } from "@biga/stores/editor-store";
 import { useFileTreeStore } from "@biga/stores/file-tree-store";
 import { useHistoryStore } from "@biga/stores/history-store";
@@ -44,7 +44,6 @@ import { IconAction } from "@/components/viewer/icon-action";
 import { pluralize } from "@/lib/change-meta";
 import { copyWithToast, downloadText } from "@/lib/file-actions";
 import { languageForPath, languageLabel } from "@/lib/languages";
-import { firstViewableChange } from "@/lib/reconstruct";
 import { useFileContent } from "@/lib/use-file-content";
 import { useFileRevisionCount } from "@/lib/use-file-revision-count";
 import { cn } from "@/lib/utils";

@@ -8,12 +8,12 @@
     "build": "node scripts/copy-file-icons.mjs && next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
-    "test": "node --experimental-strip-types --test \"src/**/*.test.mjs\" \"src/**/*.test.ts\"",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@biga/stores": "workspace:*",
     "@biga/types": "workspace:*",
+    "@biga/viewer-core": "workspace:*",
     "@monaco-editor/react": "^4.7.0",
     "@shikijs/monaco": "^4.2.0",
     "@tanstack/react-virtual": "^3.14.3",

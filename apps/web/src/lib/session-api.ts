@@ -1,56 +1,18 @@
-import type {
-    Checkpoint,
-    CheckpointSummary,
-    FileHistoryEntry,
-    FileSnapshot,
-    SessionResponse,
+import {
+    ApiRequestError,
+    type ApiErrorKind,
+    type Checkpoint,
+    type CheckpointSummary,
+    type FileContent,
+    type FileHistoryEntry,
+    type SessionState,
 } from "@biga/types";
 
 import { apiUrl } from "./api-url";
 
-export type LoadMode = "eager" | "lazy";
-
-export type SessionState = {
-    session: SessionResponse;
-    snapshot: FileSnapshot | null;
-    checkpoints: CheckpointSummary[];
-    mode: LoadMode;
-    /**
-     * Eager mode only: hash → content map for every current text file. Pre-fills
-     * the content-addressed LRU cache so files open instantly without per-file
-     * fetches on sessions that fall within the eager-mode size threshold.
-     */
-    contents?: Record<string, string>;
-};
-
-export type FileContent = {
-    content: string;
-    binary: boolean;
-    hash: string;
-};
-
 type ApiEnvelope<T> =
     | { ok: true; data: T }
     | { ok: false; error: { code: string; message: string } };
-
-/**
- * What went wrong, in the terms the viewer needs to pick a recovery: a missing
- * session has nothing to retry, a rate limit needs a pause, and a network or
- * server failure is worth retrying straight away.
- */
-export type ApiErrorKind = "not_found" | "rate_limited" | "network" | "server";
-
-export class ApiError extends Error {
-    readonly kind: ApiErrorKind;
-    readonly status: number | null;
-
-    constructor(kind: ApiErrorKind, message: string, status: number | null = null) {
-        super(message);
-        this.name = "ApiError";
-        this.kind = kind;
-        this.status = status;
-    }
-}
 
 function kindForStatus(status: number): ApiErrorKind {
     if (status === 404) return "not_found";
@@ -66,13 +28,13 @@ async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
         if (signal?.aborted) {
             throw error;
         }
-        throw new ApiError("network", "Unable to reach the server. Check your connection and try again.");
+        throw new ApiRequestError("network", "Unable to reach the server. Check your connection and try again.");
     }
     let body: ApiEnvelope<T>;
     try {
         body = (await response.json()) as ApiEnvelope<T>;
     } catch {
-        throw new ApiError(
+        throw new ApiRequestError(
             kindForStatus(response.status),
             `The server returned an unexpected response (${response.status}).`,
             response.status
@@ -80,7 +42,7 @@ async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
     }
     if (!response.ok || !body.ok) {
         const message = body.ok ? response.statusText : body.error.message;
-        throw new ApiError(
+        throw new ApiRequestError(
             kindForStatus(response.status),
             message || "The request failed.",
             response.status

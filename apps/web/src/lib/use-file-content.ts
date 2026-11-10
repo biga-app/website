@@ -38,7 +38,7 @@ export function useFileContent(
     const binaryHint = Boolean(options.binary);
     const [retryNonce, setRetryNonce] = useState(0);
     const cached =
-        ref && isValidHash(ref) ? contentCache.get(ref) : undefined;
+        ref && isValidHash(ref) ? contentCache.get(ref)?.content : undefined;
 
     const [state, setState] = useState<FileContentState>(() => {
         if (!path || !ref) {
@@ -62,7 +62,7 @@ export function useFileContent(
             setState({ content: "", binary: true, loading: false, error: null });
             return;
         }
-        const hit = isValidHash(ref) ? contentCache.get(ref) : undefined;
+        const hit = isValidHash(ref) ? contentCache.get(ref)?.content : undefined;
         if (hit !== undefined) {
             setState({ content: hit, binary: false, loading: false, error: null });
             return;

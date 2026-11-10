@@ -1,12 +1,12 @@
 "use client";
 
+import type { StreamStatus } from "@biga/types";
 import { InfoIcon, RotateCwIcon, WifiOffIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { IconAction } from "@/components/viewer/icon-action";
-import type { StreamStatus } from "@/lib/use-session-stream";
 
 /**
  * One slim line under the header for the two states that change how the

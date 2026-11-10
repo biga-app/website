@@ -1,40 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeType, Checkpoint, CheckpointChange, SSEEvent } from "@biga/types";
+import {
+    ApiRequestError,
+    firstViewableChange,
+    preferredFilePath,
+    type ApiErrorKind,
+    type ChangeType,
+    type Checkpoint,
+    type CheckpointChange,
+    type SSEEvent,
+    type SessionState,
+    type StreamStatus,
+} from "@biga/types";
 import { useEditorStore } from "@biga/stores/editor-store";
 import { useFileTreeStore } from "@biga/stores/file-tree-store";
 import { useHistoryStore } from "@biga/stores/history-store";
 import { useSessionStore } from "@biga/stores/session-store";
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
+import { createSequencer } from "@biga/viewer-core/pipeline/sequencer";
 
 import { apiUrl } from "./api-url";
 import { contentCache } from "./content-cache";
-import { firstViewableChange, preferredFilePath } from "./reconstruct";
-import { createSessionEventBuffer } from "./session-event-buffer";
-import {
-    ApiError,
-    fetchCheckpoint,
-    fetchSessionState,
-    type ApiErrorKind,
-    type SessionState,
-} from "./session-api";
-
-/**
- * - `connecting`: first load, nothing to show yet.
- * - `live`: hydrated and subscribed.
- * - `reconnecting`: the stream dropped and the browser is retrying on its own.
- * - `offline`: the stream closed for good; the files show the last state seen.
- * - `ended`: the broadcaster stopped; the files are the final state.
- * - `unavailable`: the first load failed, so there is nothing to show.
- */
-export type StreamStatus =
-    | "connecting"
-    | "live"
-    | "reconnecting"
-    | "offline"
-    | "ended"
-    | "unavailable";
+import { fetchCheckpoint, fetchSessionState } from "./session-api";
 
 export const STATUS_LABELS: Record<StreamStatus, string> = {
     connecting: "Connecting",
@@ -164,7 +152,7 @@ function revealFile(path: string) {
 }
 
 function toLoadError(caught: unknown): LoadError {
-    return { kind: caught instanceof ApiError ? caught.kind : "server" };
+    return { kind: caught instanceof ApiRequestError ? caught.kind : "server" };
 }
 
 export function useSessionStream(sessionId: string, initialCheckpointSeq?: number): StreamResult {
@@ -189,8 +177,8 @@ export function useSessionStream(sessionId: string, initialCheckpointSeq?: numbe
             eventSource?.close();
         };
 
-        const events = createSessionEventBuffer(
-            (event) => {
+        const events = createSequencer({
+            apply: (event) => {
                 if (ended) return;
                 applySSEEvent(
                     event,
@@ -215,10 +203,10 @@ export function useSessionStream(sessionId: string, initialCheckpointSeq?: numbe
                     }
                 }
             },
-            () => {
+            resynchronize: () => {
                 if (eventSource) void synchronize(eventSource, true);
-            }
-        );
+            },
+        });
 
         const readInitialCheckpoint = async (state: SessionState, signal: AbortSignal) => {
             if (initialCheckpointSeq !== undefined) {

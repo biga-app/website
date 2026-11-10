@@ -1,5 +1,6 @@
 "use client";
 
+import type { StreamStatus } from "@biga/types";
 import { useHistoryStore } from "@biga/stores/history-store";
 import { useSessionStore } from "@biga/stores/session-store";
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
@@ -17,7 +18,7 @@ import { IconAction } from "@/components/viewer/icon-action";
 import { formatDateTime, formatRelativeTime } from "@/lib/change-meta";
 import { displayTitle, shareUrlFor } from "@/lib/session-title";
 import { useNow } from "@/lib/use-now";
-import { STATUS_DOT, STATUS_LABELS, type StreamStatus } from "@/lib/use-session-stream";
+import { STATUS_DOT, STATUS_LABELS } from "@/lib/use-session-stream";
 import { cn } from "@/lib/utils";
 
 /** Connection state plus the one fact that makes it useful: how fresh the files are. */
