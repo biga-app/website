@@ -55,3 +55,23 @@ test("the scripts needed before the editor loads stay within the first load budg
     const kib = sizes.reduce((sum, size) => sum + size, 0) / 1024;
     expect(kib).toBeLessThanOrEqual(BUDGETS.firstLoadScriptKiB);
 });
+
+test("the viewer loads only the two interface fonts and none of the marketing faces", async ({ page }) => {
+    const fonts: { name: string; bytes: number }[] = [];
+    const pending: Promise<void>[] = [];
+    page.on("response", (response) => {
+        if (!/\.woff2?$/.test(response.url())) return;
+        pending.push(
+            response
+                .body()
+                .then((body) => void fonts.push({ name: response.url().split("/").pop() ?? "", bytes: body.length }))
+                .catch(() => undefined)
+        );
+    });
+    await openSession(page, "/session/demo?file=missing.ts");
+    await expect(page.getByText("missing.ts was deleted")).toBeVisible();
+    await page.waitForTimeout(1_500);
+    await Promise.all(pending);
+    expect(fonts.filter(({ name }) => /pixel/i.test(name))).toEqual([]);
+    expect(fonts.reduce((sum, { bytes }) => sum + bytes, 0) / 1024).toBeLessThanOrEqual(BUDGETS.fontKiB);
+});

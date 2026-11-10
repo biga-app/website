@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { GeistPixelSquare } from "geist/font/pixel";
-import { Bricolage_Grotesque, Geist, Geist_Mono, Manrope } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,19 +14,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-});
-
-/* Marketing faces. The viewer and docs stay on Geist; the landing page and
-   site chrome set display type in Bricolage, body copy in Manrope and the
-   small annotations in Geist Pixel. */
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-});
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
 });
 
 const siteUrl = siteConfig.url;
@@ -97,7 +83,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} ${manrope.variable} ${GeistPixelSquare.variable} font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"

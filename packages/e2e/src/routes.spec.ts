@@ -29,3 +29,15 @@ test("a checkpoint link opens the timeline on that checkpoint", async ({ page })
     await expect(page).toHaveURL(/checkpoint=1/);
     await expect(page.getByRole("button", { name: /^Save #1\b/ })).toHaveAttribute("aria-expanded", "true");
 });
+
+for (const [path, face] of [
+    ["/", /Bricolage/i],
+    ["/brand", /Bricolage/i],
+    ["/docs", /Manrope|Bricolage/i],
+] as const) {
+    test(`${path} still sets its headings in the marketing faces`, async ({ page }) => {
+        await page.goto(path);
+        const family = await page.locator("h1").first().evaluate((heading) => getComputedStyle(heading).fontFamily);
+        expect(family).toMatch(face);
+    });
+}
