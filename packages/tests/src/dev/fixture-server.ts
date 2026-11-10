@@ -240,6 +240,9 @@ setInterval(() => {
 }, TICK_MS);
 
 createServer((req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    if (req.method === "OPTIONS") return void res.writeHead(204).end();
     const url = new URL(req.url ?? "/", "http://fixture");
     const match = url.pathname.match(/^\/api\/sessions\/([^/]+)(?:\/(.*))?$/);
     if (!match) return fail(res, 404, "not found");
