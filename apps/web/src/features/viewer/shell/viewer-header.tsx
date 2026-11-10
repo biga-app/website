@@ -51,6 +51,7 @@ export function ViewerHeader({
             </IconAction>
             <Link
                 href="/"
+                prefetch={false}
                 target={embed ? "_top" : undefined}
                 aria-label="biga home"
                 className="hover:bg-accent focus-visible:ring-ring/50 hidden size-8 shrink-0 place-items-center rounded-md transition-colors outline-none focus-visible:ring-[3px] sm:grid"

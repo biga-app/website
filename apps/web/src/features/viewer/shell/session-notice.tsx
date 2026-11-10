@@ -54,6 +54,7 @@ export function SessionNotice({
                 </p>
                 <Link
                     href="/docs#getting-started"
+                    prefetch={false}
                     className="text-foreground hover:text-biga focus-visible:ring-ring/50 hidden shrink-0 rounded-sm font-medium underline-offset-4 outline-none hover:underline focus-visible:ring-2 sm:inline"
                 >
                     Start your own session

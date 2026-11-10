@@ -59,6 +59,7 @@ export function SessionUnavailable({
             <header className="flex h-12 shrink-0 items-center border-b px-3">
                 <Link
                     href="/"
+                    prefetch={false}
                     target={linkTarget}
                     className="hover:bg-accent focus-visible:ring-ring/50 flex items-center gap-2 rounded-md px-2 py-1 transition-colors outline-none focus-visible:ring-[3px]"
                 >
@@ -95,12 +96,12 @@ export function SessionUnavailable({
                             </div>
                             <div className="mt-6 flex flex-wrap gap-2">
                                 <Button asChild variant="outline" size="sm">
-                                    <Link href="/docs#getting-started" target={linkTarget}>
+                                    <Link href="/docs#getting-started" prefetch={false} target={linkTarget}>
                                         Start your own session
                                     </Link>
                                 </Button>
                                 <Button asChild variant="ghost" size="sm">
-                                    <Link href="/" target={linkTarget}>
+                                    <Link href="/" prefetch={false} target={linkTarget}>
                                         Go to the homepage
                                     </Link>
                                 </Button>
@@ -113,7 +114,7 @@ export function SessionUnavailable({
                                 Try again
                             </Button>
                             <Button asChild variant="ghost" size="sm">
-                                <Link href="/" target={linkTarget}>
+                                <Link href="/" prefetch={false} target={linkTarget}>
                                     Go to the homepage
                                 </Link>
                             </Button>
