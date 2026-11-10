@@ -106,7 +106,7 @@ export function OpenTabs({
                                 aria-label={`Close ${name}`}
                                 onClick={(event) => close(path, event.detail === 0)}
                                 className={cn(
-                                    "text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:ring-ring/60 mr-1 grid size-5 place-items-center rounded transition-[opacity,background-color] duration-150 outline-none focus-visible:opacity-100 focus-visible:ring-2",
+                                    "text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:ring-ring/60 me-1 grid size-6 place-items-center rounded transition-[opacity,background-color] duration-150 outline-none focus-visible:opacity-100 focus-visible:ring-2",
                                     "pointer-coarse:opacity-100",
                                     active ? "opacity-100" : "opacity-0 group-hover/tab:opacity-100"
                                 )}
