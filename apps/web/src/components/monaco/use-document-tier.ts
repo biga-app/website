@@ -23,6 +23,7 @@ export function useDocumentTier(path: string, value: string) {
     plain,
     language: plain ? PLAIN_TEXT : languageForPath(path),
     options: tierEditorOptions(features),
+    changeHighlight: features.changeHighlight,
     enableHighlighting,
   };
 }

@@ -55,3 +55,8 @@ export type ApiClient = {
     ): Promise<CheckpointSummary[]>;
     getFileHistory(sessionId: string, path: string, request?: RequestOptions): Promise<FileHistoryEntry[]>;
 };
+
+export type LineRange = {
+    start: number;
+    end: number;
+};
