@@ -1,25 +1,24 @@
 "use client";
 
-import { useEditorStore } from "@biga/stores/editor-store";
-import { useFileTreeStore } from "@biga/stores/file-tree-store";
-import { useHistoryStore } from "@biga/stores/history-store";
 import { useMemo } from "react";
 
 import { ActivityBar } from "@/components/activity-bar";
 import { CodeBreadcrumbs } from "@/components/code-breadcrumbs";
-import { FileTree } from "@/app/session/[sessionId]/file-tree";
-import { HistoryPanel } from "@/app/session/[sessionId]/history-panel";
-import { OpenTabs } from "@/app/session/[sessionId]/code-viewer-tab";
-import { SessionHeader } from "@/app/session/[sessionId]/session-header";
-import { DEMO_FILE, DEMO_LINE } from "@/lib/showcase";
+import { OpenTabs } from "@/features/viewer/editor/open-tabs";
+import { useViewerView } from "@/features/viewer/runtime/navigation-context";
+import { useRuntime, useStoreValue } from "@/features/viewer/runtime/runtime-provider";
+import { ViewerHeader } from "@/features/viewer/shell/viewer-header";
+import { Timeline } from "@/features/viewer/timeline/timeline";
+import { FileTree } from "@/features/viewer/tree/file-tree";
+import { DEMO_FILE, DEMO_LINE, type ShowcaseFixture } from "@/lib/showcase";
 import { cn } from "@/lib/utils";
 
 import { useShowcase } from "./showcase-provider";
 import { StaticCode } from "./static-code";
 
 /*
- * The viewer's regions, each one the real component reading the real stores
- * (seeded by `ShowcaseProvider`). Only the pieces that need a network or
+ * The viewer's regions, each one the real component reading the stores of a
+ * static runtime (seeded by `ShowcaseProvider`). Only the pieces that need a network or
  * Monaco are replaced: the code body is `StaticCode`, and every callback is a
  * no-op because the panels are pictures of the product, not controls.
  */
@@ -45,27 +44,26 @@ export function PanelHeader({ live }: { live: boolean }) {
   if (!fixture) return <Placeholder />;
   return (
     <div className="bg-background size-full">
-      <SessionHeader
-        sessionId={fixture.session.id}
+      <ViewerHeader
         status={live ? "live" : "ended"}
         embed
-        isMobile={false}
         sidebarCollapsed={false}
         onToggleSidebar={noop}
+        onOpenDrawer={noop}
         onOpenQuickOpen={noop}
       />
     </div>
   );
 }
 
-export function PanelFiles({ ended, activity = true }: { ended: boolean; activity?: boolean }) {
+export function PanelFiles({ activity = true }: { activity?: boolean }) {
   const fixture = useShowcase();
   if (!fixture) return <Placeholder />;
   return (
     <div className="bg-sidebar text-sidebar-foreground flex size-full min-w-0">
       {activity ? <ActivityBar view="explorer" sidebarOpen unseenTimeline={false} onChange={noop} /> : null}
       <aside aria-label="Files" className={cn("min-w-0 flex-1", activity && "border-r")}>
-        <FileTree sessionId={fixture.session.id} ended={ended} onOpenTimeline={noop} onOpenQuickOpen={noop} />
+        <FileTree onOpenQuickOpen={noop} />
       </aside>
     </div>
   );
@@ -76,18 +74,12 @@ export function PanelTimeline() {
   if (!fixture) return <Placeholder />;
   return (
     <aside aria-label="Timeline" className="bg-sidebar text-sidebar-foreground size-full min-w-0 border-l">
-      <HistoryPanel sessionId={fixture.session.id} selectedChange={null} onSelectChange={noop} />
+      <Timeline />
     </aside>
   );
 }
 
-export function PanelCode({
-  save,
-  firstLine,
-  lastLine,
-  wrap,
-  tabSize,
-}: {
+type CodeOptions = {
   /** An edit landing on the demo line: `from` becomes `to`, drawn under the highlighter, and targetable as `target`. */
   save?: { from: string; to: string; target?: string };
   /** Override where the pane starts and stops, for a short crop of the file. */
@@ -95,19 +87,27 @@ export function PanelCode({
   lastLine?: number;
   wrap?: boolean;
   tabSize?: 2 | 4;
-}) {
+};
+
+export function PanelCode(options: CodeOptions) {
   const fixture = useShowcase();
-  const tabs = useEditorStore((state) => state.tabs);
-  const active = useEditorStore((state) => state.activeFilePath);
+  if (!fixture) return <Placeholder />;
+  return <CodePane fixture={fixture} {...options} />;
+}
+
+function CodePane({ fixture, save, firstLine, lastLine, wrap, tabSize }: CodeOptions & { fixture: ShowcaseFixture }) {
+  const { stores } = useRuntime();
+  const tabs = useStoreValue(stores.workspace, (state) => state.tabs);
+  const { activeFile: active } = useViewerView();
   const file = useMemo(
-    () => fixture?.shown.find((candidate) => candidate.path === active) ?? fixture?.shown[0],
+    () => fixture.shown.find((candidate) => candidate.path === active) ?? fixture.shown[0],
     [fixture, active]
   );
-  const tree = useFileTreeStore((state) => state.root);
-  if (!fixture || !file || !tree) return <Placeholder />;
+  const loaded = useStoreValue(stores.tree, (state) => state.fileCount > 0);
+  if (!file || !loaded) return <Placeholder />;
 
   const path = file.path;
-  const shownTabs = tabs.length ? tabs : [path];
+  const shownTabs = tabs.length ? [...tabs] : [path];
   const replace = save && path === DEMO_FILE ? { line: DEMO_LINE, mark: true, ...save } : undefined;
 
   return (
@@ -133,9 +133,4 @@ export function PanelCode({
       </div>
     </div>
   );
-}
-
-/** Reads the head of the history store, for callers that label the latest checkpoint. */
-export function useLatestCheckpoint() {
-  return useHistoryStore((state) => state.checkpoints[0] ?? null);
 }

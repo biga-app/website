@@ -28,7 +28,8 @@ import { Kbd } from "@/components/ui/kbd";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Typography } from "@/components/ui/typography";
 import { DEMO_FILE, DEMO_LINE } from "@/lib/showcase";
-import { humanBytes, SHOWCASE } from "@/lib/showcase/summary";
+import summary from "@/lib/showcase/summary.json";
+import { humanBytes } from "@/lib/showcase/summary";
 import { cn } from "@/lib/utils";
 
 /*
@@ -56,11 +57,11 @@ import { cn } from "@/lib/utils";
  * session and uploads only what changed while it was stopped.
  */
 
-const SESSION = SHOWCASE.session.id;
-const TITLE = SHOWCASE.session.title;
+const SESSION = summary.session.id;
+const TITLE = summary.session.title;
 const NAME = `${TITLE} (${SESSION})`;
-const FILES = SHOWCASE.stats.files;
-const UPLOADED = humanBytes(SHOWCASE.stats.bytes);
+const FILES = summary.stats.files;
+const UPLOADED = humanBytes(summary.stats.bytes);
 const FILE_NAME = DEMO_FILE.split("/").pop() ?? DEMO_FILE;
 const BASE = "120";
 /** One changed file, gzipped, as the live panel's "sent" total counts it. */

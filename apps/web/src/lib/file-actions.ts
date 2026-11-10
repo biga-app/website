@@ -1,8 +1,5 @@
-import { baseName } from "@biga/types";
-import { useFileTreeStore } from "@biga/stores/file-tree-store";
+import { baseName } from "@biga/types/file-identity";
 import { toast } from "sonner";
-
-import { fetchFileContent } from "./session-api";
 
 /** Copy text to the clipboard (best-effort). */
 export async function copyText(text: string): Promise<boolean> {
@@ -40,34 +37,5 @@ export async function copyWithToast(text: string, what: string): Promise<void> {
         toast.error(`Unable to copy ${what}`, {
             description: "The browser blocked clipboard access.",
         });
-    }
-}
-
-/** Resolve a file's current content (cache-first) for a menu action. */
-async function currentContent(sessionId: string, path: string): Promise<string | null> {
-    const meta = useFileTreeStore.getState().headMeta.get(path);
-    try {
-        const result = await fetchFileContent(sessionId, path, meta?.hash ?? "latest");
-        return result.content;
-    } catch {
-        // A live session can delete the file between the click and the fetch.
-        toast.error(`Unable to load ${baseName(path)}`, {
-            description: "It may have been deleted since the tree last updated.",
-        });
-        return null;
-    }
-}
-
-export async function copyFileContent(sessionId: string, path: string): Promise<void> {
-    const content = await currentContent(sessionId, path);
-    if (content !== null) {
-        await copyWithToast(content, `contents of ${baseName(path)}`);
-    }
-}
-
-export async function downloadFile(sessionId: string, path: string): Promise<void> {
-    const content = await currentContent(sessionId, path);
-    if (content !== null) {
-        downloadText(path, content);
     }
 }

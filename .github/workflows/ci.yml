@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test the web app
-        run: pnpm --filter web test
+      - name: Run the unit tests
+        run: pnpm test
 
       # The web app and the packages it builds from. The build needs a database
       # URL to exist, not to answer: every route that reads it is dynamic.

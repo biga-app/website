@@ -1,4 +1,4 @@
-import { createHighlighter, bundledThemesInfo, bundledLanguagesInfo, type Highlighter } from "shiki";
+import { createHighlighter, bundledThemesInfo, type Highlighter } from "shiki";
 
 export type ThemeKind = "light" | "dark";
 export type ThemeOption = { id: string; label: string; kind: ThemeKind };
@@ -12,18 +12,10 @@ export const EDITOR_THEMES: ThemeOption[] = bundledThemesInfo.map((t) => ({
 export const DEFAULT_LIGHT_THEME = "github-light";
 export const DEFAULT_DARK_THEME = "github-dark";
 
-const SHIKI_LANGS = bundledLanguagesInfo.map((l) => l.id);
-
 let highlighterPromise: Promise<Highlighter> | null = null;
 
-/** Lazily create the shared highlighter once and reuse it across editors. */
 export function getHighlighter(): Promise<Highlighter> {
-    if (!highlighterPromise) {
-        highlighterPromise = createHighlighter({
-            themes: EDITOR_THEMES.map((theme) => theme.id),
-            langs: SHIKI_LANGS,
-        });
-    }
+    highlighterPromise ??= createHighlighter({ themes: [], langs: [] });
     return highlighterPromise;
 }
 

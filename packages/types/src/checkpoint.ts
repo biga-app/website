@@ -102,3 +102,20 @@ export const CheckpointUploadSchema = z.object({
     timestamp: z.number().int().positive(),
 });
 export type CheckpointUpload = z.infer<typeof CheckpointUploadSchema>;
+
+/**
+ * The list-view form of a checkpoint: everything except the per-file changes.
+ */
+export function summarizeCheckpoint(checkpoint: Checkpoint): CheckpointSummary {
+    const summary: CheckpointSummary = {
+        sessionId: checkpoint.sessionId,
+        seq: checkpoint.seq,
+        label: checkpoint.label,
+        createdAt: checkpoint.createdAt,
+        filesChanged: checkpoint.filesChanged,
+        additions: checkpoint.additions,
+        deletions: checkpoint.deletions,
+    };
+    if (checkpoint.named !== undefined) summary.named = checkpoint.named;
+    return summary;
+}

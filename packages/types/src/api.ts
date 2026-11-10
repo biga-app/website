@@ -35,3 +35,19 @@ export type PaginatedResponse<T> = {
     pageSize: number;
     hasNext: boolean;
 };
+
+export type ApiErrorKind = "not_found" | "rate_limited" | "network" | "server" | "invalid";
+
+export class ApiRequestError extends Error {
+    readonly kind: ApiErrorKind;
+    readonly status: number | null;
+    readonly retryAfterMs: number | null;
+
+    constructor(kind: ApiErrorKind, message: string, status: number | null = null, retryAfterMs: number | null = null) {
+        super(message);
+        this.name = "ApiRequestError";
+        this.kind = kind;
+        this.status = status;
+        this.retryAfterMs = retryAfterMs;
+    }
+}

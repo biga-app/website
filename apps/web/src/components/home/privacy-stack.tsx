@@ -80,7 +80,7 @@ export function PrivacyStack({ host }: { host: string }) {
         >
           <Scaled width={FILES} height={BODY}>
             <div style={{ width: FILES, height: BODY }}>
-              <PanelFiles ended={false} />
+              <PanelFiles />
             </div>
           </Scaled>
         </ExplodedUI.Layer>
