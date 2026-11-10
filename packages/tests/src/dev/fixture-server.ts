@@ -40,6 +40,8 @@ const DEMO_FILES: Record<string, string> = {
     "cmd/server/main.go": 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("hello")\n}\n',
     "docs/guide.md": "# Guide\n\n1. Install\n2. Run\n3. Share the link\n",
     "docs/notes/todo.md": "- [ ] write tests\n- [ ] ship\n",
+    "dist/bundle.min.js": `${"var a=function(b){return b+1};".repeat(1_000)}\n`,
+    "data/rows.json": `[\n${Array.from({ length: 25_000 }, (_, index) => `  { "id": ${index} },`).join("\n")}\n  null\n]\n`,
 };
 
 function bigFiles(): Record<string, string> {

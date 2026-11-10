@@ -2,14 +2,15 @@
 
 import { DiffEditor, Editor, useMonaco } from "@monaco-editor/react";
 import "./monaco/monaco-loader";
+import { PlainTextNotice } from "./monaco/plain-text-notice";
 import { enableShiki } from "./monaco/shiki-monaco";
+import { useDocumentTier } from "./monaco/use-document-tier";
 import { useThemeStore } from "@biga/stores/theme-store";
 import type * as Monaco from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { languageForPath } from "@/lib/languages";
 import { resolveEditorTheme } from "@/lib/shiki";
 
 export const MONACO_OPTIONS = {
@@ -127,22 +128,28 @@ export function MonacoViewer({
   wordWrap?: "on" | "off";
 }) {
   const { shikiTheme, fallback } = useEditorTheme();
-  const { ready } = useShikiMonaco(languageForPath(path), shikiTheme);
+  const tier = useDocumentTier(path, value);
+  const { ready } = useShikiMonaco(tier.language, shikiTheme);
   const theme = ready ? shikiTheme : fallback;
 
   return (
-    <Editor
-      height="100%"
-      path={path}
-      language={languageForPath(path)}
-      value={value}
-      theme={theme}
-      loading={<Skeleton className="size-full rounded-none" />}
-      options={{ ...MONACO_OPTIONS, wordWrap }}
-      onMount={(editor, monacoInstance) =>
-        remeasureOnFontLoad(editor, monacoInstance)
-      }
-    />
+    <div className="flex h-full flex-col">
+      {tier.plain && <PlainTextNotice onEnable={tier.enableHighlighting} />}
+      <div className="min-h-0 flex-1">
+        <Editor
+          height="100%"
+          path={path}
+          language={tier.language}
+          value={value}
+          theme={theme}
+          loading={<Skeleton className="size-full rounded-none" />}
+          options={{ ...MONACO_OPTIONS, ...tier.options, wordWrap }}
+          onMount={(editor, monacoInstance) =>
+            remeasureOnFontLoad(editor, monacoInstance)
+          }
+        />
+      </div>
+    </div>
   );
 }
 
@@ -160,7 +167,8 @@ export function MonacoDiffViewer({
   wordWrap?: "on" | "off";
 }) {
   const { shikiTheme, fallback } = useEditorTheme();
-  const { ready } = useShikiMonaco(languageForPath(path), shikiTheme);
+  const tier = useDocumentTier(path, modified);
+  const { ready } = useShikiMonaco(tier.language, shikiTheme);
   const theme = ready ? shikiTheme : fallback;
   const editorRef = useRef<Monaco.editor.IStandaloneDiffEditor | null>(null);
 
@@ -176,23 +184,29 @@ export function MonacoDiffViewer({
   }, []);
 
   return (
-    <DiffEditor
-      height="100%"
-      language={languageForPath(path)}
-      original={original}
-      modified={modified}
-      theme={theme}
-      loading={<Skeleton className="size-full rounded-none" />}
-      options={{
-        ...MONACO_OPTIONS,
-        renderSideBySide: sideBySide,
-        originalEditable: false,
-        wordWrap,
-      }}
-      onMount={(editor, monacoInstance) => {
-        editorRef.current = editor;
-        remeasureOnFontLoad(editor, monacoInstance);
-      }}
-    />
+    <div className="flex h-full flex-col">
+      {tier.plain && <PlainTextNotice onEnable={tier.enableHighlighting} />}
+      <div className="min-h-0 flex-1">
+        <DiffEditor
+          height="100%"
+          language={tier.language}
+          original={original}
+          modified={modified}
+          theme={theme}
+          loading={<Skeleton className="size-full rounded-none" />}
+          options={{
+            ...MONACO_OPTIONS,
+            ...tier.options,
+            renderSideBySide: sideBySide,
+            originalEditable: false,
+            wordWrap,
+          }}
+          onMount={(editor, monacoInstance) => {
+            editorRef.current = editor;
+            remeasureOnFontLoad(editor, monacoInstance);
+          }}
+        />
+      </div>
+    </div>
   );
 }
