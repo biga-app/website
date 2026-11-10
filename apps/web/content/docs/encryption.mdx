@@ -1,0 +1,79 @@
+---
+title: Encryption
+description: Seal your files on your machine, so the server stores contents it cannot read.
+---
+
+By default the server can read what you broadcast. With `--encrypt` it cannot:
+your files are sealed on your machine, the key goes into the share link, and the
+server only ever holds bytes it has no key for.
+
+```bash
+biga start --encrypt
+```
+
+```text
+●  Share: https://biga.example.com/session/k3f9zq2a#k=SWvHwA9_u1jufeWori9sE1u7odbSOlffz1ukGMmW0nU
+●  Encrypted: the key is in the link after the #. Anyone with the whole link can read your files.
+```
+
+The part after `#` is the key. Browsers keep a link's fragment to themselves: it
+is never sent in a request, so it never reaches the server, a proxy in front of
+it, or its logs. The viewer reads the key from the address bar, decrypts in the
+page, and nothing readable leaves the browser.
+
+## What the server can and cannot see
+
+| The server cannot read | The server can still see |
+| --- | --- |
+| File contents, including every earlier version | File and folder names, and the tree they form |
+| What a save changed inside a file, beyond how many lines | File sizes and how many lines each save changed |
+| Whether a file matches a guess of yours | Which files are identical, since they share a name, and whether a save changed a file |
+| | When you save, how often, and which paths |
+| | The session's title, and when it started and ended |
+
+Treat names and sizes as public to whoever runs the server. If a path is
+sensitive, it is not protected.
+
+Anyone with the whole link can read everything in the session, including its
+history. That is what a share link is for, so share it as carefully as the files.
+
+## How it works
+
+One random 32-byte key is made when the session starts and saved next to the
+session's owner token in `~/.biga/sessions.json`, readable only by you. From it,
+HKDF-SHA256 derives three keys, one for each job:
+
+- **Naming.** A blob is named by the HMAC-SHA256 of its content under one key,
+  in place of the plain SHA-256. It looks the same to the server, and identical
+  files still get the same name, so they are stored once. Without the key, the
+  server cannot check a guess at what a file contains.
+- **Sealing.** Content is sealed with AES-256-GCM. The blob's name is
+  authenticated along with it, so the server cannot swap one file's ciphertext
+  in for another's. Content is compressed first when that makes it smaller.
+- **Nonces.** Each nonce is derived from the blob's name, so the same content
+  always seals to the same bytes.
+
+The server cannot count lines in what it cannot read, so the CLI reports how many
+lines each save added and removed, comparing against the text it remembers.
+It keeps up to 32 MiB of recent files for this, so a very large project, or a file
+over a quarter of that, may show a save without line counts.
+
+## Things to know
+
+- **The key is the only way in.** If a link loses its `#...` part, or the key is
+  lost, the content cannot be recovered. A viewer who opens a link without it is
+  told the session is encrypted; one with the wrong key is told it does not match.
+- **A session is encrypted or not, for good.** You cannot encrypt a session that
+  already exists, or the other way round. Start a new one with `--session`.
+- **Encrypting later does not help the past.** What was shared unencrypted stays
+  readable to the server operator.
+- **Whoever runs the viewer's page could read the key.** The page is code from
+  the site you load it from; the key is decrypted in it. Open links on a site
+  you trust, or host the viewer yourself.
+- **Extensions see no content.** The [checkpoint feed](/docs/extensions) never
+  carried file content, so it is unchanged.
+- **Secrets are still withheld.** The CLI scans your files for credentials
+  before sealing them, as it does without `--encrypt`.
+
+Encryption needs a viewer and server that support it. An older viewer opens an
+encrypted session as an error, never as garbled files.

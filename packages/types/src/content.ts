@@ -13,6 +13,8 @@ export type ApiClientOptions = {
     sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
     maxAttempts?: number;
     backoffMs?: number;
+    /** The key an encrypted session's content is sealed with, from the share link. */
+    key?: Uint8Array | null;
 };
 
 export type BlobEntry = {

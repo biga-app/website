@@ -19,6 +19,7 @@ const staticApi: ApiClient = {
 export function createStaticRuntime(sessionId: string): SessionRuntime {
     return {
         ...createRuntimeCore(sessionId, staticApi),
+        shareKey: null,
         start: noop,
         stop: noop,
         reconnect: noop,

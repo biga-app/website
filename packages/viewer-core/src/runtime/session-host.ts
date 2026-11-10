@@ -1,6 +1,7 @@
 import { PROTOCOL_VERSION, type SessionHostEnv, type SessionPort, type WorkerRequest, type WorkerResponse } from "@biga/types/worker";
 
 import { createApiClient } from "../content/api-client.ts";
+import { parseShareKey } from "../crypto/content-crypto.ts";
 import { createCoalescer } from "../pipeline/coalescer.ts";
 import { createSupervisor } from "../pipeline/supervisor.ts";
 import { buildTreeTable } from "../pipeline/tree-table.ts";
@@ -30,7 +31,7 @@ export function createSessionHost(env: SessionHostEnv) {
             sessionId: request.config.sessionId,
             initialCheckpointSeq: request.config.initialCheckpointSeq,
             transport: createStreamTransport({ baseUrl: env.baseUrl, fetch: env.fetch }),
-            api: createApiClient({ baseUrl: env.baseUrl, fetch: env.fetch, sleep: env.sleep }),
+            api: createApiClient({ baseUrl: env.baseUrl, fetch: env.fetch, sleep: env.sleep, key: parseShareKey(`k=${request.config.key ?? ""}`)?.bytes ?? null }),
             sink: coalescer,
             buildTable: buildTreeTable,
             clock: env.clock,

@@ -12,7 +12,8 @@ export const STREAM_TYPE = "application/vnd.biga.stream+protobuf";
 
 const utf8 = new TextDecoder();
 
-function text(bytes: Uint8Array): string {
+/** File text as the viewer shows it: bytes that are not UTF-8 become replacement characters. */
+export function utf8Text(bytes: Uint8Array): string {
     return utf8.decode(bytes);
 }
 
@@ -47,7 +48,7 @@ function session(value: pb.Session): SessionResponse {
     if (value.status === pb.SessionStatus.ACTIVE) status = "active";
     else if (value.status === pb.SessionStatus.ENDED) status = "ended";
     else throw new Error("unknown session status");
-    return {
+    const result: SessionResponse = {
         id: value.id,
         title: value.title,
         description: value.description ?? null,
@@ -57,6 +58,8 @@ function session(value: pb.Session): SessionResponse {
         endedAt: value.endedAt ?? null,
         groupId: value.groupId ?? null,
     };
+    if (value.encrypted) result.encrypted = true;
+    return result;
 }
 
 function fileNode(node: pb.FileNode): FileNode {
@@ -144,19 +147,24 @@ export function decodeSession(bytes: Uint8Array): SessionResponse {
     return session(fromBinary(pb.SessionSchema, bytes));
 }
 
-export function decodeState(bytes: Uint8Array): SessionState {
+/**
+ * A session state whose file contents are still bytes. They are text for an
+ * ordinary session and sealed for an encrypted one, so reading them is left to
+ * the caller.
+ */
+export type RawState = { state: SessionState; contents: Record<string, Uint8Array> };
+
+export function decodeState(bytes: Uint8Array): RawState {
     const value = fromBinary(pb.SessionStateSchema, bytes);
-    const state: SessionState = {
-        session: session(required(value.session, "session")),
-        snapshot: value.snapshot ? snapshot(value.snapshot) : null,
-        checkpoints: value.checkpoints.map(summary),
-        mode: loadMode(value.mode),
+    return {
+        state: {
+            session: session(required(value.session, "session")),
+            snapshot: value.snapshot ? snapshot(value.snapshot) : null,
+            checkpoints: value.checkpoints.map(summary),
+            mode: loadMode(value.mode),
+        },
+        contents: value.contents,
     };
-    const hashes = Object.keys(value.contents);
-    if (hashes.length > 0) {
-        state.contents = Object.fromEntries(hashes.map((hash) => [hash, text(value.contents[hash] as Uint8Array)]));
-    }
-    return state;
 }
 
 export function decodeCheckpoint(bytes: Uint8Array): Checkpoint {
@@ -171,9 +179,12 @@ export function decodeFileHistory(bytes: Uint8Array): FileHistoryEntry[] {
     return fromBinary(pb.FileHistoryResponseSchema, bytes).history.map(historyEntry);
 }
 
-export function decodeFileContent(bytes: Uint8Array): FileContent {
+/** A file's content as bytes: text for an ordinary session, sealed for an encrypted one. */
+export type RawFileContent = Omit<FileContent, "content"> & { content: Uint8Array; encrypted: boolean };
+
+export function decodeFileContent(bytes: Uint8Array): RawFileContent {
     const value = fromBinary(pb.FileContentSchema, bytes);
-    return { content: text(value.content), binary: value.binary, hash: value.hash };
+    return { content: value.content, binary: value.binary, hash: value.hash, encrypted: value.encrypted };
 }
 
 export function decodeApiError(bytes: Uint8Array): { code: string; message: string } {

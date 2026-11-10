@@ -5,7 +5,7 @@ description: Every command and flag of the biga CLI.
 
 ```text
 biga start [dir...] [--dir <path>]... [--title <text>] [--session <id>] [--open]
-           [--only <path>]... [--dry-run] [--no-secret-scan]
+           [--only <path>]... [--dry-run] [--no-secret-scan] [--encrypt]
 biga status [dir] [--json]
 biga list [--json]
 biga open [dir]
@@ -41,6 +41,7 @@ stop it. With no argument it uses the current directory.
 | `--only <path>` | Share only this file or directory, relative to the current directory. May be repeated. One directory only. See [what gets shared](/docs/what-gets-shared#share-only-part-of-a-project). |
 | `--dry-run` | Show what would be shared and what would be withheld, without contacting the server. |
 | `--no-secret-scan` | Share files even if their content looks like a secret. Same as `BIGA_SECRET_SCAN=off`. |
+| `--encrypt` | Seal file contents with a key that stays in the share link, so the server cannot read them. See [Encryption](/docs/encryption). |
 
 Where the directories come from, in order: the ones you pass, then a
 `biga.json` in the current directory (see [workspaces](/docs/workspaces)),

@@ -57,6 +57,7 @@ function session(value: SessionResponse): pb.Session {
         updatedAt: value.updatedAt,
         endedAt: value.endedAt ?? undefined,
         groupId: value.groupId ?? undefined,
+        encrypted: value.encrypted ?? false,
     });
 }
 
@@ -95,7 +96,8 @@ export function encodeSession(value: SessionResponse): Uint8Array {
     return toBinary(pb.SessionSchema, session(value));
 }
 
-export function encodeState(value: SessionState): Uint8Array {
+/** Encodes a state. For an encrypted session, `sealed` holds each hash's sealed bytes in place of text. */
+export function encodeState(value: SessionState, sealed: Record<string, Uint8Array> = {}): Uint8Array {
     return toBinary(
         pb.SessionStateSchema,
         create(pb.SessionStateSchema, {
@@ -103,7 +105,10 @@ export function encodeState(value: SessionState): Uint8Array {
             snapshot: value.snapshot ? snapshot(value.snapshot) : undefined,
             checkpoints: value.checkpoints.map(summary),
             mode: value.mode === "eager" ? pb.LoadMode.EAGER : pb.LoadMode.LAZY,
-            contents: Object.fromEntries(Object.entries(value.contents ?? {}).map(([hash, text]) => [hash, encoder.encode(text)])),
+            contents: {
+                ...Object.fromEntries(Object.entries(value.contents ?? {}).map(([hash, text]) => [hash, encoder.encode(text)])),
+                ...sealed,
+            },
         })
     );
 }
@@ -133,10 +138,16 @@ export function encodeFileHistory(values: FileHistoryEntry[]): Uint8Array {
     return toBinary(pb.FileHistoryResponseSchema, create(pb.FileHistoryResponseSchema, { history }));
 }
 
-export function encodeFileContent(value: FileContent): Uint8Array {
+/** Encodes a file. For an encrypted session, `sealed` is the sealed bytes sent in place of the text. */
+export function encodeFileContent(value: FileContent, sealed?: Uint8Array): Uint8Array {
     return toBinary(
         pb.FileContentSchema,
-        create(pb.FileContentSchema, { content: encoder.encode(value.content), binary: value.binary, hash: value.hash })
+        create(pb.FileContentSchema, {
+            content: sealed ?? encoder.encode(value.content),
+            binary: value.binary,
+            hash: value.hash,
+            encrypted: sealed !== undefined,
+        })
     );
 }
 

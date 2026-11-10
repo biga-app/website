@@ -13,6 +13,7 @@ import {
     decodeSession,
     decodeState,
     decodeStreamEvent,
+    utf8Text,
 } from "@biga/types/wire";
 
 import { makeChange, makeCheckpoint, makeSummary } from "../fixtures/checkpoints.ts";
@@ -54,17 +55,18 @@ test("a state keeps its tree, summaries and eager contents", () => {
     };
     const state = makeState({ seqs: [0, 1, 2], mode: "eager", contents: { [hash("a")]: "héllo ✓\n" } });
     state.snapshot = { sessionId: "s1", tree, timestamp: 1700000000123, sequenceNum: 4 };
-    const decoded = decodeState(encodeState(state));
+    const { state: decoded, contents } = decodeState(encodeState(state));
     assert.deepEqual(decoded.snapshot, state.snapshot);
     assert.deepEqual(decoded.checkpoints.map((item) => item.seq), [2, 1, 0]);
-    assert.deepEqual(decoded.contents, { [hash("a")]: "héllo ✓\n" });
+    assert.equal(decoded.contents, undefined, "content stays bytes until the caller reads it");
+    assert.equal(utf8Text(contents[hash("a")] as Uint8Array), "héllo ✓\n");
     assert.equal(decoded.mode, "eager");
 });
 
 test("a lazy state without a snapshot has no contents", () => {
-    const decoded = decodeState(encodeState(makeState({ snapshot: false })));
+    const { state: decoded, contents } = decodeState(encodeState(makeState({ snapshot: false })));
     assert.equal(decoded.snapshot, null);
-    assert.equal(decoded.contents, undefined);
+    assert.deepEqual(contents, {});
     assert.equal(decoded.mode, "lazy");
 });
 
@@ -116,9 +118,10 @@ test("lists decode in order", () => {
 
 test("file content decodes UTF-8 and tolerates bytes that are not", () => {
     const text = { content: "héllo ✓", binary: false, hash: hash("a") };
-    assert.deepEqual(decodeFileContent(encodeFileContent(text)), text);
+    const decoded = decodeFileContent(encodeFileContent(text));
+    assert.deepEqual({ ...decoded, content: utf8Text(decoded.content) }, { ...text, encrypted: false });
     const raw = toBinary(pb.FileContentSchema, create(pb.FileContentSchema, { content: new Uint8Array([0x61, 0xff, 0x62]), hash: hash("a") }));
-    assert.equal(decodeFileContent(raw).content, "a�b");
+    assert.equal(utf8Text(decodeFileContent(raw).content), "a�b");
 });
 
 test("an error body decodes to its code and message", () => {
@@ -149,4 +152,17 @@ test("every stream event decodes to the viewer's event shape", () => {
 
 test("a stream frame with no event is rejected", () => {
     assert.throws(() => decodeStreamEvent(new Uint8Array(0)), /no event/);
+});
+
+test("the encrypted flag survives on sessions and files", () => {
+    assert.equal(decodeSession(encodeSession({ ...makeSessionResponse(), encrypted: true })).encrypted, true);
+    assert.equal("encrypted" in decodeSession(encodeSession(makeSessionResponse())), false);
+
+    const sealed = new Uint8Array([1, 0, 9, 9, 9]);
+    const file = decodeFileContent(encodeFileContent({ content: "", binary: false, hash: hash("a") }, sealed));
+    assert.deepEqual([file.encrypted, [...file.content]], [true, [1, 0, 9, 9, 9]]);
+
+    const { state, contents } = decodeState(encodeState({ ...makeState({ mode: "eager" }), session: { ...makeSessionResponse(), encrypted: true } }, { [hash("a")]: sealed }));
+    assert.equal(state.session.encrypted, true);
+    assert.deepEqual([...(contents[hash("a")] as Uint8Array)], [1, 0, 9, 9, 9]);
 });

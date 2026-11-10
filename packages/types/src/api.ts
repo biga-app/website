@@ -36,7 +36,7 @@ export type PaginatedResponse<T> = {
     hasNext: boolean;
 };
 
-export type ApiErrorKind = "not_found" | "rate_limited" | "network" | "server" | "invalid";
+export type ApiErrorKind = "not_found" | "rate_limited" | "network" | "server" | "invalid" | "missing_key" | "wrong_key";
 
 export class ApiRequestError extends Error {
     readonly kind: ApiErrorKind;

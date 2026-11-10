@@ -3,7 +3,9 @@ import { CheckpointSchema, type Checkpoint, type CheckpointSummary, type FileHis
 import type { ApiClient, ApiClientOptions, RequestOptions } from "@biga/types/content";
 import { isValidHash } from "@biga/types/file-identity";
 import { CheckpointsResponseSchema, FileContentSchema, FileHistoryResponseSchema, SessionStateSchema, type FileContent, type SessionState } from "@biga/types/state";
-import { decodeApiError, decodeCheckpoint, decodeCheckpointList, decodeFileContent, decodeFileHistory, decodeState, PROTOBUF_TYPE } from "@biga/types/wire";
+import { decodeApiError, decodeCheckpoint, decodeCheckpointList, decodeFileContent, decodeFileHistory, decodeState, PROTOBUF_TYPE, utf8Text } from "@biga/types/wire";
+
+import { createContentOpener } from "../crypto/content-crypto.ts";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
 
@@ -66,21 +68,42 @@ async function readSuccess(response: Response, signal: AbortSignal | undefined):
     return bytes;
 }
 
-function parseWith<T>(schema: Parser<T>, decode: () => unknown): T {
-    let value: unknown;
+function invalid(): ApiRequestError {
+    return new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
+}
+
+function decoded<T>(decode: () => T): T {
     try {
-        value = decode();
+        return decode();
     } catch {
-        throw new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
+        throw invalid();
     }
-    const result = schema.safeParse(value);
-    if (!result.success) throw new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
+}
+
+function parseWith<T>(schema: Parser<T>, decode: () => unknown): T {
+    const result = schema.safeParse(decoded(decode));
+    if (!result.success) throw invalid();
     return result.data;
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
     const attempts = options.maxAttempts ?? DEFAULT_ATTEMPTS;
     const backoff = options.backoffMs ?? DEFAULT_BACKOFF_MS;
+    const open = options.key ? createContentOpener(options.key) : null;
+
+    function requireKey(): NonNullable<typeof open> {
+        if (!open) throw new ApiRequestError("missing_key", "This session is encrypted and the link has no key.");
+        return open;
+    }
+
+    async function unseal(hash: string, sealed: Uint8Array): Promise<string> {
+        const opener = requireKey();
+        try {
+            return utf8Text(await opener(hash, sealed));
+        } catch {
+            throw new ApiRequestError("wrong_key", "The link's key does not open this session.");
+        }
+    }
 
     async function attempt(path: string, cache: RequestCache, request: RequestOptions): Promise<Uint8Array> {
         let response: Response;
@@ -116,12 +139,23 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return {
         async getState(sessionId: string, request: RequestOptions = {}): Promise<SessionState> {
             const bytes = await send(`/api/sessions/${sessionId}/state`, "no-store", request);
-            return parseWith(SessionStateSchema, () => decodeState(bytes));
+            const raw = decoded(() => decodeState(bytes));
+            const state = parseWith(SessionStateSchema, () => raw.state);
+            if (state.session.encrypted) requireKey();
+            const files = Object.entries(raw.contents);
+            if (files.length === 0) return state;
+            const texts = await Promise.all(
+                files.map(async ([hash, content]) => [hash, state.session.encrypted ? await unseal(hash, content) : utf8Text(content)] as const)
+            );
+            return { ...state, contents: Object.fromEntries(texts) };
         },
         async getFile(sessionId: string, path: string, ref: string, request: RequestOptions = {}): Promise<FileContent> {
             const query = new URLSearchParams({ path, ref });
             const bytes = await send(`/api/sessions/${sessionId}/file?${query}`, cacheModeFor(ref), request);
-            return parseWith(FileContentSchema, () => decodeFileContent(bytes));
+            const raw = decoded(() => decodeFileContent(bytes));
+            if (raw.encrypted) requireKey();
+            const content = raw.encrypted && !raw.binary ? await unseal(raw.hash, raw.content) : utf8Text(raw.content);
+            return parseWith(FileContentSchema, () => ({ content, binary: raw.binary, hash: raw.hash }));
         },
         async getCheckpoint(sessionId: string, seq: number, request: RequestOptions = {}): Promise<Checkpoint> {
             const bytes = await send(`/api/sessions/${sessionId}/checkpoints/${seq}`, "no-store", request);

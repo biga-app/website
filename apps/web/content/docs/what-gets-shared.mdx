@@ -79,6 +79,12 @@ that a random-looking string is sensitive. Keep real credentials out of the
 directory you broadcast, or use `--only`.
 </Callout>
 
+## Keep the server from reading it
+
+Everything above decides what leaves your machine. `--encrypt` decides who can read
+it once it has: contents are sealed with a key that only the link holds, so even
+the server stores bytes it cannot read. See [Encryption](/docs/encryption).
+
 ## Check before you share
 
 ```bash

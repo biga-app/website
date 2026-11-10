@@ -52,6 +52,9 @@ When the CLI creates a session, the server hands it an **owner token** and
 keeps only a hash of it. Every later write (uploads, heartbeats, rejoining,
 ending) must present the token, so a link lets people watch and nothing more.
 
+An [encrypted](/docs/encryption) session's key is saved beside it, which is how rejoining
+keeps the same link.
+
 The token lives in `~/.biga/sessions.json`. If it is lost (the file was
 deleted, or you start the folder on another machine), the server refuses the
 rejoin, and the CLI starts a new session with a new link:

@@ -39,6 +39,7 @@ them: `/healthz`, `/readyz`, the retention cron and the
 | 403 | `session_locked` | The session has no owner token and accepts no writes. Start a new one. |
 | 404 | `not_found` | No such session, checkpoint or file version. |
 | 409 | `invalid_state`, `inactive_session` | The session has ended. |
+| 409 | `encryption_mismatch` | A request asked for an encrypted session where there is an ordinary one, or the other way round. A session never changes kind. |
 | 409 | `missing_blob` | A snapshot refers to file content that was not uploaded. `details` has the `count` and the `first` hash. |
 | 413 | `payload_too_large`, `storage_quota_exceeded` | The body is over the endpoint's limit, or the session is full. |
 | 406 | `not_acceptable` | The request did not ask for protobuf. Always JSON. |
@@ -117,6 +118,17 @@ bytes, exactly as sent; paths must be relative, with no `.` or `..` segments.
 
 The CLI splits a large change set across several checkpoints, each under 6 MB
 uncompressed, so a branch switch stays inside the 8 MiB limit.
+
+### Encrypted sessions
+
+`PutSessionRequest.encrypted` asks for an [encrypted](/docs/encryption) session when
+creating one, and every `Session` says whether it is. The server then stores
+content as opaque bytes: it does not check that a hash is the SHA-256 of its
+content (the id is a keyed hash it cannot compute), does not compress, and cannot
+count lines. The client reports them instead, as `FileInfo.lines` on a snapshot and
+`additions` and `deletions` on a checkpoint entry. `FileContent.encrypted` tells the
+viewer the bytes it received must be opened with the key. Everything else, paths and
+sizes included, works as in any session.
 
 ### Large projects
 

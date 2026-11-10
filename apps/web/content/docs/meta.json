@@ -8,6 +8,7 @@
     "cli",
     "workspaces",
     "what-gets-shared",
+    "encryption",
     "sessions",
     "viewer",
     "---How it works---",

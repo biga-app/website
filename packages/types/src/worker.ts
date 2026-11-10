@@ -7,6 +7,8 @@ export const PROTOCOL_VERSION = 1;
 export type SessionConfig = {
     sessionId: string;
     initialCheckpointSeq?: number;
+    /** The share link's key as text, for an encrypted session. */
+    key?: string;
 };
 
 export type WorkerRequest =

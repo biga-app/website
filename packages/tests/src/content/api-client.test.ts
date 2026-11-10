@@ -5,10 +5,12 @@ import { ApiRequestError } from "@biga/types/api";
 import type { FileHistoryEntry } from "@biga/types/checkpoint";
 import { PROTOBUF_TYPE } from "@biga/types/wire";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
+import { parseShareKey } from "@biga/viewer-core/crypto/content-crypto";
 
 import { makeChange, makeCheckpoint, makeSummary } from "../fixtures/checkpoints.ts";
 import { hash } from "../fixtures/hash.ts";
 import { makeState } from "../fixtures/session.ts";
+import { vector, vectorKeyText } from "../fixtures/e2ee-vectors.ts";
 import { encodeApiError, encodeCheckpoint, encodeCheckpointList, encodeFileContent, encodeFileHistory, encodeState } from "../fixtures/wire.ts";
 
 const HASH = hash("a");
@@ -23,7 +25,7 @@ function failure(status: number, headers: Record<string, string> = {}) {
     return ok(encodeApiError("x", "nope"), status, headers);
 }
 
-function setup(responses: (Response | Error)[]) {
+function setup(responses: (Response | Error)[], key: Uint8Array | null = null) {
     const calls: Call[] = [];
     const sleeps: number[] = [];
     const queue = [...responses];
@@ -40,6 +42,7 @@ function setup(responses: (Response | Error)[]) {
             sleeps.push(ms);
         },
         backoffMs: 100,
+        key,
     });
     return { client, calls, sleeps };
 }
@@ -210,4 +213,73 @@ test("text that is not UTF-8 is shown with replacement characters, not an error"
     raw[at] = 0xff;
     const { client } = setup([ok(raw)]);
     assert.match((await client.getFile("s1", "a.ts", HASH)).content, /^\uFFFDlaceholder$/);
+});
+
+const shareKey = (parseShareKey(`#k=${vectorKeyText}`) as { bytes: Uint8Array }).bytes;
+
+function sealedState(names: string[]) {
+    const state = makeState({ mode: "eager" });
+    state.session = { ...state.session, encrypted: true };
+    return encodeState(state, Object.fromEntries(names.map((name) => [vector(name).id, vector(name).sealed])));
+}
+
+test("an encrypted state is opened with the link's key", async () => {
+    const { client } = setup([ok(sealedState(["short", "unicode", "compressible"]))], shareKey);
+    const state = await client.getState("s1");
+    assert.equal(state.session.encrypted, true);
+    assert.equal(state.contents?.[vector("short").id], "hello\n");
+    assert.equal(state.contents?.[vector("unicode").id], "héllo ✓ wörld\n");
+    assert.equal(state.contents?.[vector("compressible").id], "abc\n".repeat(1000));
+});
+
+test("an encrypted file is opened by the hash it is named with", async () => {
+    const { id, sealed } = vector("unicode");
+    const { client } = setup([ok(encodeFileContent({ content: "", binary: false, hash: id }, sealed))], shareKey);
+    assert.deepEqual(await client.getFile("s1", "a.txt", id), { content: "héllo ✓ wörld\n", binary: false, hash: id });
+});
+
+test("a binary placeholder in an encrypted session has nothing to open", async () => {
+    const { client } = setup([ok(encodeFileContent({ content: "", binary: true, hash: vector("short").id }, new Uint8Array(0)))], shareKey);
+    assert.deepEqual(await client.getFile("s1", "logo.png", vector("short").id), { content: "", binary: true, hash: vector("short").id });
+});
+
+test("an encrypted session opened without a key is a missing key, and is not retried", async () => {
+    const { client, calls } = setup([ok(sealedState(["short"]))]);
+    await assert.rejects(client.getState("s1"), (error: ApiRequestError) => error.kind === "missing_key");
+    assert.equal(calls.length, 1);
+
+    const { id, sealed } = vector("short");
+    const files = setup([ok(encodeFileContent({ content: "", binary: false, hash: id }, sealed))]);
+    await assert.rejects(files.client.getFile("s1", "a.txt", id), (error: ApiRequestError) => error.kind === "missing_key");
+    assert.equal(files.calls.length, 1);
+});
+
+test("a state with no content still says it needs a key", async () => {
+    const lazy = makeState({ mode: "lazy" });
+    lazy.session = { ...lazy.session, encrypted: true };
+    const { client } = setup([ok(encodeState(lazy))]);
+    await assert.rejects(client.getState("s1"), (error: ApiRequestError) => error.kind === "missing_key");
+});
+
+test("the wrong key is reported as such, and is not retried", async () => {
+    const wrong = Uint8Array.from(shareKey);
+    wrong[5] = (wrong[5] as number) ^ 0xff;
+    const { client, calls } = setup([ok(sealedState(["short"]))], wrong);
+    await assert.rejects(client.getState("s1"), (error: ApiRequestError) => error.kind === "wrong_key");
+    assert.equal(calls.length, 1);
+});
+
+test("content that was altered on its way is refused", async () => {
+    const { id, sealed } = vector("short");
+    const altered = Uint8Array.from(sealed);
+    altered[altered.length - 1] = (altered[altered.length - 1] as number) ^ 1;
+    const { client } = setup([ok(encodeFileContent({ content: "", binary: false, hash: id }, altered))], shareKey);
+    await assert.rejects(client.getFile("s1", "a.txt", id), (error: ApiRequestError) => error.kind === "wrong_key");
+});
+
+test("a key on the link does nothing for a session that is not encrypted", async () => {
+    const { client } = setup([ok(encodeState(makeState({ mode: "eager", contents: { [HASH]: "plain text" } })))], shareKey);
+    assert.equal((await client.getState("s1")).contents?.[HASH], "plain text");
+    const files = setup([fileOk()], shareKey);
+    assert.equal((await files.client.getFile("s1", "a.ts", HASH)).content, "hi");
 });

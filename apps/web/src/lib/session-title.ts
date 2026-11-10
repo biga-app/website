@@ -24,8 +24,13 @@ export function displayTitle(session: Pick<SessionResponse, "id" | "title" | "cr
     return title;
 }
 
-/** Canonical share URL for a session, without viewer-only query params. */
-export function shareUrlFor(sessionId: string, checkpointSeq?: number): string {
+/**
+ * Canonical share URL for a session, without viewer-only query params. An
+ * encrypted session's link keeps its key in the fragment, so a copied link
+ * still opens.
+ */
+export function shareUrlFor(sessionId: string, checkpointSeq?: number, key?: string | null): string {
     const url = `${window.location.origin}/session/${encodeURIComponent(sessionId)}`;
-    return checkpointSeq === undefined ? url : `${url}?checkpoint=${checkpointSeq}`;
+    const link = checkpointSeq === undefined ? url : `${url}?checkpoint=${checkpointSeq}`;
+    return key ? `${link}#k=${key}` : link;
 }

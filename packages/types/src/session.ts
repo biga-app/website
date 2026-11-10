@@ -29,6 +29,11 @@ export const SessionResponseSchema = z.object({
      * older server's response still validates.
      */
     groupId: z.string().nullable().optional(),
+    /**
+     * True when the session's file content is sealed with a key that only the
+     * broadcaster and the holders of the share link have. Absent otherwise.
+     */
+    encrypted: z.boolean().optional(),
 });
 export type SessionResponse = z.infer<typeof SessionResponseSchema>;
 

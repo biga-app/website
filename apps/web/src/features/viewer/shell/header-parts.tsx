@@ -14,6 +14,7 @@ import { shareUrlFor } from "@/lib/session-title";
 import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 
+import { useRuntime } from "../runtime/runtime-provider";
 import { STATUS_DOT, STATUS_LABELS } from "./status-meta";
 
 /** Connection state plus the one fact that makes it useful: how fresh the files are. */
@@ -99,6 +100,7 @@ export function FollowToggle() {
 
 export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string; checkpointSeq?: number }) {
     const { copied, copy } = useCopyFeedback();
+    const { shareKey } = useRuntime();
 
     return (
         <>
@@ -107,7 +109,7 @@ export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string
                     <Button
                         variant="ghost"
                         size="xs"
-                        onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq))}
+                        onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq, shareKey))}
                         className="text-muted-foreground hover:text-foreground"
                     >
                         {copied ? <CopyGlyph copied /> : <LinkIcon className="size-3.5" />}

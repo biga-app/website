@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCwIcon, SearchXIcon, TimerIcon, WifiOffIcon, TriangleAlertIcon } from "lucide-react";
+import { KeyRoundIcon, RotateCwIcon, SearchXIcon, TimerIcon, WifiOffIcon, TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
 
 import { JoinForm } from "@/components/landing/join-form";
@@ -32,7 +32,20 @@ const COPY = {
     },
     server: SERVER_COPY,
     invalid: SERVER_COPY,
+    missing_key: {
+        icon: KeyRoundIcon,
+        title: "This session is encrypted",
+        body: "The link you opened has no key. Ask for the whole link: it ends with # and a long code. biga never sends that code to its servers, so it cannot be recovered for you.",
+    },
+    wrong_key: {
+        icon: KeyRoundIcon,
+        title: "The key does not open this session",
+        body: "The code at the end of the link does not match this session. Check that the whole link was copied, including everything after the #.",
+    },
 } as const;
+
+/** Failures that trying again cannot fix, because the link itself is the problem. */
+const LINK_PROBLEMS: ReadonlySet<ApiErrorKind> = new Set(["missing_key", "wrong_key"]);
 
 /**
  * Replaces the whole viewer when there is nothing to show. A missing session
@@ -109,10 +122,12 @@ export function SessionUnavailable({
                         </>
                     ) : (
                         <div className="mt-6 flex flex-wrap gap-2">
-                            <Button size="sm" onClick={onRetry}>
-                                <RotateCwIcon />
-                                Try again
-                            </Button>
+                            {!LINK_PROBLEMS.has(error.kind) && (
+                                <Button size="sm" onClick={onRetry}>
+                                    <RotateCwIcon />
+                                    Try again
+                                </Button>
+                            )}
                             <Button asChild variant="ghost" size="sm">
                                 <Link href="/" prefetch={false} target={linkTarget}>
                                     Go to the homepage

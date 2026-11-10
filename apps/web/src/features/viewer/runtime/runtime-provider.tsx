@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { ReadableStore } from "@biga/types/stores";
+import { parseShareKey, type ShareKey } from "@biga/viewer-core/crypto/content-crypto";
 import { viewerParsers } from "@biga/viewer-core/location/search-params";
 import { useQueryState } from "nuqs";
 
@@ -33,9 +34,13 @@ export function SessionRuntimeProvider({
     const [runtime, setRuntime] = useState<SessionRuntime | null>(null);
     const [checkpoint] = useQueryState("checkpoint", viewerParsers.checkpoint);
     const initialSeq = useRef(checkpoint ?? undefined);
+    const keys = useRef(new Map<string, ShareKey | null>());
 
     useEffect(() => {
-        const created = createSessionRuntime({ sessionId, initialCheckpointSeq: initialSeq.current });
+        // The key is read from the link once, as the page opens: the address bar
+        // may lose its fragment later, and the server never sees it.
+        if (!keys.current.has(sessionId)) keys.current.set(sessionId, parseShareKey(window.location.hash));
+        const created = createSessionRuntime({ sessionId, initialCheckpointSeq: initialSeq.current, key: keys.current.get(sessionId) });
         const onVisibility = () => created.setHidden(document.hidden);
         const onOnline = () => created.notifyOnline();
         document.addEventListener("visibilitychange", onVisibility);

@@ -4,6 +4,7 @@ import { KIND_FILE } from "@biga/types/tree-table";
 import type { SessionPort } from "@biga/types/worker";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
 import { createBlobStore, defaultBudgetBytes } from "@biga/viewer-core/content/blob-store";
+import type { ShareKey } from "@biga/viewer-core/crypto/content-crypto";
 import { applyBatch, type WritableStores } from "@biga/viewer-core/runtime/apply-batch";
 import { createPrefetcher } from "@biga/viewer-core/runtime/prefetcher";
 import { createSessionClient } from "@biga/viewer-core/runtime/session-client";
@@ -55,6 +56,8 @@ function createWorkerPort(): SessionPort | null {
 export type SessionRuntimeOptions = {
     sessionId: string;
     initialCheckpointSeq?: number;
+    /** The key from the share link, for an encrypted session. */
+    key?: ShareKey | null;
 };
 
 export type SessionControls = {
@@ -120,13 +123,17 @@ export function createRuntimeCore(sessionId: string, api: ApiClient) {
 
 export type RuntimeCore = ReturnType<typeof createRuntimeCore>;
 
-export type SessionRuntime = RuntimeCore & SessionControls;
+export type SessionRuntime = RuntimeCore &
+    SessionControls & {
+        /** The share link's key as text, to put back into links the viewer copies. */
+        shareKey: string | null;
+    };
 
 export function createSessionRuntime(options: SessionRuntimeOptions): SessionRuntime {
-    const { sessionId } = options;
+    const { sessionId, key = null } = options;
     const baseUrl = apiUrl("");
     const fetcher: typeof fetch = (input, init) => window.fetch(input, init);
-    const core = createRuntimeCore(sessionId, createApiClient({ baseUrl, fetch: fetcher, sleep: abortableSleep }));
+    const core = createRuntimeCore(sessionId, createApiClient({ baseUrl, fetch: fetcher, sleep: abortableSleep, key: key?.bytes ?? null }));
 
     const client = createSessionClient({
         createPort: createWorkerPort,
@@ -145,7 +152,8 @@ export function createSessionRuntime(options: SessionRuntimeOptions): SessionRun
 
     return {
         ...core,
-        start: () => client.start({ sessionId, initialCheckpointSeq: options.initialCheckpointSeq }),
+        shareKey: key?.text ?? null,
+        start: () => client.start({ sessionId, initialCheckpointSeq: options.initialCheckpointSeq, key: key?.text }),
         stop: () => client.stop(),
         reconnect: () => client.reconnect(),
         retry: () => client.retry(),
