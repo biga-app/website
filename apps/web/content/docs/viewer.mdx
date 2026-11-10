@@ -17,12 +17,50 @@ nothing to sign in to, and nothing on it can write back to your disk.
   of the editor themes from the theme picker.
 - File actions: copy the contents, copy the path, download the file, wrap long
   lines.
+- A brief highlight on the lines that just changed when the open file is
+  updated live, with a mark on the scrollbar for changes out of view. With
+  reduced motion on, the highlight is static instead of fading.
+
+### Keyboard
+
+The file tree follows the standard tree pattern: <kbd>↑</kbd> and <kbd>↓</kbd>
+move, <kbd>→</kbd> opens a folder or steps into it, <kbd>←</kbd> closes it or
+steps out, <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends, and
+<kbd>Enter</kbd> opens a file. Typing a few letters jumps to a matching name.
+Tab leaves the tree rather than stepping through every row.
+
+### Large files
+
+Files over about 256 KB, or with more than 20,000 lines, open with code
+folding, bracket colours and sticky scroll switched off so the page stays
+responsive. Files over about 2 MB, or with a single line longer than 20,000
+characters (minified bundles, for example), open as plain text with a notice
+and an **Enable highlighting** button. The notice appears above the editor, so
+screen readers reach it first.
 
 ## Following along
 
 While a broadcast is live, **Follow** opens each file as it is saved, so a
 viewer who just watches sees what you are working on. Browsing an older
 checkpoint pauses it, and a prompt offers to jump back to the latest.
+
+## Links
+
+Every view has its own address, so you can share what you are looking at and
+Back and Forward behave as you expect.
+
+| Address | Shows |
+| --- | --- |
+| `/session/<id>` | The latest state, following along. |
+| `/session/<id>?file=<path>` | That file. |
+| `/session/<id>?file=<path>&base=start` | The file compared with the first checkpoint. `base` can also be a checkpoint number. |
+| `/session/<id>?checkpoint=<n>` | The timeline, open on that checkpoint. |
+| `/session/<id>?checkpoint=<n>&file=<path>` | That file's diff in that checkpoint. |
+
+Opening a file yourself adds a history entry, so Back returns to the previous
+file. Following along, switching the comparison and stepping through
+checkpoints replace the current entry instead, so a live broadcast does not
+fill your history. Invalid values are ignored and the latest state is shown.
 
 ## Timeline
 
@@ -37,6 +75,14 @@ for each file and marks the changes in the tree.
 When a checkpoint is selected, **Copy checkpoint link** opens that point in the
 timeline for anyone who already has access to the session. Named checkpoints
 display the label the broadcaster gave them.
+
+## If the connection drops
+
+The page keeps showing the last state it had, says **Reconnecting**, and retries
+on its own. Once it has given up it shows **Offline** with a button to try
+again, and it tries again by itself when the browser comes back online. See
+[how the viewer applies events](/docs/architecture#how-the-viewer-applies-events)
+for the details.
 
 ## When the broadcast stops
 
