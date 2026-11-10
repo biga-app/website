@@ -39,6 +39,7 @@ BIGA_API_URL=https://biga.example.com BIGA_ACCESS_KEY=bgk_… biga start
 | `BIGA_STABILITY_MS` | `75` | How long a file must stop changing before it is read. |
 | `BIGA_HEARTBEAT_MS` | `10000` | How often a broadcast tells the server it is live. |
 | `BIGA_NO_UPDATE_CHECK` | unset | Set to anything to skip the daily release check. `CI` set does the same. |
+| `BIGA_SECRET_SCAN` | `on` | Set to `off` to share files whose content looks like a secret. `--no-secret-scan` does the same for one run. |
 
 <Callout type="info">
 Raise the timing values on slow disks or filesystems that report partial

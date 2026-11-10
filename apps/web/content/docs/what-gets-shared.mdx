@@ -18,8 +18,11 @@ Everything under the broadcast directory is shared **except**:
 - `node_modules/`, `.git/` and `.DS_Store`
 - credentials: `.env` and `.env.*` (but not `.env.example`, `.env.sample` or
   `.env.template`), `*.pem`, `*.key`, `*.p12`, `*.pfx`, SSH keys (`id_rsa*`,
-  `id_dsa*`, `id_ecdsa*`, `id_ed25519*`), `.npmrc`, `.pypirc`, `.netrc`, and
-  the `.ssh/`, `.aws/` and `.gnupg/` directories
+  `id_dsa*`, `id_ecdsa*`, `id_ed25519*`), `.npmrc`, `.pypirc`, `.netrc`,
+  `.git-credentials`, Terraform variable and state files (`*.tfvars`,
+  `*.tfstate`, `*.tfstate.*`), Java and password-manager stores (`*.jks`,
+  `*.keystore`, `*.kdbx`), `.docker/config.json`, and the `.ssh/`, `.aws/`,
+  `.gnupg/`, `.kube/` and `.terraform/` directories
 - symlinks and special files
 
 Ignore files are read from every directory, `.gitignore` first and then
@@ -34,6 +37,59 @@ To share one of the default exclusions anyway, re-include it in a
 Editing an ignore file while broadcasting takes effect immediately: newly
 ignored files disappear for viewers, and newly included ones appear.
 
+## Share only part of a project
+
+Excluding by name only helps with secrets you thought of. To flip it around,
+list what to share:
+
+```bash
+biga start --only src --only README.md
+```
+
+Paths are relative to the current directory and must be inside the project.
+Directories lead to their contents, and nothing outside the list is watched,
+read or listed. The exclusions above still apply inside it, so `src/.env` stays
+private. `--only` works with a single directory.
+
+## Secrets inside files
+
+A secret does not have to sit in a file named `.env`. Before a file is
+uploaded, the CLI scans its text for things that are almost never meant to be
+public:
+
+- private key blocks (`-----BEGIN … PRIVATE KEY-----`)
+- cloud and API tokens: AWS access keys, GitHub, GitLab, Slack and npm tokens,
+  Stripe live keys, Google, Anthropic and OpenAI API keys
+- quoted values assigned to names like `secret`, `token`, `password`,
+  `api_key` or `private_key` that look random (high entropy, not a placeholder,
+  URL or `${VARIABLE}`)
+
+A file with a match is **withheld**: viewers see it in the tree with a
+placeholder, like a binary file, and the CLI tells you which file and line
+matched. The matched text is never printed. Remove the secret and the file is
+shared on the next save.
+
+To share a line anyway, put `biga:allow-secret` anywhere on it, for example in
+a trailing comment. To turn the scan off for a run, pass `--no-secret-scan`, or
+set `BIGA_SECRET_SCAN=off`.
+
+<Callout type="warn" title="A heuristic, not a guarantee">
+The scan catches well-known formats and obvious assignments. It cannot know
+that a random-looking string is sensitive. Keep real credentials out of the
+directory you broadcast, or use `--only`.
+</Callout>
+
+## Check before you share
+
+```bash
+biga start --dry-run
+```
+
+prints what would be shared (file counts and sizes per top-level folder),
+which files would be withheld, and which are over the size limit. It reads your
+files but never contacts the server, so nothing is uploaded and no session is
+created. It respects `--only` and `--no-secret-scan`.
+
 ## Listed, never read
 
 | What | What a viewer sees |
@@ -41,6 +97,7 @@ ignored files disappear for viewers, and newly included ones appear.
 | Build output: `dist`, `.next`, `build`, `out`, `coverage`, `.build` | An empty folder. Its contents are never watched, hashed or uploaded. |
 | Binary files (any NUL byte) | The file in the tree, with a placeholder. The bytes stay on your machine. |
 | Files over 2 MB | The file in the tree, with a placeholder. |
+| Files that look like they hold a secret | The file in the tree, with a placeholder. |
 
 ## What travels
 
