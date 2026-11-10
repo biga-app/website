@@ -141,6 +141,10 @@ export function firstFilePath(node: FileNode): string | undefined {
 
 const README_RE = /^readme(\.(md|mdx|markdown|txt|rst))?$/i;
 
+export function isReadmeName(name: string): boolean {
+    return README_RE.test(name);
+}
+
 /**
  * The file to open when a session has no recent change to point at: a root
  * README if there is one, since that is where a reader would start, otherwise
@@ -149,7 +153,7 @@ const README_RE = /^readme(\.(md|mdx|markdown|txt|rst))?$/i;
 export function preferredFilePath(node: FileNode): string | undefined {
     if (node.type === "directory") {
         const readme = node.children.find(
-            (child) => child.type === "file" && !child.binary && README_RE.test(child.name)
+            (child) => child.type === "file" && !child.binary && isReadmeName(child.name)
         );
         if (readme) {
             return readme.path;

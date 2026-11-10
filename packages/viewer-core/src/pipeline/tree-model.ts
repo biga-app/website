@@ -148,6 +148,11 @@ export function createTreeModel() {
         },
         entry: (path: string) => entries.get(path),
         expandedPaths: () => expanded,
+        filePaths(): string[] {
+            const paths: string[] = [];
+            for (const entry of entries.values()) if (entry.kind === KIND_FILE) paths.push(entry.path);
+            return paths;
+        },
         rows: (): readonly string[] => refreshRows(),
         load(table: TreeTable): void {
             reset();

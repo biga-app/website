@@ -15,6 +15,11 @@ export const SessionStateSchema = z.object({
 });
 export type SessionState = z.infer<typeof SessionStateSchema>;
 
+export type SessionPreflight =
+    | { status: "found"; title: string }
+    | { status: "missing" }
+    | { status: "unknown" };
+
 export const FileContentSchema = z.object({
     content: z.string(),
     binary: z.boolean(),

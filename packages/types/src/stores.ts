@@ -29,6 +29,7 @@ export type TreeReader = {
     entry(path: string): TreeEntry | undefined;
     position(path: string): TreePosition | null;
     expandedPaths(): ReadonlySet<string>;
+    filePaths(): string[];
 };
 
 export type TreeStoreState = {
