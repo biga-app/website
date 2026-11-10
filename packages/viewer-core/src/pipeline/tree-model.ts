@@ -1,5 +1,5 @@
 import { ancestorPaths, baseName, parentPath, ROOT_PATH } from "@biga/types/file-identity";
-import { KIND_DIRECTORY, KIND_FILE, type TreeEntry, type TreePatch, type TreePosition, type TreeTable } from "@biga/types/tree-table";
+import { KIND_DIRECTORY, KIND_FILE, type TreeEntry, type TreeLoad, type TreePatch, type TreePosition, type TreeTable } from "@biga/types/tree-table";
 
 import { compareSiblings } from "./tree-table.ts";
 
@@ -17,21 +17,19 @@ function newEntry(path: string, kind: number, parent: TreeEntry): TreeEntry {
     };
 }
 
+function createEntries(): Map<string, TreeEntry> {
+    return new Map([
+        [ROOT_PATH, { path: ROOT_PATH, name: "", kind: KIND_DIRECTORY, depth: -1, parent: ROOT_PATH, hash: "", size: 0, binary: false, children: [] }],
+    ]);
+}
+
 export function createTreeModel() {
-    const entries = new Map<string, TreeEntry>();
+    let entries = createEntries();
     const expanded = new Set<string>();
     let rows: string[] = [];
     let rowsDirty = true;
     let revision = 0;
     let fileCount = 0;
-
-    function reset(): void {
-        entries.clear();
-        fileCount = 0;
-        entries.set(ROOT_PATH, { path: ROOT_PATH, name: "", kind: KIND_DIRECTORY, depth: -1, parent: ROOT_PATH, hash: "", size: 0, binary: false, children: [] });
-        rowsDirty = true;
-    }
-    reset();
 
     function lowerBound(siblings: string[], probe: TreeEntry): number {
         let low = 0;
@@ -129,6 +127,38 @@ export function createTreeModel() {
         rows.splice(index + 1, end - index - 1);
     }
 
+    function startLoad(table: TreeTable): TreeLoad {
+            const staged = createEntries();
+            let next = 0;
+            let files = 0;
+            return {
+                get done() {
+                    return next >= table.paths.length;
+                },
+                step(count: number): void {
+                    const end = Math.min(next + count, table.paths.length);
+                    for (; next < end; next++) {
+                        const path = table.paths[next] as string;
+                        const parentIndex = table.parents[next] as number;
+                        const parent = staged.get(parentIndex === -1 ? ROOT_PATH : (table.paths[parentIndex] as string)) as TreeEntry;
+                        const entry = newEntry(path, table.kinds[next] as number, parent);
+                        entry.hash = table.hashes[next] as string;
+                        entry.size = table.sizes[next] as number;
+                        entry.binary = table.binary[next] === 1;
+                        parent.children.push(path);
+                        staged.set(path, entry);
+                        if (entry.kind === KIND_FILE) files++;
+                    }
+                },
+                commit(): void {
+                    entries = staged;
+                    fileCount = files;
+                    rowsDirty = true;
+                    revision++;
+                },
+            };
+        }
+
     return {
         get revision() {
             return revision;
@@ -144,21 +174,11 @@ export function createTreeModel() {
             return paths;
         },
         rows: (): readonly string[] => refreshRows(),
+        startLoad,
         load(table: TreeTable): void {
-            reset();
-            for (let index = 0; index < table.paths.length; index++) {
-                const path = table.paths[index] as string;
-                const parentIndex = table.parents[index] as number;
-                const parent = entries.get(parentIndex === -1 ? ROOT_PATH : (table.paths[parentIndex] as string)) as TreeEntry;
-                const entry = newEntry(path, table.kinds[index] as number, parent);
-                entry.hash = table.hashes[index] as string;
-                entry.size = table.sizes[index] as number;
-                entry.binary = table.binary[index] === 1;
-                parent.children.push(path);
-                entries.set(path, entry);
-                if (entry.kind === KIND_FILE) fileCount++;
-            }
-            revision++;
+            const load = startLoad(table);
+            load.step(table.paths.length);
+            load.commit();
         },
         apply(patches: readonly TreePatch[]): void {
             let changed = false;

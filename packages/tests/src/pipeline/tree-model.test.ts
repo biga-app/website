@@ -12,7 +12,7 @@ import { buildTreeTable, patchesFromChanges } from "@biga/viewer-core/pipeline/t
 import { makeChange } from "../fixtures/checkpoints.ts";
 import { flattenTree, insertFile, removeFile, sortTree } from "../fixtures/reference-tree.ts";
 import { hash } from "../fixtures/hash.ts";
-import { rootNode } from "../fixtures/tree.ts";
+import { directoryNode, fileNode, rootNode } from "../fixtures/tree.ts";
 
 type TreeModel = ReturnType<typeof createTreeModel>;
 
@@ -335,4 +335,20 @@ test("filePaths lists every file and no directory", () => {
     assert.deepEqual(model.filePaths().sort(), ["a/b.ts", "a/c/d.ts", "e.ts"]);
     model.apply(patchesFromChanges([makeChange("e.ts", "deleted")]));
     assert.deepEqual(model.filePaths().sort(), ["a/b.ts", "a/c/d.ts"]);
+});
+
+test("a staged load adds nothing to the model until it is committed", () => {
+    const model = createTreeModel();
+    const table = buildTreeTable(rootNode([directoryNode("src", [fileNode("src/a.ts"), fileNode("src/b.ts")]), fileNode("z.ts")]));
+    const load = model.startLoad(table);
+    load.step(2);
+    assert.equal(load.done, false);
+    assert.equal(model.entry("src"), undefined);
+    load.step(100);
+    assert.equal(load.done, true);
+    const before = model.revision;
+    load.commit();
+    assert.equal(model.revision, before + 1);
+    assert.equal(model.fileCount, 3);
+    assert.deepEqual(model.rows(), ["src", "z.ts"]);
 });

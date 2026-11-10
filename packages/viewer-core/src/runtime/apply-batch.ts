@@ -16,17 +16,19 @@ export type WritableStores = {
 
 export type BatchEnv = {
     prefillBlobs: (contents: Record<string, string>) => void;
+    nextFrame: () => Promise<void>;
 };
 
-export function applyBatch(stores: WritableStores, batch: Batch, env: BatchEnv): string | null {
+export async function applyBatch(stores: WritableStores, batch: Batch, env: BatchEnv): Promise<string | null> {
     const { hydrate } = batch;
+    const table = batch.table ?? hydrate?.table ?? null;
+    const commitTree = table ? await stores.tree.getState().prepareLoad(table, env.nextFrame) : null;
     if (hydrate) {
         stores.session.getState().hydrate(hydrate.session, hydrate.mode);
         stores.history.getState().hydrate(hydrate.summaries, hydrate.reason, hydrate.initial);
         if (hydrate.contents) env.prefillBlobs(hydrate.contents);
-        if (hydrate.table) stores.tree.getState().load(hydrate.table);
     }
-    if (batch.table) stores.tree.getState().load(batch.table);
+    commitTree?.();
     if (batch.patches.length > 0) stores.tree.getState().apply(batch.patches);
     if (batch.summaries.length > 0 || batch.latest) stores.history.getState().append(batch.summaries, batch.latest);
     if (batch.touched.length > 0) stores.tree.getState().markTouched(batch.touched);

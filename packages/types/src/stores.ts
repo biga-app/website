@@ -40,6 +40,7 @@ export type TreeStoreState = {
     touchedRevision: number;
     reader: TreeReader;
     load(table: TreeTable): void;
+    prepareLoad(table: TreeTable, nextFrame: () => Promise<void>): Promise<() => void>;
     apply(patches: readonly TreePatch[]): void;
     setExpanded(path: string, open: boolean): void;
     expandAncestors(path: string): void;

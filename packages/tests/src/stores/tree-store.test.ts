@@ -118,3 +118,16 @@ test("reset empties the tree, the expanded set and the touched marks", () => {
     assert.equal(store.getState().touched.size, 0);
     assert.equal(store.getState().reader.expandedPaths().size, 0);
 });
+
+test("prepareLoad keeps the published tree untouched until the returned commit runs", async () => {
+    const store = createTreeStore();
+    store.getState().load(sample());
+    const rows = store.getState().rows;
+    const commit = await store.getState().prepareLoad(buildTreeTable(rootNode([fileNode("fresh.ts")])), () => Promise.resolve());
+    assert.equal(store.getState().rows, rows);
+    assert.equal(store.getState().reader.entry("z.ts")?.path, "z.ts");
+    commit();
+    assert.deepEqual(store.getState().rows, ["fresh.ts"]);
+    assert.equal(store.getState().reader.entry("z.ts"), undefined);
+    assert.equal(store.getState().fileCount, 1);
+});
