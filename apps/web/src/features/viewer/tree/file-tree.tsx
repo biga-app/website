@@ -55,6 +55,10 @@ type RowProps = {
     onActivate: () => void;
 };
 
+function rowPath(target: EventTarget): string | undefined {
+    return (target as HTMLElement).closest<HTMLElement>("[role=treeitem]")?.dataset.path;
+}
+
 const TreeRow = memo(function TreeRow({
     entry,
     expanded,
@@ -295,9 +299,24 @@ export function FileTree({
                             dir="ltr"
                             className="relative w-full pb-2"
                             style={{ height: `${virtualizer.getTotalSize()}px` }}
+                            onPointerOver={(event) => {
+                                const path = rowPath(event.target);
+                                if (path !== undefined) runtime.prefetchFile(path);
+                            }}
+                            onPointerOut={(event) => {
+                                const path = rowPath(event.target);
+                                if (path !== undefined) runtime.cancelPrefetch(path);
+                            }}
+                            onFocus={(event) => {
+                                const path = rowPath(event.target);
+                                if (path !== undefined) runtime.prefetchFile(path);
+                            }}
+                            onBlur={(event) => {
+                                const path = rowPath(event.target);
+                                if (path !== undefined) runtime.cancelPrefetch(path);
+                            }}
                             onContextMenu={(event) => {
-                                const row = (event.target as HTMLElement).closest<HTMLElement>("[role=treeitem]");
-                                const path = row?.dataset.path;
+                                const path = rowPath(event.target);
                                 const entry = path === undefined ? undefined : reader.entry(path);
                                 if (path === undefined || !entry || entry.kind === KIND_DIRECTORY || entry.kind === KIND_IGNORED) {
                                     event.preventDefault();
