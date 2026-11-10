@@ -1,15 +1,17 @@
 import { StreamEventSchema } from "@biga/types/events";
 import type { DecodeResult, DecoderOptions } from "@biga/types/pipeline";
+import { decodeStreamEvent } from "@biga/types/wire";
 
-export function decodeFrame(name: string, data: string): DecodeResult {
-    let json: unknown;
+export function decodeFrame(data: Uint8Array): DecodeResult {
+    let event;
     try {
-        json = JSON.parse(data);
+        event = decodeStreamEvent(data);
     } catch {
         return { ok: false };
     }
-    const parsed = StreamEventSchema.safeParse(json);
-    if (!parsed.success || parsed.data.type !== name) return { ok: false };
+    if (event === null) return { ok: true, event: null };
+    const parsed = StreamEventSchema.safeParse(event);
+    if (!parsed.success) return { ok: false };
     return { ok: true, event: parsed.data };
 }
 
@@ -20,11 +22,11 @@ export function createDecoder(options: DecoderOptions) {
     let invalidInARow = 0;
 
     return {
-        push(name: string, data: string): void {
-            const result = decodeFrame(name, data);
+        push(data: Uint8Array): void {
+            const result = decodeFrame(data);
             if (result.ok) {
                 invalidInARow = 0;
-                options.onEvent(result.event);
+                if (result.event) options.onEvent(result.event);
                 return;
             }
             invalidInARow++;

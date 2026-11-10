@@ -13,14 +13,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "proto": "buf generate"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "2.17.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@biga/eslint-config": "workspace:*",
     "@biga/typescript-config": "workspace:*",
+    "@bufbuild/protoc-gen-es": "2.17.0",
     "@types/node": "^26.6.6",
     "eslint": "^9.39.5",
     "typescript": "6.0.3"

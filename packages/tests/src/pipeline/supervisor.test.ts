@@ -11,7 +11,7 @@ import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 
 import { makeCheckpoint } from "../fixtures/checkpoints.ts";
 import { createFakeClock } from "../fixtures/clock.ts";
-import { checkpointFrame, connectedFrame, endedFrame, invalidFrame, snapshotFrame } from "../fixtures/frames.ts";
+import { checkpointFrame, connectedFrame, endedFrame, invalidFrame, keepaliveFrame, snapshotFrame } from "../fixtures/frames.ts";
 import { makeState } from "../fixtures/session.ts";
 
 type Conn = { signal: AbortSignal; emit: (event: TransportEvent) => void };
@@ -206,7 +206,7 @@ test("silence for 45 seconds drops the connection and heartbeats keep it alive",
     await t.goLive();
     const first = t.conn();
     t.advance(WATCHDOG_MS - 1);
-    first.emit({ type: "heartbeat" });
+    first.emit(keepaliveFrame);
     t.advance(WATCHDOG_MS - 1);
     assert.equal(t.supervisor.status, "live");
     t.advance(1);

@@ -7,7 +7,7 @@ import type { LoadMode, SessionState } from "./state.js";
 import type { Clock, StreamStatus, StreamTransport } from "./stream.js";
 import type { TreePatch, TreeTable } from "./tree-table.js";
 
-export type DecodeResult = { ok: true; event: StreamEvent } | { ok: false };
+export type DecodeResult = { ok: true; event: StreamEvent | null } | { ok: false };
 
 export type DecoderOptions = {
     maxConsecutiveInvalid?: number;

@@ -239,7 +239,7 @@ export function createSupervisor(options: SupervisorOptions) {
             if (event.type === "closed") return onClosed(event);
             if (event.type === "open") streamOpen = true;
             armWatchdog(mine);
-            if (event.type === "frame") decoder.push(event.name, event.data);
+            if (event.type === "frame") decoder.push(event.data);
         });
     }
 

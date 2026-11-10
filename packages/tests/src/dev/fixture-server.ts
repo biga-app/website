@@ -2,9 +2,23 @@ import { createHash } from "node:crypto";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { parseArgs } from "node:util";
 
-import type { Checkpoint, CheckpointChange } from "@biga/types/checkpoint";
+import type { Checkpoint, CheckpointChange, FileHistoryEntry } from "@biga/types/checkpoint";
 import type { FileNode } from "@biga/types/file";
 import type { SessionResponse } from "@biga/types/session";
+import type { SessionState } from "@biga/types/state";
+import { PROTOBUF_TYPE, STREAM_TYPE } from "@biga/types/wire";
+
+import {
+    delimited,
+    encodeApiError,
+    encodeCheckpoint,
+    encodeCheckpointList,
+    encodeFileContent,
+    encodeFileHistory,
+    encodeSession,
+    encodeState,
+    encodeStreamEvent,
+} from "../fixtures/wire.ts";
 
 type Scenario = "demo" | "big" | "ended";
 
@@ -158,7 +172,7 @@ function sessionResponse(session: Session): SessionResponse {
     };
 }
 
-function state(session: Session) {
+function state(session: Session): SessionState {
     const total = [...session.files.values()].reduce((sum, content) => sum + content.length, 0);
     const eager = total <= 1_536 * 1024 && session.files.size <= 400;
     const contents: Record<string, string> = {};
@@ -172,13 +186,13 @@ function state(session: Session) {
     };
 }
 
-function send(res: ServerResponse, status: number, body: unknown, cache = "no-store"): void {
-    res.writeHead(status, { "Content-Type": "application/json", "Cache-Control": cache });
-    res.end(JSON.stringify(body));
+function send(res: ServerResponse, status: number, body: Uint8Array, cache = "no-store"): void {
+    res.writeHead(status, { "Content-Type": PROTOBUF_TYPE, "Cache-Control": cache });
+    res.end(body);
 }
 
-const ok = (res: ServerResponse, data: unknown, cache?: string) => send(res, 200, { ok: true, data }, cache);
-const fail = (res: ServerResponse, status: number, message: string) => send(res, status, { ok: false, error: { code: "error", message } });
+const ok = (res: ServerResponse, body: Uint8Array, cache?: string) => send(res, 200, body, cache);
+const fail = (res: ServerResponse, status: number, message: string) => send(res, status, encodeApiError("error", message));
 
 function fileAt(session: Session, path: string, ref: string): string | undefined {
     if (/^[0-9a-f]{64}$/i.test(ref)) return session.blobs.get(ref) ?? session.files.get(path);
@@ -188,7 +202,7 @@ function fileAt(session: Session, path: string, ref: string): string | undefined
     return version ? session.blobs.get(version.hash) ?? undefined : undefined;
 }
 
-function fileHistory(session: Session, path: string) {
+function fileHistory(session: Session, path: string): FileHistoryEntry[] {
     return session.checkpoints
         .flatMap((checkpoint) => checkpoint.changes.filter((change) => change.path === path).map((change) => ({ checkpoint, change })))
         .reverse()
@@ -206,12 +220,11 @@ function fileHistory(session: Session, path: string) {
 }
 
 function stream(session: Session, req: IncomingMessage, res: ServerResponse): void {
-    res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform" });
-    const event = (name: string, data: unknown) => res.write(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
-    event("connected", { type: "connected", sessionId: session.id, timestamp: Date.now() });
+    res.writeHead(200, { "Content-Type": STREAM_TYPE, "Cache-Control": "no-cache, no-transform" });
+    res.write(delimited(encodeStreamEvent({ type: "connected", sessionId: session.id, timestamp: Date.now() })));
     if (session.status !== "active") return void res.end();
     session.subscribers.add(res);
-    const keepalive = setInterval(() => res.write(`: keepalive ${Date.now()}\n\n`), 15_000);
+    const keepalive = setInterval(() => res.write(delimited(encodeStreamEvent("keepalive"))), 15_000);
     req.on("close", () => {
         clearInterval(keepalive);
         session.subscribers.delete(res);
@@ -219,7 +232,8 @@ function stream(session: Session, req: IncomingMessage, res: ServerResponse): vo
 }
 
 function broadcast(session: Session, checkpoint: Checkpoint): void {
-    for (const res of session.subscribers) res.write(`event: checkpoint\ndata: ${JSON.stringify({ type: "checkpoint", payload: checkpoint })}\n\n`);
+    const frame = delimited(encodeStreamEvent({ type: "checkpoint", payload: checkpoint }));
+    for (const res of session.subscribers) res.write(frame);
 }
 
 function tick(session: Session): void {
@@ -253,19 +267,19 @@ createServer((req, res) => {
     const session = sessions.get(match[1] as string);
     if (!session) return fail(res, 404, "Session not found");
     const route = match[2] ?? "";
-    if (route === "") return ok(res, sessionResponse(session));
-    if (route === "state") return ok(res, state(session));
+    if (route === "") return ok(res, encodeSession(sessionResponse(session)));
+    if (route === "state") return ok(res, encodeState(state(session)));
     if (route === "stream") return stream(session, req, res);
     if (route === "checkpoints") {
         const before = url.searchParams.get("before");
         const limit = Number(url.searchParams.get("limit") ?? 50);
         const page = session.checkpoints.filter((checkpoint) => before === null || checkpoint.seq < Number(before));
-        return ok(res, { checkpoints: page.slice(-limit).reverse().map(summary) });
+        return ok(res, encodeCheckpointList(page.slice(-limit).reverse().map(summary)));
     }
     const one = route.match(/^checkpoints\/(\d+)$/);
     if (one) {
         const checkpoint = session.checkpoints[Number(one[1])];
-        return checkpoint ? ok(res, checkpoint) : fail(res, 404, "Checkpoint not found");
+        return checkpoint ? ok(res, encodeCheckpoint(checkpoint)) : fail(res, 404, "Checkpoint not found");
     }
     if (route === "file") {
         const path = url.searchParams.get("path") ?? "";
@@ -273,9 +287,9 @@ createServer((req, res) => {
         const content = fileAt(session, path, ref);
         if (content === undefined) return fail(res, 404, "File not found");
         const immutable = /^[0-9a-f]{64}$/i.test(ref);
-        return ok(res, { content, binary: false, hash: sha(content) }, immutable ? "public, max-age=31536000, immutable" : "no-store");
+        return ok(res, encodeFileContent({ content, binary: false, hash: sha(content) }), immutable ? "public, max-age=31536000, immutable" : "no-store");
     }
-    if (route === "file/history") return ok(res, { history: fileHistory(session, url.searchParams.get("path") ?? "") });
+    if (route === "file/history") return ok(res, encodeFileHistory(fileHistory(session, url.searchParams.get("path") ?? "")));
     return fail(res, 404, "not found");
 }).listen(PORT, () => {
     console.log(`fixture server on http://localhost:${PORT} (sessions: demo, big, ended)`);

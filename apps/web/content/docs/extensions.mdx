@@ -29,18 +29,18 @@ different local broadcast.
 
 Send a GET request to the feed URL using `Authorization: Bearer <token>`.
 An owner who creates credentials through the API instead of the CLI can use
-the endpoints below. Include the server's access key on management requests
-when required.
+the endpoints below. Management requests and responses are protobuf, like the
+rest of the [HTTP API](/docs/api); the feed is the one JSON endpoint. Include
+the server's access key on management requests when required.
 
 | Method | Session API path | Credential |
 | --- | --- | --- |
-| POST | `/api/sessions/{id}/extensions` with JSON `{ "name": "Build monitor" }` | Session owner token |
+| POST | `/api/sessions/{id}/extensions` with a `CreateExtensionRequest` (`name`) | Session owner token |
 | GET | `/api/sessions/{id}/extensions` | Session owner token |
 | DELETE | `/api/sessions/{id}/extensions/{extensionId}` | Session owner token |
 | GET | `/api/sessions/{id}/extension-events` | Extension token |
 
-The feed returns `data.events` and `data.nextAfter` in the usual API response
-envelope. Start with `after=-1` to read all retained checkpoints in order.
+The feed returns `data.events` and `data.nextAfter` in a JSON envelope. Start with `after=-1` to read all retained checkpoints in order.
 Each request returns events with sequence numbers greater than `after`.
 Use `limit` to choose a page size between 1 and 500. The default is 100.
 

@@ -3,6 +3,7 @@ import { CheckpointSchema, type Checkpoint, type CheckpointSummary, type FileHis
 import type { ApiClient, ApiClientOptions, RequestOptions } from "@biga/types/content";
 import { isValidHash } from "@biga/types/file-identity";
 import { CheckpointsResponseSchema, FileContentSchema, FileHistoryResponseSchema, SessionStateSchema, type FileContent, type SessionState } from "@biga/types/state";
+import { decodeApiError, decodeCheckpoint, decodeCheckpointList, decodeFileContent, decodeFileHistory, decodeState, PROTOBUF_TYPE } from "@biga/types/wire";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
 
@@ -25,31 +26,54 @@ function cacheModeFor(ref: string | null): RequestCache {
     return ref !== null && isValidHash(ref) ? "default" : "no-store";
 }
 
-async function readEnvelope(response: Response): Promise<unknown> {
-    let body: { ok?: boolean; data?: unknown; error?: { message?: string } };
-    try {
-        body = await response.json();
-    } catch {
-        throw new ApiRequestError(
-            kindForStatus(response.status),
-            `The server returned an unexpected response (${response.status}).`,
-            response.status,
-            parseRetryAfter(response.headers.get("Retry-After"))
-        );
-    }
-    if (!response.ok || body.ok !== true) {
-        throw new ApiRequestError(
-            kindForStatus(response.status),
-            body.error?.message || response.statusText || "The request failed.",
-            response.status,
-            parseRetryAfter(response.headers.get("Retry-After"))
-        );
-    }
-    return body.data;
+function isProtobuf(response: Response): boolean {
+    return response.headers.get("Content-Type")?.startsWith(PROTOBUF_TYPE) ?? false;
 }
 
-function parseWith<T>(schema: Parser<T>, data: unknown): T {
-    const result = schema.safeParse(data);
+async function readBytes(response: Response, signal: AbortSignal | undefined): Promise<Uint8Array | null> {
+    try {
+        return new Uint8Array(await response.arrayBuffer());
+    } catch (error) {
+        if (signal?.aborted) throw error;
+        return null;
+    }
+}
+
+async function failureMessage(response: Response): Promise<string> {
+    const fallback = response.statusText || "The request failed.";
+    if (!isProtobuf(response)) return fallback;
+    try {
+        return decodeApiError(new Uint8Array(await response.arrayBuffer())).message || fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+async function readSuccess(response: Response, signal: AbortSignal | undefined): Promise<Uint8Array> {
+    const retryAfterMs = parseRetryAfter(response.headers.get("Retry-After"));
+    if (!response.ok) {
+        throw new ApiRequestError(kindForStatus(response.status), await failureMessage(response), response.status, retryAfterMs);
+    }
+    const bytes = isProtobuf(response) ? await readBytes(response, signal) : null;
+    if (bytes === null) {
+        throw new ApiRequestError(
+            isProtobuf(response) ? "network" : "invalid",
+            `The server returned an unexpected response (${response.status}).`,
+            response.status,
+            retryAfterMs
+        );
+    }
+    return bytes;
+}
+
+function parseWith<T>(schema: Parser<T>, decode: () => unknown): T {
+    let value: unknown;
+    try {
+        value = decode();
+    } catch {
+        throw new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
+    }
+    const result = schema.safeParse(value);
     if (!result.success) throw new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
     return result.data;
 }
@@ -58,10 +82,11 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     const attempts = options.maxAttempts ?? DEFAULT_ATTEMPTS;
     const backoff = options.backoffMs ?? DEFAULT_BACKOFF_MS;
 
-    async function attempt(path: string, cache: RequestCache, request: RequestOptions): Promise<unknown> {
+    async function attempt(path: string, cache: RequestCache, request: RequestOptions): Promise<Uint8Array> {
         let response: Response;
         try {
             response = await options.fetch(options.baseUrl + path, {
+                headers: { Accept: PROTOBUF_TYPE },
                 cache,
                 signal: request.signal,
                 priority: request.priority,
@@ -70,10 +95,10 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
             if (request.signal?.aborted) throw error;
             throw new ApiRequestError("network", "Unable to reach the server. Check your connection and try again.");
         }
-        return readEnvelope(response);
+        return readSuccess(response, request.signal);
     }
 
-    async function send(path: string, cache: RequestCache, request: RequestOptions): Promise<unknown> {
+    async function send(path: string, cache: RequestCache, request: RequestOptions): Promise<Uint8Array> {
         let lastError: ApiRequestError | null = null;
         for (let index = 0; index < attempts; index++) {
             try {
@@ -90,15 +115,17 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 
     return {
         async getState(sessionId: string, request: RequestOptions = {}): Promise<SessionState> {
-            return parseWith(SessionStateSchema, await send(`/api/sessions/${sessionId}/state`, "no-store", request));
+            const bytes = await send(`/api/sessions/${sessionId}/state`, "no-store", request);
+            return parseWith(SessionStateSchema, () => decodeState(bytes));
         },
         async getFile(sessionId: string, path: string, ref: string, request: RequestOptions = {}): Promise<FileContent> {
             const query = new URLSearchParams({ path, ref });
-            const data = await send(`/api/sessions/${sessionId}/file?${query}`, cacheModeFor(ref), request);
-            return parseWith(FileContentSchema, data);
+            const bytes = await send(`/api/sessions/${sessionId}/file?${query}`, cacheModeFor(ref), request);
+            return parseWith(FileContentSchema, () => decodeFileContent(bytes));
         },
         async getCheckpoint(sessionId: string, seq: number, request: RequestOptions = {}): Promise<Checkpoint> {
-            return parseWith(CheckpointSchema, await send(`/api/sessions/${sessionId}/checkpoints/${seq}`, "no-store", request));
+            const bytes = await send(`/api/sessions/${sessionId}/checkpoints/${seq}`, "no-store", request);
+            return parseWith(CheckpointSchema, () => decodeCheckpoint(bytes));
         },
         async getCheckpoints(
             sessionId: string,
@@ -109,13 +136,13 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
             if (page.before !== undefined) query.set("before", String(page.before));
             if (page.limit !== undefined) query.set("limit", String(page.limit));
             const suffix = query.size > 0 ? `?${query}` : "";
-            const data = await send(`/api/sessions/${sessionId}/checkpoints${suffix}`, "no-store", request);
-            return parseWith(CheckpointsResponseSchema, data).checkpoints;
+            const bytes = await send(`/api/sessions/${sessionId}/checkpoints${suffix}`, "no-store", request);
+            return parseWith(CheckpointsResponseSchema, () => ({ checkpoints: decodeCheckpointList(bytes) })).checkpoints;
         },
         async getFileHistory(sessionId: string, path: string, request: RequestOptions = {}): Promise<FileHistoryEntry[]> {
             const query = new URLSearchParams({ path });
-            const data = await send(`/api/sessions/${sessionId}/file/history?${query}`, "no-store", request);
-            return parseWith(FileHistoryResponseSchema, data).history;
+            const bytes = await send(`/api/sessions/${sessionId}/file/history?${query}`, "no-store", request);
+            return parseWith(FileHistoryResponseSchema, () => ({ history: decodeFileHistory(bytes) })).history;
         },
     };
 }

@@ -1,12 +1,12 @@
 import type { SessionState } from "@biga/types/state";
+import { PROTOBUF_TYPE, STREAM_TYPE } from "@biga/types/wire";
 
 import type { Frame } from "./frames.ts";
 import { makeState } from "./session.ts";
-
-const encoder = new TextEncoder();
+import { delimited, encodeApiError, encodeState } from "./wire.ts";
 
 type Stream = {
-    push: (text: string) => void;
+    push: (bytes: Uint8Array) => void;
     close: () => void;
 };
 
@@ -25,9 +25,9 @@ function createStream(signal: AbortSignal | null | undefined) {
         }
     });
     const stream: Stream = {
-        push: (text) => {
+        push: (bytes) => {
             try {
-                controller.enqueue(encoder.encode(text));
+                controller.enqueue(bytes);
             } catch {
                 return;
             }
@@ -37,8 +37,8 @@ function createStream(signal: AbortSignal | null | undefined) {
     return { body, stream };
 }
 
-function json(status: number, body: unknown): Response {
-    return new Response(JSON.stringify(body), { status });
+function protobuf(status: number, body: Uint8Array): Response {
+    return new Response(body as BodyInit, { status, headers: { "Content-Type": PROTOBUF_TYPE } });
 }
 
 export function createFakeServer(initial: SessionState = makeState()) {
@@ -51,20 +51,20 @@ export function createFakeServer(initial: SessionState = makeState()) {
         if (input.includes("/stream")) {
             const { body, stream } = createStream(init?.signal);
             streams.push(stream);
-            return new Response(body, { status: 200, headers: { "Content-Type": "text/event-stream" } });
+            return new Response(body, { status: 200, headers: { "Content-Type": STREAM_TYPE } });
         }
         if (input.endsWith("/state")) {
             stateCalls++;
-            if (stateFailure !== null) return json(stateFailure, { ok: false, error: { code: "x", message: "failed" } });
-            return json(200, { ok: true, data: state });
+            if (stateFailure !== null) return protobuf(stateFailure, encodeApiError("x", "failed"));
+            return protobuf(200, encodeState(state));
         }
-        return json(404, { ok: false, error: { code: "not_found", message: "no such route" } });
+        return protobuf(404, encodeApiError("not_found", "no such route"));
     }) as unknown as typeof fetch;
 
     return {
         fetch: fakeFetch,
-        pushFrame(frame: Pick<Frame, "name" | "data">): void {
-            (streams[streams.length - 1] as Stream).push(`event: ${frame.name}\ndata: ${frame.data}\n\n`);
+        pushFrame(frame: Pick<Frame, "data">): void {
+            (streams[streams.length - 1] as Stream).push(delimited(frame.data));
         },
         closeStream: () => (streams[streams.length - 1] as Stream).close(),
         streamCalls: () => streams.length,

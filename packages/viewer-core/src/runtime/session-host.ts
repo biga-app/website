@@ -4,7 +4,7 @@ import { createApiClient } from "../content/api-client.ts";
 import { createCoalescer } from "../pipeline/coalescer.ts";
 import { createSupervisor } from "../pipeline/supervisor.ts";
 import { buildTreeTable } from "../pipeline/tree-table.ts";
-import { createSseTransport } from "../transport/sse-transport.ts";
+import { createStreamTransport } from "../transport/stream-transport.ts";
 
 type Running = {
     supervisor: ReturnType<typeof createSupervisor>;
@@ -29,7 +29,7 @@ export function createSessionHost(env: SessionHostEnv) {
         const supervisor = createSupervisor({
             sessionId: request.config.sessionId,
             initialCheckpointSeq: request.config.initialCheckpointSeq,
-            transport: createSseTransport({ baseUrl: env.baseUrl, fetch: env.fetch }),
+            transport: createStreamTransport({ baseUrl: env.baseUrl, fetch: env.fetch }),
             api: createApiClient({ baseUrl: env.baseUrl, fetch: env.fetch, sleep: env.sleep }),
             sink: coalescer,
             buildTable: buildTreeTable,

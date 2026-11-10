@@ -13,11 +13,11 @@ to the CLI.
 ```mermaid title="The whole system" summary="Your folder is read by the biga CLI on your machine. The CLI uploads over HTTP to the server's REST API, which writes to Postgres and, optionally, publishes events through Redis. The server streams events to viewers' browsers, which read state and file content over the same API." caption="Your folder goes in one side and a browser tab comes out the other. Redis is optional and only matters with more than one server."
 flowchart TB
   folder["<b>Your folder</b><br/>.gitignore · .bigaignore"] --> cli["<b>biga CLI</b><br/>watch · hash · batch"]
-  cli -- "PUT · POST (gzip)" --> api
+  cli -- "protobuf · gzip" --> api
 
   subgraph host["Server · Go"]
     api["<b>REST API</b><br/>uploads and reads"]
-    sse["<b>SSE stream</b><br/>live events"]
+    sse["<b>Live stream</b><br/>live events"]
   end
 
   api -- "in-process" --> sse
@@ -30,7 +30,7 @@ flowchart TB
 
 - **The CLI** is one Go binary. It is the only thing that ever reads your files.
 - **The server** is one Go binary. It accepts uploads over REST and delivers
-  live events over server-sent events. See the [HTTP API](/docs/api). The
+  live events over a streaming protobuf response. See the [HTTP API](/docs/api). The
   site and viewer are a separate Next.js app that holds no data.
 - **Postgres** is the source of truth for every session. **Redis** is optional
   and only needed to run more than one server instance.
@@ -145,8 +145,8 @@ sent when it comes back.
 
 ## Live delivery
 
-A viewer holds one `GET /api/sessions/:id/stream` open. The server writes four
-kinds of event on it:
+A viewer holds one `GET /api/sessions/:id/stream` open. The server writes these
+frames on it:
 
 | Event | When |
 | --- | --- |
@@ -154,9 +154,11 @@ kinds of event on it:
 | `checkpoint` | A checkpoint was accepted. Carries the changes. |
 | `snapshot` | The whole tree was replaced. |
 | `session_ended` | The broadcast stopped, or went quiet for too long. |
+| `keepalive` | Every 15 seconds, so an idle connection stays open. |
 
-Viewers only receive, so plain server-sent events are enough: ordinary HTTP,
-with no second channel to keep open. The viewer reads the stream itself rather
+Each frame is a protobuf message preceded by its length. Viewers only receive,
+so a streaming HTTP response is enough: ordinary HTTP, with no second channel
+to keep open. The viewer reads the stream itself rather
 than leaving reconnection to the browser, so it can see why a connection was
 refused and wait as long as the server asks. When a stream drops, the viewer
 re-reads the state and merges what it missed. [How the viewer handles
@@ -209,7 +211,7 @@ flowchart LR
 | --- | --- |
 | The stream closes or errors | Shows **Reconnecting**, keeps the last state on screen, and retries after a delay that starts at one second, grows to 30, and is randomised so viewers don't retry together. |
 | The server answers 429 or 503 | Waits for the `Retry-After` it was given. |
-| Nothing arrives for 45 seconds | Treats the stream as dead and reconnects. The server sends a keepalive comment every 15 seconds, so this means three missed in a row. |
+| Nothing arrives for 45 seconds | Treats the stream as dead and reconnects. The server sends a keepalive frame every 15 seconds, so this means three missed in a row. |
 | It reconnects | Opens the stream first, then re-reads the state and applies whatever it missed in order. |
 | Eight attempts in a row fail | Shows **Offline** with a reconnect button. The browser coming back online also tries again. |
 | The tab was hidden for more than 30 seconds | Re-reads the state when it is visible again, before showing anything new. |

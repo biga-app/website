@@ -251,7 +251,7 @@ stack in `http` mode on a loopback port and proxy to it:
 Set `BIGA_PUBLIC_URL` to the public `https://` address, and set
 `BIGA_UPSTREAM_PROXIES` to the address Caddy sees your proxy from (through a
 loopback port that is the Docker bridge gateway; `docker network inspect
-biga_edge` shows it). The proxy must stream server-sent events and accept
+biga_edge` shows it). The proxy must not buffer the live stream and must accept
 large uploads:
 
 ```nginx title="nginx"

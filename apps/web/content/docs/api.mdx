@@ -3,14 +3,24 @@ title: HTTP API
 description: The endpoints the CLI and the viewer use, with their limits and responses.
 ---
 
-The CLI and the viewer talk to the same REST API under `/api/sessions`. It is
-stable enough to script against, but it is the protocol between biga's own
-programs, so treat it as an implementation detail that can change between
-releases.
+The CLI and the viewer talk to the same HTTP API under `/api/sessions`. It is
+the protocol between biga's own programs, so treat it as an implementation
+detail that can change between releases. Its messages are protobuf, defined in
+`biga/v1/biga.proto`.
 
 ## Conventions
 
-Every JSON response is wrapped in an envelope:
+Bodies are protobuf. A client sends `Accept: application/x-protobuf`, and a
+request that has a body also sends `Content-Type: application/x-protobuf`.
+Success is the HTTP status and, where there is one, the message for the
+endpoint: `202` and `204` have no body. A failure is the `Error` message
+(`code`, `message` and `details`) with the status.
+
+A client that does not ask for protobuf gets `406` as JSON that says so, so a
+script or an older CLI learns what to do instead of failing on a body it
+cannot read. Four endpoints answer JSON because scripts and operators call
+them: `/healthz`, `/readyz`, the retention cron and the
+[extension feed](/docs/extensions). They use an envelope:
 
 ```json title="success"
 { "ok": true, "data": { } }
@@ -30,7 +40,8 @@ Every JSON response is wrapped in an envelope:
 | 404 | `not_found` | No such session, checkpoint or file version. |
 | 409 | `invalid_state`, `inactive_session` | The session has ended. |
 | 413 | `payload_too_large`, `storage_quota_exceeded` | The body is over the endpoint's limit, or the session is full. |
-| 415 | `unsupported_encoding`, `unsupported_media_type` | Send JSON, plain or gzip. |
+| 406 | `not_acceptable` | The request did not ask for protobuf. Always JSON. |
+| 415 | `unsupported_encoding`, `unsupported_media_type` | Send protobuf, plain or gzip. |
 | 429 | `rate_limited` | Slow down. `Retry-After` says for how long. |
 
 ## Authentication
@@ -39,11 +50,9 @@ Every JSON response is wrapped in an envelope:
 which is what makes a link shareable without accounts.
 
 **Writes need the session's owner token.** The response that creates a
-session carries a `token`, once:
-
-```json title="PUT /api/sessions/k3f9zq2a → 201"
-{ "ok": true, "data": { "id": "k3f9zq2a", "status": "active", "token": "bgs_…", "shareUrl": "https://biga.example.com/session/k3f9zq2a" } }
-```
+session carries a `token`, once. `PUT /api/sessions/k3f9zq2a` answers `201`
+with a `SessionGrant`: the `session`, a `token` of the form `bgs_…`, and the
+`share_url`, for example `https://biga.example.com/session/k3f9zq2a`.
 
 The server keeps only a SHA-256 of it. Every later write to that session
 (reactivating it, snapshot, checkpoint, heartbeat, manifest, ending it) sends
@@ -78,7 +87,7 @@ Each needs the owner token, except creating a session.
 | --- | --- | --- |
 | `GET` | `/api/sessions/:id` | The session's title and status. |
 | `GET` | `/api/sessions/:id/state` | Session, recent checkpoints, tree and, for small sessions, contents. |
-| `GET` | `/api/sessions/:id/stream` | Server-sent events. |
+| `GET` | `/api/sessions/:id/stream` | Live [events](#events), as length-delimited protobuf. |
 | `GET` | `/api/sessions/:id/checkpoints` | A page of checkpoint summaries. `limit`, `before`. |
 | `GET` | `/api/sessions/:id/checkpoints/:seq` | One checkpoint with its changes. |
 | `GET` | `/api/sessions/:id/file` | A file's content. `path`, and `ref`: a SHA-256, `latest` or a checkpoint number. |
@@ -88,7 +97,7 @@ Each needs the owner token, except creating a session.
 
 Upload bodies are gzip-compressed when the server advertises support, by
 sending an `Accept-Encoding: gzip` response header (RFC 7694). A server that
-doesn't gets plain JSON, and a `415` makes the CLI fall back too.
+doesn't gets plain protobuf, and a `415` makes the CLI fall back too.
 
 | Endpoint | Largest body | Rate limit |
 | --- | --- | --- |
@@ -99,25 +108,34 @@ doesn't gets plain JSON, and a `415` makes the CLI fall back too.
 | any read | none | 3000 per minute, per client |
 
 Limits apply to the body after decompression. A client is an IPv4 address, or
-an IPv6 /64. Each text file's `hash` must be the SHA-256 of its `content`;
-paths must be relative, with no `.` or `..` segments.
+an IPv6 /64. Each text file's `hash` must be the SHA-256 of its `content`
+bytes, exactly as sent; paths must be relative, with no `.` or `..` segments.
 
 The CLI splits a large change set across several checkpoints, each under 6 MB
 uncompressed, so a branch switch stays inside the 8 MiB limit.
 
 ## Events
 
-`GET /api/sessions/:id/stream` is a `text/event-stream`. Each message has an
-`event:` name and a JSON `data:` payload with the event's `type`,
-`sessionId` and `timestamp`. Comment lines (`: keepalive …`) are sent
-periodically and carry nothing.
+`GET /api/sessions/:id/stream` answers `application/vnd.biga.stream+protobuf`
+to a client that sends it in `Accept`. The body never ends on its own: it is a
+sequence of `StreamEvent` messages, each preceded by its length as an unsigned
+varint. A `StreamEvent` holds exactly one of these:
 
-| `type` | Payload |
+| Field | Payload |
 | --- | --- |
 | `connected` | The session ID and the server's time. |
-| `checkpoint` | A full checkpoint: `seq`, `label`, counts and `changes`. |
+| `checkpoint` | A full checkpoint: its summary and `changes`. |
 | `snapshot` | The new tree. |
 | `session_ended` | Nothing more. The stream closes after it. |
+| `keepalive` | Nothing. Sent every 15 seconds so idle connections stay open. |
 
 The server closes the stream with `session_ended` when the broadcast has gone
-quiet for too long, and ends it when the client disconnects.
+quiet for too long, and ends it when the client disconnects. A viewer that
+falls too far behind is disconnected, reconnects, and reloads `state`.
+
+## Upgrading
+
+Servers, viewers and CLIs from before the protobuf wire do not talk to the new
+ones. A new CLI against an old server says the server is older than it is. An
+old CLI against a new server is told to update. Deploy the server and the
+viewer together, and release the CLI the same day.

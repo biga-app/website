@@ -38,7 +38,7 @@ database migrations on start, answers `GET /healthz` (process up) and
 `SIGTERM`.
 
 Then route `/api/sessions/*` to it and everything else to the site. Your proxy
-must not buffer server-sent events; see the nginx example under
+must not buffer the live stream; see the nginx example under
 [Networking](/docs/networking#behind-a-proxy-you-already-run).
 
 ## Configuration

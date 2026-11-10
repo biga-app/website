@@ -1,29 +1,26 @@
-import type { SseTransportOptions, StreamTransport, TransportEvent } from "@biga/types/stream";
+import type { StreamTransport, StreamTransportOptions, TransportEvent } from "@biga/types/stream";
+import { STREAM_TYPE } from "@biga/types/wire";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
-import { createSseParser } from "./sse-parser.ts";
+import { createFrameParser } from "./frame-parser.ts";
 
-async function pump(
-    body: ReadableStream<Uint8Array>,
-    emit: (event: TransportEvent) => void
-): Promise<void> {
+const UNSUPPORTED_MEDIA_TYPE = 415;
+
+async function pump(body: ReadableStream<Uint8Array>, emit: (event: TransportEvent) => void): Promise<void> {
     const reader = body.getReader();
-    const decoder = new TextDecoder();
-    const parser = createSseParser();
+    const parser = createFrameParser();
     for (let chunk = await reader.read(); !chunk.done; chunk = await reader.read()) {
-        for (const item of parser.push(decoder.decode(chunk.value, { stream: true }))) {
-            emit(item.type === "frame" ? { type: "frame", name: item.name, data: item.data } : { type: "heartbeat" });
-        }
+        for (const data of parser.push(chunk.value)) emit({ type: "frame", data });
     }
 }
 
-export function createSseTransport(options: SseTransportOptions): StreamTransport {
+export function createStreamTransport(options: StreamTransportOptions): StreamTransport {
     return {
         async connect(sessionId, signal, emit) {
             let response: Response;
             try {
                 response = await options.fetch(`${options.baseUrl}/api/sessions/${sessionId}/stream`, {
-                    headers: { Accept: "text/event-stream" },
+                    headers: { Accept: STREAM_TYPE },
                     cache: "no-store",
                     signal,
                 });
@@ -38,6 +35,10 @@ export function createSseTransport(options: SseTransportOptions): StreamTranspor
                     status: response.status,
                     retryAfterMs: parseRetryAfter(response.headers.get("Retry-After")),
                 });
+                return;
+            }
+            if (!response.headers.get("Content-Type")?.startsWith(STREAM_TYPE)) {
+                emit({ type: "closed", reason: "http", status: UNSUPPORTED_MEDIA_TYPE });
                 return;
             }
             emit({ type: "open" });
