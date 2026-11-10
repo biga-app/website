@@ -4,7 +4,7 @@ import { pickInitialFile } from "@biga/viewer-core/runtime/initial-file";
 import { useEffect, useRef } from "react";
 
 import { useRuntime, useStoreValue } from "./runtime-provider";
-import { useViewerView } from "./use-viewer-view";
+import { useViewerView } from "./navigation-context";
 
 export function useUrlSync() {
     const runtime = useRuntime();

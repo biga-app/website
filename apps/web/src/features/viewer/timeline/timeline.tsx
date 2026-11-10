@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { baseName } from "@biga/types";
 
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { useViewerView } from "../runtime/use-viewer-view";
+import { useViewerView } from "../runtime/navigation-context";
 
 const PAGE = 50;
 const CHECKPOINT_HEIGHT = 44;

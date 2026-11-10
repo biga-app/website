@@ -1,4 +1,4 @@
-import type { BlobEntry, Checkpoint, SessionPort } from "@biga/types";
+import type { ApiClient, BlobEntry, Checkpoint, SessionPort } from "@biga/types";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
 import { createBlobStore, defaultBudgetBytes } from "@biga/viewer-core/content/blob-store";
 import { applyBatch, type WritableStores } from "@biga/viewer-core/runtime/apply-batch";
@@ -42,8 +42,16 @@ export type SessionRuntimeOptions = {
     initialCheckpointSeq?: number;
 };
 
-export function createSessionRuntime(options: SessionRuntimeOptions) {
-    const { sessionId } = options;
+export type SessionControls = {
+    start: () => void;
+    stop: () => void;
+    reconnect: () => void;
+    retry: () => void;
+    setHidden: (hidden: boolean) => void;
+    notifyOnline: () => void;
+};
+
+export function createRuntimeCore(sessionId: string, api: ApiClient) {
     const stores: WritableStores = {
         connection: createConnectionStore(),
         session: createSessionStore(),
@@ -52,25 +60,8 @@ export function createSessionRuntime(options: SessionRuntimeOptions) {
         workspace: createWorkspaceStore(),
     };
     const blobs = createBlobStore({ budgetBytes: defaultBudgetBytes(deviceMemoryGiB()), maxEntries: BLOB_ENTRIES });
-    const baseUrl = apiUrl("");
-    const fetcher: typeof fetch = (input, init) => window.fetch(input, init);
-    const api = createApiClient({ baseUrl, fetch: fetcher, sleep: abortableSleep });
     const followListeners = new Set<(path: string) => void>();
     let lastActivityAt = Number.NEGATIVE_INFINITY;
-
-    const client = createSessionClient({
-        createPort: createWorkerPort,
-        createFallbackPort: () =>
-            createInThreadPort({ baseUrl, fetch: fetcher, clock: systemClock, random: Math.random, sleep: abortableSleep }),
-        onBatch: (batch, done) => {
-            requestAnimationFrame(() => {
-                const target = applyBatch(stores, batch, { prefillBlobs: blobs.prefill });
-                if (target) followListeners.forEach((listener) => listener(target));
-                done();
-            });
-        },
-        onUnavailable: (kind) => stores.connection.getState().setUnavailable(kind),
-    });
 
     function loadBlob(hash: string, path: string): Promise<BlobEntry> {
         return blobs.load(hash, async () => (await api.getFile(sessionId, path, hash)).content);
@@ -91,12 +82,7 @@ export function createSessionRuntime(options: SessionRuntimeOptions) {
         api,
         loadBlob,
         loadCheckpoint,
-        start: () => client.start({ sessionId, initialCheckpointSeq: options.initialCheckpointSeq }),
-        stop: () => client.stop(),
-        reconnect: () => client.reconnect(),
-        retry: () => client.retry(),
-        setHidden: (hidden: boolean) => client.setHidden(hidden),
-        notifyOnline: () => client.notifyOnline(),
+        emitFollow: (path: string) => followListeners.forEach((listener) => listener(path)),
         onFollow(listener: (path: string) => void): () => void {
             followListeners.add(listener);
             return () => void followListeners.delete(listener);
@@ -106,4 +92,37 @@ export function createSessionRuntime(options: SessionRuntimeOptions) {
     };
 }
 
-export type SessionRuntime = ReturnType<typeof createSessionRuntime>;
+export type RuntimeCore = ReturnType<typeof createRuntimeCore>;
+
+export type SessionRuntime = RuntimeCore & SessionControls;
+
+export function createSessionRuntime(options: SessionRuntimeOptions): SessionRuntime {
+    const { sessionId } = options;
+    const baseUrl = apiUrl("");
+    const fetcher: typeof fetch = (input, init) => window.fetch(input, init);
+    const core = createRuntimeCore(sessionId, createApiClient({ baseUrl, fetch: fetcher, sleep: abortableSleep }));
+
+    const client = createSessionClient({
+        createPort: createWorkerPort,
+        createFallbackPort: () =>
+            createInThreadPort({ baseUrl, fetch: fetcher, clock: systemClock, random: Math.random, sleep: abortableSleep }),
+        onBatch: (batch, done) => {
+            requestAnimationFrame(() => {
+                const target = applyBatch(core.stores, batch, { prefillBlobs: core.blobs.prefill });
+                if (target) core.emitFollow(target);
+                done();
+            });
+        },
+        onUnavailable: (kind) => core.stores.connection.getState().setUnavailable(kind),
+    });
+
+    return {
+        ...core,
+        start: () => client.start({ sessionId, initialCheckpointSeq: options.initialCheckpointSeq }),
+        stop: () => client.stop(),
+        reconnect: () => client.reconnect(),
+        retry: () => client.retry(),
+        setHidden: (hidden) => client.setHidden(hidden),
+        notifyOnline: () => client.notifyOnline(),
+    };
+}

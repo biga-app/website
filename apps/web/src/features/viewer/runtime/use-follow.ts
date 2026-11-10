@@ -4,7 +4,7 @@ import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
 import { useEffect, useRef } from "react";
 
 import { useRuntime } from "./runtime-provider";
-import { useViewerView } from "./use-viewer-view";
+import { useViewerView } from "./navigation-context";
 
 const THROTTLE_MS = 400;
 const PRELOAD_MS = 300;

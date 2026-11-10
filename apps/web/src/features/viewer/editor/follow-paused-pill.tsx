@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { useViewerView } from "../runtime/use-viewer-view";
+import { useViewerView } from "../runtime/navigation-context";
 
 export function FollowPausedPill() {
     const { workspace } = useRuntime().stores;

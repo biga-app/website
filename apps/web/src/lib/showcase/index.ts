@@ -1,17 +1,13 @@
-import { useEditorStore } from "@biga/stores/editor-store";
-import { useFileTreeStore } from "@biga/stores/file-tree-store";
-import { useHistoryStore } from "@biga/stores/history-store";
-import { useSessionStore } from "@biga/stores/session-store";
-import type { Checkpoint, CheckpointChange, CheckpointSummary, FileNode, SessionResponse } from "@biga/types";
+import { summarizeCheckpoint, type Checkpoint, type CheckpointChange, type FileNode, type SessionResponse } from "@biga/types";
+import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 
-import { decorationsFromChanges } from "@/lib/use-session-stream";
+import type { SessionRuntime } from "@/features/viewer/runtime/runtime";
 
 /*
  * The landing page shows the real session viewer, fed from a committed
  * snapshot of this project's own CLI repository (`scripts/build-showcase.mjs`)
- * instead of a server. The viewer's components read the same Zustand stores
- * they always do; this module fills those stores, and empties them again when
- * the landing page goes away so the real viewer never starts from fixture data.
+ * instead of a server. The viewer's components read the stores of a static
+ * runtime; this module fills those stores.
  */
 
 /** One highlighted run of text: content, then its light and dark colours. */
@@ -83,11 +79,6 @@ function checkpointOf(fixture: ShowcaseFixture, seq: number, now: number): Check
   };
 }
 
-function summaryOf(checkpoint: Checkpoint): CheckpointSummary {
-  const { sessionId, seq, label, createdAt, filesChanged, additions, deletions } = checkpoint;
-  return { sessionId, seq, label, createdAt, filesChanged, additions, deletions };
-}
-
 /** A hash-shaped string for a save made on the page: stable, not cryptographic. */
 function pseudoHash(seed: string): string {
   let state = 0x811c9dc5;
@@ -100,7 +91,7 @@ function pseudoHash(seed: string): string {
 }
 
 /** Puts the showcase session into the viewer's stores. Idempotent: it replaces what's there. */
-export function seedShowcase(fixture: ShowcaseFixture, { status, saves = 0 }: ShowcaseState): void {
+export function seedShowcase(runtime: SessionRuntime, fixture: ShowcaseFixture, { status, saves = 0 }: ShowcaseState): void {
   const now = NOW();
   const session: SessionResponse = {
     id: fixture.session.id,
@@ -140,34 +131,20 @@ export function seedShowcase(fixture: ShowcaseFixture, { status, saves = 0 }: Sh
   const all = [...recorded, ...extra];
   const latest = all.reduce((a, b) => (b.seq > a.seq ? b : a));
 
-  useSessionStore.getState().setSession(session);
-  useSessionStore.getState().setLoadMode("lazy");
+  const { stores } = runtime;
+  stores.session.getState().hydrate(session, "lazy");
 
-  const history = useHistoryStore.getState();
-  history.setInitial(all.map(summaryOf));
-  for (const checkpoint of all) history.cacheCheckpoint(checkpoint);
-  history.selectSeq(latest.seq);
+  stores.history.getState().reset();
+  stores.history.getState().hydrate(all.map(summarizeCheckpoint), "initial", latest);
+  for (const checkpoint of all) stores.history.getState().cache(checkpoint);
+  stores.history.getState().select(latest.seq);
 
-  const tree = useFileTreeStore.getState();
-  tree.setTree(fixture.tree);
-  tree.setDecorations(decorationsFromChanges(latest.changes));
-  // Two tabs, the one being edited active, as a real session would have them.
-  const open = DEMO_FILE;
-  tree.expandAncestors(fixture.defaultFile);
-  tree.expandAncestors(open);
-  tree.setSelectedPath(open);
+  stores.tree.getState().reset();
+  stores.tree.getState().load(buildTreeTable(fixture.tree));
+  stores.tree.getState().expandAncestors(fixture.defaultFile);
+  stores.tree.getState().expandAncestors(DEMO_FILE);
 
-  const editor = useEditorStore.getState();
-  editor.clearAll();
-  editor.openFile(fixture.defaultFile);
-  editor.openFile(open);
-}
-
-/** Empties every store the showcase filled, but only if the showcase still owns them. */
-export function clearShowcase(fixture: ShowcaseFixture | null): void {
-  if (fixture && useSessionStore.getState().sessionId !== fixture.session.id) return;
-  useSessionStore.getState().clearSession();
-  useHistoryStore.getState().clear();
-  useFileTreeStore.getState().clearTree();
-  useEditorStore.getState().clearAll();
+  stores.workspace.getState().reset();
+  stores.workspace.getState().openTab(fixture.defaultFile);
+  stores.workspace.getState().openTab(DEMO_FILE);
 }

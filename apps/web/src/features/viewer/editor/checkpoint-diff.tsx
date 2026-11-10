@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDownIcon, ChevronUpIcon, FileX2Icon, GitCommitVerticalIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, FileX2Icon, GitCommitVerticalIcon, SquareArrowOutUpRightIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 
@@ -9,11 +9,12 @@ import { firstViewableChange, type CheckpointChange } from "@biga/types";
 
 import { CodeSkeleton } from "@/components/viewer/code-skeleton";
 import { EmptyState } from "@/components/viewer/empty-state";
+import { DiffStat } from "@/components/viewer/diff-stat";
 import { IconAction } from "@/components/viewer/icon-action";
 import { CHANGE_META, formatDateTime } from "@/lib/change-meta";
 
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { useViewerView } from "../runtime/use-viewer-view";
+import { useViewerView } from "../runtime/navigation-context";
 import { useBlob } from "./use-blob";
 
 const MonacoDiffViewer = dynamic(() => import("@/components/monaco-viewer").then((module) => module.MonacoDiffViewer), {
@@ -51,7 +52,7 @@ function ChangeDiff({ change }: { change: CheckpointChange }) {
 export function CheckpointDiff({ seq, file }: { seq: number; file: string | null }) {
     const runtime = useRuntime();
     const checkpoint = useStoreValue(runtime.stores.history, (state) => state.loaded.get(seq));
-    const { openCheckpoint } = useViewerView();
+    const { openCheckpoint, openFile } = useViewerView();
 
     useEffect(() => {
         if (!checkpoint) void runtime.loadCheckpoint(seq).catch(() => undefined);
@@ -97,6 +98,10 @@ export function CheckpointDiff({ seq, file }: { seq: number; file: string | null
                 <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                     {index + 1} / {checkpoint.changes.length}
                 </span>
+                <DiffStat additions={change.additions} deletions={change.deletions} className="hidden text-xs sm:flex" />
+                <IconAction label="Open the current file" disabled={!runtime.stores.tree.getState().reader.entry(change.path)} onClick={() => openFile(change.path)}>
+                    <SquareArrowOutUpRightIcon />
+                </IconAction>
                 <IconAction label="Previous file" disabled={index === 0} onClick={() => step(-1)}>
                     <ChevronUpIcon />
                 </IconAction>

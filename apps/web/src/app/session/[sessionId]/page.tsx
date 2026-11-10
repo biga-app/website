@@ -1,39 +1,26 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 
-import { SessionViewer } from "./session-viewer";
+import { preflightSession } from "@/features/viewer/server/preflight";
+import { SIDEBAR_COOKIE, parseSidebarSize } from "@/features/viewer/shell/sidebar-size";
+import { ViewerFrame } from "@/features/viewer/shell/viewer-frame";
 
-/**
- * Sessions are ephemeral and unguessable, so keep them out of search indexes:
- * indexing leaks nothing useful and pollutes results with dead session URLs.
- */
-export async function generateMetadata({
-    params,
-}: {
-    params: Promise<{ sessionId: string }>;
-}): Promise<Metadata> {
+type Params = { params: Promise<{ sessionId: string }> };
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const { sessionId } = await params;
+    const preflight = await preflightSession(sessionId);
     return {
-        title: `Session ${sessionId}`,
+        title: preflight.status === "found" ? preflight.title : `Session ${sessionId}`,
         robots: { index: false, follow: false },
     };
 }
 
-export default async function SessionPage({
-    params,
-    searchParams,
-}: {
-    params: Promise<{ sessionId: string }>;
-    searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function ViewerPage({ params }: Params) {
     const { sessionId } = await params;
-    const { embed, checkpoint } = await searchParams;
-    const seq = typeof checkpoint === "string" && /^\d{1,10}$/.test(checkpoint) ? Number(checkpoint) : undefined;
-
-    return (
-        <SessionViewer
-            sessionId={sessionId}
-            embed={embed === "1"}
-            initialCheckpointSeq={seq !== undefined && seq <= 2147483647 ? seq : undefined}
-        />
-    );
+    const preflight = await preflightSession(sessionId);
+    if (preflight.status === "missing") notFound();
+    const jar = await cookies();
+    return <ViewerFrame defaultSidebarSize={parseSidebarSize(jar.get(SIDEBAR_COOKIE)?.value)} />;
 }

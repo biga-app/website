@@ -6,7 +6,7 @@ import Link from "next/link";
 import { JoinForm } from "@/components/landing/join-form";
 import { BigaMark } from "@/components/site/biga-mark";
 import { Button } from "@/components/ui/button";
-import type { LoadError } from "@/lib/use-session-stream";
+import type { ApiErrorKind } from "@biga/types";
 
 const SERVER_COPY = {
     icon: TriangleAlertIcon,
@@ -46,7 +46,7 @@ export function SessionUnavailable({
     onRetry,
 }: {
     sessionId: string;
-    error: LoadError;
+    error: { kind: ApiErrorKind };
     embed: boolean;
     onRetry: () => void;
 }) {

@@ -51,5 +51,9 @@ export function SessionRuntimeProvider({
     }, [sessionId]);
 
     if (!runtime) return <>{fallback}</>;
+    return <RuntimeProvider runtime={runtime}>{children}</RuntimeProvider>;
+}
+
+export function RuntimeProvider({ runtime, children }: { runtime: SessionRuntime; children: ReactNode }) {
     return <RuntimeContext.Provider value={runtime}>{children}</RuntimeContext.Provider>;
 }

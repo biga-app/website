@@ -2,21 +2,31 @@
 
 import { KIND_DIRECTORY, KIND_IGNORED, type ChangeType, type TreeEntry } from "@biga/types";
 import { defaultRangeExtractor, useVirtualizer, type Range } from "@tanstack/react-virtual";
-import { ChevronRight, FolderClosedIcon, ListCollapseIcon, SearchIcon } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo, useRef, type HTMLAttributes } from "react";
+import { ChevronRight, ClockIcon, CopyIcon, DownloadIcon, FileTextIcon, FolderClosedIcon, ListCollapseIcon, SearchIcon } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type HTMLAttributes } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useModKey } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmptyState } from "@/components/viewer/empty-state";
 import { IconAction } from "@/components/viewer/icon-action";
 import { PanelHeader } from "@/components/viewer/panel-header";
 import { CHANGE_META } from "@/lib/change-meta";
+import { copyWithToast } from "@/lib/file-actions";
 import { useRovingTree, type TreeItemMeta } from "@/lib/use-roving-tree";
 import { cn } from "@/lib/utils";
 
+import { revealInTimeline } from "../runtime/reveal-in-timeline";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { useViewerView } from "../runtime/use-viewer-view";
+import { copyFileContent, downloadFile } from "../runtime/file-actions";
+import { useViewerView } from "../runtime/navigation-context";
 import { useDecorations } from "./use-decorations";
 
 const INDENT = 12;
@@ -62,6 +72,7 @@ const TreeRow = memo(function TreeRow({
     const meta = decoration ? CHANGE_META[decoration] : null;
     const common = {
         role: "treeitem",
+        "data-path": entry.path,
         "aria-level": entry.depth + 1,
         "aria-setsize": setSize,
         "aria-posinset": posInSet,
@@ -127,7 +138,8 @@ export function FileTree({
     onOpenQuickOpen: () => void;
     onFileOpened?: () => void;
 }) {
-    const { stores } = useRuntime();
+    const runtime = useRuntime();
+    const { stores } = runtime;
     const { tree } = stores;
     const rows = useStoreValue(tree, (state) => state.rows);
     const revision = useStoreValue(tree, (state) => state.revision);
@@ -135,7 +147,8 @@ export function FileTree({
     const touched = useStoreValue(tree, (state) => state.touched);
     const touchedRevision = useStoreValue(tree, (state) => state.touchedRevision);
     const { reader } = tree.getState();
-    const { activeFile, openFile } = useViewerView();
+    const { activeFile, openFile, openCheckpoint } = useViewerView();
+    const [menuPath, setMenuPath] = useState<string | null>(null);
     const decorations = useDecorations();
     const mod = useModKey();
     const parentRef = useRef<HTMLDivElement>(null);
@@ -273,37 +286,72 @@ export function FileTree({
         <div className="flex h-full flex-col">
             {header}
             <ScrollArea className="min-h-0 flex-1" viewportRef={parentRef}>
-                <div
-                    role="tree"
-                    aria-labelledby="files-heading"
-                    dir="ltr"
-                    className="relative w-full pb-2"
-                    style={{ height: `${virtualizer.getTotalSize()}px` }}
-                >
-                    {virtualizer.getVirtualItems().map((virtualRow) => {
-                        const path = rows[virtualRow.index];
-                        const entry = path === undefined ? undefined : reader.entry(path);
-                        if (path === undefined || !entry) return null;
-                        const position = reader.position(path) ?? { setSize: 1, posInSet: 1 };
-                        const isFile = entry.kind !== KIND_DIRECTORY && entry.kind !== KIND_IGNORED;
-                        return (
-                            <TreeRow
-                                key={path}
-                                entry={entry}
-                                expanded={expanded.has(path)}
-                                selected={isFile && activeFile === path}
-                                decoration={isFile ? decorations.get(path) : undefined}
-                                flashKey={isFile && touchedRevision !== baselineTouch.current && touched.has(path) ? touchedRevision : null}
-                                height={virtualRow.size}
-                                offset={virtualRow.start}
-                                setSize={position.setSize}
-                                posInSet={position.posInSet}
-                                itemProps={getItemProps(virtualRow.index)}
-                                onActivate={() => onActivate(virtualRow.index)}
-                            />
-                        );
-                    })}
-                </div>
+                <ContextMenu>
+                    <ContextMenuTrigger asChild>
+                        <div
+                            role="tree"
+                            aria-labelledby="files-heading"
+                            dir="ltr"
+                            className="relative w-full pb-2"
+                            style={{ height: `${virtualizer.getTotalSize()}px` }}
+                            onContextMenu={(event) => {
+                                const row = (event.target as HTMLElement).closest<HTMLElement>("[role=treeitem]");
+                                const path = row?.dataset.path;
+                                const entry = path === undefined ? undefined : reader.entry(path);
+                                if (path === undefined || !entry || entry.kind === KIND_DIRECTORY || entry.kind === KIND_IGNORED) {
+                                    event.preventDefault();
+                                    return;
+                                }
+                                setMenuPath(path);
+                            }}
+                        >
+                            {virtualizer.getVirtualItems().map((virtualRow) => {
+                                const path = rows[virtualRow.index];
+                                const entry = path === undefined ? undefined : reader.entry(path);
+                                if (path === undefined || !entry) return null;
+                                const position = reader.position(path) ?? { setSize: 1, posInSet: 1 };
+                                const isFile = entry.kind !== KIND_DIRECTORY && entry.kind !== KIND_IGNORED;
+                                return (
+                                    <TreeRow
+                                        key={path}
+                                        entry={entry}
+                                        expanded={expanded.has(path)}
+                                        selected={isFile && activeFile === path}
+                                        decoration={isFile ? decorations.get(path) : undefined}
+                                        flashKey={isFile && touchedRevision !== baselineTouch.current && touched.has(path) ? touchedRevision : null}
+                                        height={virtualRow.size}
+                                        offset={virtualRow.start}
+                                        setSize={position.setSize}
+                                        posInSet={position.posInSet}
+                                        itemProps={getItemProps(virtualRow.index)}
+                                        onActivate={() => onActivate(virtualRow.index)}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-52">
+                        <ContextMenuItem onSelect={() => menuPath && void copyWithToast(menuPath, "path")}>
+                            <CopyIcon />
+                            Copy path
+                        </ContextMenuItem>
+                        <ContextMenuItem onSelect={() => menuPath && void copyFileContent(runtime, menuPath)}>
+                            <FileTextIcon />
+                            Copy contents
+                        </ContextMenuItem>
+                        <ContextMenuItem onSelect={() => menuPath && void downloadFile(runtime, menuPath)}>
+                            <DownloadIcon />
+                            Download
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                            onSelect={() => menuPath && void revealInTimeline(runtime, (seq, file) => openCheckpoint(seq, file, "push"), menuPath)}
+                        >
+                            <ClockIcon />
+                            Show in timeline
+                        </ContextMenuItem>
+                    </ContextMenuContent>
+                </ContextMenu>
             </ScrollArea>
         </div>
     );

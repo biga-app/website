@@ -1,11 +1,12 @@
 "use client";
 
-import type { FileHistoryEntry } from "@biga/types";
+import type { CompareBase, FileHistoryEntry } from "@biga/types";
 import { baseName } from "@biga/types";
 import { CheckIcon, FlagIcon, HistoryIcon, RotateCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
+import { DiffStat } from "@/components/viewer/diff-stat";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -18,17 +19,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/viewer/empty-state";
 import { CHANGE_META, formatDateTime, formatRelativeTime, pluralize } from "@/lib/change-meta";
-import { fetchFileHistory } from "@/lib/session-api";
 import { useNow } from "@/lib/use-now";
+import { isSameBase, refToBase } from "@biga/viewer-core/location/compare-base";
 import { cn } from "@/lib/utils";
 
-import { DiffStat } from "./history-panel";
+import { useRuntime } from "../runtime/runtime-provider";
 
-/** The ref used when diffing against the session's initial snapshot. */
-export const SESSION_START_REF = "0";
 
 const ROW =
-    "relative flex w-full gap-3 rounded-md px-3 text-left outline-none transition-colors duration-150 " +
+    "relative flex w-full gap-3 rounded-md px-3 text-start outline-none transition-colors duration-150 " +
     "focus-visible:ring-ring/60 focus-visible:ring-2";
 
 function RevisionRow({
@@ -79,7 +78,7 @@ function RevisionRow({
                     <time
                         dateTime={entry.createdAt}
                         title={formatDateTime(entry.createdAt)}
-                        className="text-muted-foreground ml-auto shrink-0 text-[11px] tabular-nums"
+                        className="text-muted-foreground ms-auto shrink-0 text-[11px] tabular-nums"
                     >
                         {formatRelativeTime(entry.createdAt, now)}
                     </time>
@@ -89,10 +88,10 @@ function RevisionRow({
                     <span className={meta.className}>{meta.label}</span>
                     <DiffStat additions={entry.additions} deletions={entry.deletions} />
                     {current ? (
-                        <span className="text-muted-foreground ml-auto">Current version</span>
+                        <span className="text-muted-foreground ms-auto">Current version</span>
                     ) : (
                         selected && (
-                            <span className="text-foreground ml-auto flex items-center gap-1 font-medium">
+                            <span className="text-foreground ms-auto flex items-center gap-1 font-medium">
                                 <CheckIcon className="size-3.5" />
                                 Comparing
                             </span>
@@ -110,23 +109,21 @@ function RevisionRow({
  * compare mode diffs the current file against.
  */
 export function FileHistorySheet({
-    sessionId,
     path,
     open,
     onOpenChange,
-    diffBase,
+    base,
     onSelectBase,
     onStopComparing,
 }: {
-    sessionId: string;
     path: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    /** Active compare base ref, or null when compare mode is off. */
-    diffBase: string | null;
-    onSelectBase: (ref: string) => void;
+    base: CompareBase | null;
+    onSelectBase: (base: CompareBase) => void;
     onStopComparing: () => void;
 }) {
+    const runtime = useRuntime();
     const [entries, setEntries] = useState<FileHistoryEntry[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -138,7 +135,8 @@ export function FileHistorySheet({
         setEntries(null);
         setError(null);
         const controller = new AbortController();
-        fetchFileHistory(sessionId, path, controller.signal)
+        runtime.api
+            .getFileHistory(runtime.sessionId, path, { signal: controller.signal })
             .then(setEntries)
             .catch((err: unknown) => {
                 if (!controller.signal.aborted) {
@@ -146,7 +144,7 @@ export function FileHistorySheet({
                 }
             });
         return () => controller.abort();
-    }, [open, sessionId, path, retryNonce]);
+    }, [open, runtime, path, retryNonce]);
 
     // The initial snapshot (seq 0) already represents the session start; only
     // offer the synthetic "session start" baseline when it isn't in the list.
@@ -157,7 +155,7 @@ export function FileHistorySheet({
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-md">
                 <SheetHeader className="gap-1 border-b px-4 pt-4 pb-3">
-                    <SheetTitle className="flex items-center gap-2 pr-8 text-sm">
+                    <SheetTitle className="flex items-center gap-2 pe-8 text-sm">
                         <FileTypeIcon kind="file" name={name} className="size-4" />
                         <span className="truncate">History of {name}</span>
                     </SheetTitle>
@@ -204,19 +202,19 @@ export function FileHistorySheet({
                                     current={index === 0}
                                     first={index === 0}
                                     last={index === entries.length - 1 && !showSessionStart}
-                                    selected={diffBase === String(entry.seq)}
-                                    onSelect={onSelectBase}
+                                    selected={isSameBase(base, refToBase(String(entry.seq)))}
+                                    onSelect={(ref) => onSelectBase(refToBase(ref))}
                                 />
                             ))}
                             {showSessionStart && (
                                 <button
                                     type="button"
-                                    aria-pressed={diffBase === SESSION_START_REF}
-                                    onClick={() => onSelectBase(SESSION_START_REF)}
+                                    aria-pressed={isSameBase(base, { kind: "start" })}
+                                    onClick={() => onSelectBase({ kind: "start" })}
                                     className={cn(
                                         ROW,
                                         "hover:bg-accent/60 items-center py-2.5",
-                                        diffBase === SESSION_START_REF && "bg-accent"
+                                        isSameBase(base, { kind: "start" }) && "bg-accent"
                                     )}
                                 >
                                     <span aria-hidden className="flex w-3 shrink-0 justify-center">
@@ -228,8 +226,8 @@ export function FileHistorySheet({
                                             The file as it was when the broadcast began
                                         </span>
                                     </span>
-                                    {diffBase === SESSION_START_REF && (
-                                        <span className="ml-auto flex items-center gap-1 text-[11px] font-medium">
+                                    {isSameBase(base, { kind: "start" }) && (
+                                        <span className="ms-auto flex items-center gap-1 text-[11px] font-medium">
                                             <CheckIcon className="size-3.5" />
                                             Comparing
                                         </span>
@@ -240,7 +238,7 @@ export function FileHistorySheet({
                     </ScrollArea>
                 )}
 
-                {diffBase !== null && (
+                {base !== null && (
                     <div className="flex justify-end border-t p-3">
                         <Button variant="ghost" size="sm" onClick={onStopComparing}>
                             Stop comparing

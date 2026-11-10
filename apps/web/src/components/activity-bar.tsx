@@ -1,13 +1,12 @@
 "use client";
 
+import type { SidebarView } from "@biga/types";
 import { FilesIcon, GitGraphIcon } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export type ActivityView = "explorer" | "timeline";
-
-const ITEMS: { view: ActivityView; label: string; Icon: typeof FilesIcon }[] = [
+const ITEMS: { view: SidebarView; label: string; Icon: typeof FilesIcon }[] = [
     { view: "explorer", label: "Files", Icon: FilesIcon },
     { view: "timeline", label: "Timeline", Icon: GitGraphIcon },
 ];
@@ -23,10 +22,10 @@ export function ActivityBar({
     unseenTimeline,
     onChange,
 }: {
-    view: ActivityView;
+    view: SidebarView;
     sidebarOpen: boolean;
     unseenTimeline: boolean;
-    onChange: (view: ActivityView) => void;
+    onChange: (view: SidebarView) => void;
 }) {
     return (
         <nav aria-label="Views" className="bg-sidebar flex w-11 shrink-0 flex-col items-center gap-1 border-r py-1.5">

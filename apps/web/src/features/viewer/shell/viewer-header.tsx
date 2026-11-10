@@ -4,7 +4,7 @@ import type { StreamStatus } from "@biga/types";
 import { PanelLeftIcon } from "lucide-react";
 import Link from "next/link";
 
-import { CopyLinkButton, FollowToggle, GoToFileTrigger, LiveStatusView } from "@/app/session/[sessionId]/session-header";
+import { CopyLinkButton, FollowToggle, GoToFileTrigger, LiveStatusView } from "./header-parts";
 import { BigaMark } from "@/components/site/biga-mark";
 import { ThemePicker } from "@/components/theme-picker";
 import { IconAction } from "@/components/viewer/icon-action";

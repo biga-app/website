@@ -2,21 +2,22 @@
 
 import type { SidebarView, StreamStatus } from "@biga/types";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ImperativePanelHandle } from "react-resizable-panels";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 
-import { SessionNotice } from "@/app/session/[sessionId]/session-notice";
-import { SessionUnavailable } from "@/app/session/[sessionId]/session-unavailable";
+import { SessionNotice } from "./session-notice";
+import { SessionUnavailable } from "./session-unavailable";
 import { ActivityBar } from "@/components/activity-bar";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
+import { displayTitle } from "@/lib/session-title";
 
 import { EditorPane } from "../editor/editor-pane";
 import { QuickOpen } from "../quick-open/quick-open";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
 import { useFollow } from "../runtime/use-follow";
 import { useUrlSync } from "../runtime/use-url-sync";
-import { useViewerView } from "../runtime/use-viewer-view";
+import { useViewerView } from "../runtime/navigation-context";
 import { FrameSkeleton } from "./frame-skeleton";
 import { SIDEBAR_COOKIE, SIDEBAR_MAX_PERCENT, SIDEBAR_MIN_PERCENT } from "./sidebar-size";
 import { SidebarBody } from "./sidebar-body";
@@ -39,9 +40,10 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
     const { stores } = runtime;
     const status = useStoreValue(stores.connection, (state) => state.status);
     const sidebarView = useStoreValue(stores.workspace, (state) => state.sidebarView);
+    const session = useStoreValue(stores.session, (state) => state.session);
     const latestSeq = useStoreValue(stores.history, (state) => state.checkpoints.at(-1)?.seq ?? null);
     const { view, embed, openFile } = useViewerView();
-    const sidebarRef = useRef<ImperativePanelHandle>(null);
+    const sidebarRef = useRef<PanelImperativeHandle>(null);
     const [collapsed, setCollapsed] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [quickOpen, setQuickOpen] = useState(false);
@@ -49,6 +51,10 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
 
     useUrlSync();
     useFollow();
+
+    useEffect(() => {
+        if (session) document.title = `${displayTitle(session)} · biga`;
+    }, [session]);
 
     const timelineOnScreen = sidebarView === "timeline" && !collapsed;
     useEffect(() => {
@@ -110,21 +116,19 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
                     <ActivityBar view={sidebarView} sidebarOpen={!collapsed} unseenTimeline={unseenTimeline} onChange={changeView} />
                 </div>
                 <ResizablePanelGroup
-                    direction="horizontal"
-                    onLayout={(sizes) => {
-                        const size = sizes[0] ?? 0;
+                    onLayoutChanged={(layout) => {
+                        const size = layout.sidebar ?? 0;
                         setCollapsed(size === 0);
                         rememberSidebarSize(size);
                     }}
                     className="min-h-0 flex-1"
                 >
                     <ResizablePanel
-                        ref={sidebarRef}
+                        panelRef={sidebarRef}
                         id="sidebar"
-                        order={1}
-                        defaultSize={defaultSidebarSize}
-                        minSize={SIDEBAR_MIN_PERCENT}
-                        maxSize={SIDEBAR_MAX_PERCENT}
+                        defaultSize={`${defaultSidebarSize}%`}
+                        minSize={`${SIDEBAR_MIN_PERCENT}%`}
+                        maxSize={`${SIDEBAR_MAX_PERCENT}%`}
                         collapsible
                         collapsedSize={0}
                         className="bg-sidebar text-sidebar-foreground min-w-0 max-md:hidden"
@@ -134,7 +138,7 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
                         </aside>
                     </ResizablePanel>
                     <ResizableHandle className="max-md:hidden" />
-                    <ResizablePanel id="main" order={2} minSize={40}>
+                    <ResizablePanel id="main" minSize="40%">
                         <main
                             id="viewer-main"
                             tabIndex={-1}
