@@ -1,11 +1,13 @@
+import type { CheckpointChange } from "@biga/types";
+
 import { makeCheckpoint } from "./checkpoints.ts";
 
 export type Frame = { type: "frame"; name: string; data: string };
 
 const TIMESTAMP = 1700000000000;
 
-export function checkpointFrame(seq: number): Frame {
-    return { type: "frame", name: "checkpoint", data: JSON.stringify({ type: "checkpoint", payload: makeCheckpoint(seq) }) };
+export function checkpointFrame(seq: number, changes: CheckpointChange[] = []): Frame {
+    return { type: "frame", name: "checkpoint", data: JSON.stringify({ type: "checkpoint", payload: makeCheckpoint(seq, changes) }) };
 }
 
 export const connectedFrame: Frame = {
