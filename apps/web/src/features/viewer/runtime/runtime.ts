@@ -1,9 +1,11 @@
 import type { Checkpoint } from "@biga/types/checkpoint";
-import type { ApiClient, BlobEntry } from "@biga/types/content";
+import type { ApiClient, BlobEntry, RequestOptions } from "@biga/types/content";
+import { KIND_FILE } from "@biga/types/tree-table";
 import type { SessionPort } from "@biga/types/worker";
 import { createApiClient } from "@biga/viewer-core/content/api-client";
 import { createBlobStore, defaultBudgetBytes } from "@biga/viewer-core/content/blob-store";
 import { applyBatch, type WritableStores } from "@biga/viewer-core/runtime/apply-batch";
+import { createPrefetcher } from "@biga/viewer-core/runtime/prefetcher";
 import { createSessionClient } from "@biga/viewer-core/runtime/session-client";
 import { createInThreadPort } from "@biga/viewer-core/runtime/session-host";
 import { abortableSleep, systemClock } from "@biga/viewer-core/runtime/system-env";
@@ -17,6 +19,9 @@ import { apiUrl } from "@/lib/api-url";
 
 const BLOB_ENTRIES = 200;
 const ACTIVITY_WINDOW_MS = 10_000;
+const PREFETCH_DWELL_MS = 80;
+const PREFETCH_CONCURRENCY = 4;
+const PREFETCH_MAX_BYTES = 256 * 1024;
 
 function nextFrame(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(() => resolve()));
@@ -24,6 +29,10 @@ function nextFrame(): Promise<void> {
 
 function deviceMemoryGiB(): number | undefined {
     return (navigator as { deviceMemory?: number }).deviceMemory;
+}
+
+function saveDataEnabled(): boolean {
+    return (navigator as { connection?: { saveData?: boolean } }).connection?.saveData === true;
 }
 
 function createWorkerPort(): SessionPort | null {
@@ -69,9 +78,18 @@ export function createRuntimeCore(sessionId: string, api: ApiClient) {
     const followListeners = new Set<(path: string) => void>();
     let lastActivityAt = Number.NEGATIVE_INFINITY;
 
-    function loadBlob(hash: string, path: string): Promise<BlobEntry> {
-        return blobs.load(hash, async () => (await api.getFile(sessionId, path, hash)).content);
+    function loadBlob(hash: string, path: string, request?: RequestOptions): Promise<BlobEntry> {
+        return blobs.load(hash, async () => (await api.getFile(sessionId, path, hash, request)).content);
     }
+
+    function prefetchBlob(path: string): Promise<unknown> {
+        const entry = stores.tree.getState().reader.entry(path);
+        const skip =
+            !entry || entry.kind !== KIND_FILE || entry.binary || !entry.hash || entry.size > PREFETCH_MAX_BYTES || blobs.has(entry.hash) || saveDataEnabled();
+        return skip ? Promise.resolve() : loadBlob(entry.hash, path, { priority: "low" });
+    }
+
+    const prefetcher = createPrefetcher({ clock: systemClock, dwellMs: PREFETCH_DWELL_MS, concurrency: PREFETCH_CONCURRENCY, run: prefetchBlob });
 
     async function loadCheckpoint(seq: number): Promise<Checkpoint> {
         const cached = stores.history.getState().loaded.get(seq);
@@ -88,6 +106,8 @@ export function createRuntimeCore(sessionId: string, api: ApiClient) {
         api,
         loadBlob,
         loadCheckpoint,
+        prefetchFile: prefetcher.hover,
+        cancelPrefetch: prefetcher.leave,
         emitFollow: (path: string) => followListeners.forEach((listener) => listener(path)),
         onFollow(listener: (path: string) => void): () => void {
             followListeners.add(listener);
