@@ -6,6 +6,7 @@ import {
     FileHistoryResponseSchema,
     SessionStateSchema,
     isValidHash,
+    type ApiClient,
     type ApiClientOptions,
     type ApiErrorKind,
     type Checkpoint,
@@ -66,7 +67,7 @@ function parseWith<T>(schema: Parser<T>, data: unknown): T {
     return result.data;
 }
 
-export function createApiClient(options: ApiClientOptions) {
+export function createApiClient(options: ApiClientOptions): ApiClient {
     const attempts = options.maxAttempts ?? DEFAULT_ATTEMPTS;
     const backoff = options.backoffMs ?? DEFAULT_BACKOFF_MS;
 

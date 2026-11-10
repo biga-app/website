@@ -1,3 +1,6 @@
+import type { Checkpoint, CheckpointSummary, FileHistoryEntry } from "./checkpoint.js";
+import type { FileContent, SessionState } from "./state.js";
+
 export type RequestOptions = {
     signal?: AbortSignal;
     priority?: "high" | "low" | "auto";
@@ -39,4 +42,16 @@ export type TierFeatures = {
     stickyScroll: boolean;
     changeHighlight: boolean;
     maxTokenizationLineLength: number;
+};
+
+export type ApiClient = {
+    getState(sessionId: string, request?: RequestOptions): Promise<SessionState>;
+    getFile(sessionId: string, path: string, ref: string, request?: RequestOptions): Promise<FileContent>;
+    getCheckpoint(sessionId: string, seq: number, request?: RequestOptions): Promise<Checkpoint>;
+    getCheckpoints(
+        sessionId: string,
+        page?: { before?: number; limit?: number },
+        request?: RequestOptions
+    ): Promise<CheckpointSummary[]>;
+    getFileHistory(sessionId: string, path: string, request?: RequestOptions): Promise<FileHistoryEntry[]>;
 };
