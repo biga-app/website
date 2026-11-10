@@ -2,16 +2,15 @@
 
 import { DiffEditor, Editor, useMonaco } from "@monaco-editor/react";
 import "./monaco/monaco-loader";
-import { shikiToMonaco } from "@shikijs/monaco";
+import { enableShiki } from "./monaco/shiki-monaco";
 import { useThemeStore } from "@biga/stores/theme-store";
 import type * as Monaco from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { Highlighter } from "shiki";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { languageForPath } from "@/lib/languages";
-import { getHighlighter, resolveEditorTheme } from "@/lib/shiki";
+import { resolveEditorTheme } from "@/lib/shiki";
 
 export { languageForPath };
 
@@ -30,43 +29,11 @@ export const MONACO_OPTIONS = {
 } as const;
 
 /**
- * Guards a one-time Shiki registration into the global Monaco instance. Shiki
- * languages and themes only need to be registered once per page load; repeated
- * calls to `shikiToMonaco` would add duplicate listeners.
- */
-let shikiRegistered = false;
-
-/**
  * Monaco's built-in themes, shown until Shiki's grammars and themes have
  * loaded. They are not Shiki theme ids, so they must never reach Shiki.
  */
 const FALLBACK_LIGHT_THEME = "vs";
 const FALLBACK_DARK_THEME = "vs-dark";
-
-/**
- * Registers Shiki with Monaco and keeps `monaco.editor.setTheme` total.
- *
- * `shikiToMonaco` replaces `setTheme` (and `create`) with versions that pass
- * the name to Shiki, which throws `ShikiError: Theme "x" not found` for any
- * theme it did not load. An editor that mounted before Shiki was ready still
- * has a built-in theme name queued, so a `setTheme` call landing after the
- * replacement threw from inside a React effect and unmounted the whole viewer.
- * Names Shiki does not know are routed to Monaco's own `setTheme` instead.
- */
-function registerShiki(highlighter: Highlighter, monaco: typeof Monaco) {
-  const editor = monaco.editor as { setTheme: (name: string) => void };
-  const monacoSetTheme = editor.setTheme.bind(monaco.editor);
-  shikiToMonaco(highlighter, monaco);
-  const shikiSetTheme = editor.setTheme;
-  const shikiThemes = new Set(highlighter.getLoadedThemes());
-  editor.setTheme = (name) => {
-    if (shikiThemes.has(name)) {
-      shikiSetTheme(name);
-    } else {
-      monacoSetTheme(name);
-    }
-  };
-}
 
 /**
  * Monaco measures glyph widths once, when the editor is created. On a cold load
@@ -101,10 +68,10 @@ function isMonacoCancelation(reason: unknown): boolean {
   );
 }
 
-/** Subscribe a monaco instance to Shiki highlighting; resolves once ready. */
-export function useShikiMonaco() {
+/** Subscribe a monaco instance to Shiki highlighting for one language and theme; ready once the theme exists. */
+export function useShikiMonaco(language: string, theme: string) {
   const monaco = useMonaco();
-  const [ready, setReady] = useState(shikiRegistered);
+  const [readyTheme, setReadyTheme] = useState<string | null>(null);
 
   // Monaco's language-service workers reject with a plain {type:'cancelation'}
   // object (not an Error) when operations are preempted. React 19 intercepts
@@ -126,28 +93,21 @@ export function useShikiMonaco() {
       return;
     }
     let cancelled = false;
-    void (async () => {
-      const highlighter = await getHighlighter();
-      if (cancelled) {
-        return;
-      }
-      if (!shikiRegistered) {
-        for (const lang of highlighter.getLoadedLanguages()) {
-          monaco.languages.register({ id: lang });
+    enableShiki(monaco, language, theme)
+      .then(() => {
+        if (!cancelled) {
+          setReadyTheme(theme);
         }
-        registerShiki(highlighter, monaco);
-        shikiRegistered = true;
-      }
-      setReady(true);
-    })().catch((err: unknown) => {
-      if (!isMonacoCancelation(err)) throw err;
-    });
+      })
+      .catch((err: unknown) => {
+        if (!isMonacoCancelation(err)) console.error(err);
+      });
     return () => {
       cancelled = true;
     };
-  }, [monaco]);
+  }, [monaco, language, theme]);
 
-  return { monaco, ready };
+  return { monaco, ready: readyTheme === theme };
 }
 
 /** Current Shiki theme id, plus a built-in fallback used until Shiki is ready. */
@@ -168,15 +128,9 @@ export function MonacoViewer({
   value: string;
   wordWrap?: "on" | "off";
 }) {
-  const { monaco, ready } = useShikiMonaco();
   const { shikiTheme, fallback } = useEditorTheme();
+  const { ready } = useShikiMonaco(languageForPath(path), shikiTheme);
   const theme = ready ? shikiTheme : fallback;
-
-  useEffect(() => {
-    if (monaco && ready) {
-      monaco.editor.setTheme(shikiTheme);
-    }
-  }, [monaco, ready, shikiTheme]);
 
   return (
     <Editor
@@ -207,8 +161,8 @@ export function MonacoDiffViewer({
   sideBySide?: boolean;
   wordWrap?: "on" | "off";
 }) {
-  const { monaco, ready } = useShikiMonaco();
   const { shikiTheme, fallback } = useEditorTheme();
+  const { ready } = useShikiMonaco(languageForPath(path), shikiTheme);
   const theme = ready ? shikiTheme : fallback;
   const editorRef = useRef<Monaco.editor.IStandaloneDiffEditor | null>(null);
 
@@ -222,12 +176,6 @@ export function MonacoDiffViewer({
       editorRef.current?.setModel(null);
     };
   }, []);
-
-  useEffect(() => {
-    if (monaco && ready) {
-      monaco.editor.setTheme(shikiTheme);
-    }
-  }, [monaco, ready, shikiTheme]);
 
   return (
     <DiffEditor
