@@ -12,8 +12,6 @@ const frameworkImports = [
   "@monaco-editor/*",
   "shiki",
   "@shikijs/*",
-  "zustand",
-  "zustand/*",
   "@biga/stores",
   "@biga/stores/*",
 ];
@@ -26,6 +24,7 @@ export default [
       "no-restricted-imports": [
         "error",
         {
+          paths: [{ name: "zustand", message: "Import zustand/vanilla: the root entry is the React binding." }],
           patterns: [
             {
               group: frameworkImports,
