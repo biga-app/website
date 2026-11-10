@@ -1,11 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { migrateStorageKey } from "./migrate-storage.js";
-
-// Saved under the product's old name before the rename to biga.
-migrateStorageKey("spire-editor-theme", "biga-editor-theme");
-
 /**
  * Persists the user's Monaco/Shiki editor theme selection across page loads and
  * sessions. `"auto"` follows the application's resolved light/dark mode; any

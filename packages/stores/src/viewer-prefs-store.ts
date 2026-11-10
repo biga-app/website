@@ -1,11 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { migrateStorageKey } from "./migrate-storage.js";
-
-// Saved under the product's old name before the rename to biga.
-migrateStorageKey("spire-viewer-prefs", "biga-viewer-prefs");
-
 export type DiffLayout = "unified" | "split";
 
 /**

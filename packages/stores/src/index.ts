@@ -4,4 +4,3 @@ export * from "./history-store.js";
 export * from "./session-store.js";
 export * from "./theme-store.js";
 export * from "./viewer-prefs-store.js";
-export * from "./migrate-storage.js";
