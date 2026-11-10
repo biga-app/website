@@ -279,6 +279,20 @@
   .biga-just-changed {
     animation: biga-just-changed 1.6s var(--ease-out) both;
   }
+
+  .biga-line-changed {
+    animation: biga-line-changed 2.4s var(--ease-out) both;
+  }
+}
+
+.biga-line-changed {
+  background-color: color-mix(in oklab, var(--biga-accent) 16%, transparent);
+}
+
+.biga-gutter-changed {
+  margin-inline-start: 3px;
+  width: 3px !important;
+  background-color: var(--biga-accent);
 }
 
 @keyframes biga-live-ring {
@@ -296,6 +310,15 @@
 @keyframes biga-just-changed {
   from {
     background-color: color-mix(in oklab, var(--biga-accent) 22%, transparent);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes biga-line-changed {
+  from {
+    background-color: color-mix(in oklab, var(--biga-accent) 26%, transparent);
   }
   to {
     background-color: transparent;
