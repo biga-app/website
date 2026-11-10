@@ -1,5 +1,6 @@
 import type { Checkpoint, CheckpointSummary, FileHistoryEntry } from "./checkpoint.js";
 import type { FileContent, SessionState } from "./state.js";
+import type { Clock } from "./stream.js";
 
 export type RequestOptions = {
     signal?: AbortSignal;
@@ -54,4 +55,11 @@ export type ApiClient = {
         request?: RequestOptions
     ): Promise<CheckpointSummary[]>;
     getFileHistory(sessionId: string, path: string, request?: RequestOptions): Promise<FileHistoryEntry[]>;
+};
+
+export type PrefetcherOptions = {
+    clock: Clock;
+    dwellMs: number;
+    concurrency: number;
+    run: (path: string) => Promise<unknown>;
 };
