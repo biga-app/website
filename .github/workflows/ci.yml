@@ -81,7 +81,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
           BIGA_SERVER_URL: http://localhost:8080
-        run: pnpm --filter web build
+        run: pnpm exec turbo run build --filter=web
 
       - name: Run the end-to-end tests
         run: pnpm --filter @biga/e2e e2e
