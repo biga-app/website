@@ -11,9 +11,9 @@
     "test": "turbo run test --filter=@biga/tests"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.9.16",
-    "typescript": "5.9.2"
+    "prettier": "^3.9.10",
+    "turbo": "^2.11.10",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@11.10.0",
   "engines": {
