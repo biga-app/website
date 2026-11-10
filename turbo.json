@@ -54,6 +54,11 @@
         "dist/**"
       ]
     },
+    "@biga/tests#test": {
+      "dependsOn": [
+        "@biga/types#build"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "^lint"
