@@ -4,6 +4,8 @@ import { createStore } from "zustand/vanilla";
 
 import { createTreeModel } from "../pipeline/tree-model.ts";
 
+const LOAD_SLICE_ENTRIES = 8_192;
+
 const EMPTY_TABLE: TreeTable = {
     paths: [],
     hashes: [],
@@ -30,6 +32,17 @@ export function createTreeStore() {
             load: (table) => {
                 model.load(table);
                 refresh();
+            },
+            prepareLoad: async (table, nextFrame) => {
+                const load = model.startLoad(table);
+                while (!load.done) {
+                    load.step(LOAD_SLICE_ENTRIES);
+                    if (!load.done) await nextFrame();
+                }
+                return () => {
+                    load.commit();
+                    refresh();
+                };
             },
             apply: (patches) => {
                 model.apply(patches);

@@ -28,3 +28,9 @@ export type TreeEntry = {
 };
 
 export type TreePosition = { setSize: number; posInSet: number };
+
+export type TreeLoad = {
+    readonly done: boolean;
+    step(count: number): void;
+    commit(): void;
+};

@@ -18,6 +18,10 @@ import { apiUrl } from "@/lib/api-url";
 const BLOB_ENTRIES = 200;
 const ACTIVITY_WINDOW_MS = 10_000;
 
+function nextFrame(): Promise<void> {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
 function deviceMemoryGiB(): number | undefined {
     return (navigator as { deviceMemory?: number }).deviceMemory;
 }
@@ -109,11 +113,12 @@ export function createSessionRuntime(options: SessionRuntimeOptions): SessionRun
         createFallbackPort: () =>
             createInThreadPort({ baseUrl, fetch: fetcher, clock: systemClock, random: Math.random, sleep: abortableSleep }),
         onBatch: (batch, done) => {
-            requestAnimationFrame(() => {
-                const target = applyBatch(core.stores, batch, { prefillBlobs: core.blobs.prefill });
-                if (target) core.emitFollow(target);
-                done();
-            });
+            void nextFrame()
+                .then(() => applyBatch(core.stores, batch, { prefillBlobs: core.blobs.prefill, nextFrame }))
+                .then((target) => {
+                    if (target) core.emitFollow(target);
+                    done();
+                });
         },
         onUnavailable: (kind) => core.stores.connection.getState().setUnavailable(kind),
     });
