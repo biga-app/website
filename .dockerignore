@@ -11,5 +11,4 @@
 .git
 .agents
 .claude
-apps/cli
 *.log
