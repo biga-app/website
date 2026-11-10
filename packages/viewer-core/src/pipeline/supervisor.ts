@@ -13,7 +13,7 @@ const BACKOFF_MAX_MS = 30_000;
 export const MAX_ATTEMPTS = 8;
 export const WATCHDOG_MS = 45_000;
 export const HEALTHY_MS = 30_000;
-const HIDDEN_RESYNC_MS = 30_000;
+const HIDDEN_RELEASE_MS = 30_000;
 
 const JITTER_FLOOR = 0.75;
 const JITTER_SPREAD = 0.5;
@@ -45,6 +45,8 @@ export function createSupervisor(options: SupervisorOptions) {
     let rerun = false;
     let liveSince: number | null = null;
     let hiddenSince: number | null = null;
+    let released = false;
+    let cancelRelease: (() => void) | null = null;
     let connection: AbortController | null = null;
     let syncController: AbortController | null = null;
     let cancelWatchdog: (() => void) | null = null;
@@ -59,8 +61,10 @@ export function createSupervisor(options: SupervisorOptions) {
     function clearTimers(): void {
         cancelWatchdog?.();
         cancelReconnect?.();
+        cancelRelease?.();
         cancelWatchdog = null;
         cancelReconnect = null;
+        cancelRelease = null;
     }
 
     function closeConnection(): void {
@@ -214,8 +218,18 @@ export function createSupervisor(options: SupervisorOptions) {
         }, WATCHDOG_MS);
     }
 
+    function release(): void {
+        cancelRelease = null;
+        if (!hydrated || ended || stopped) return;
+        released = true;
+        closeConnection();
+        cancelReconnect?.();
+        cancelReconnect = null;
+    }
+
     function connect(): void {
         if (stopped || ended) return;
+        released = false;
         cancelReconnect?.();
         cancelReconnect = null;
         closeConnection();
@@ -228,19 +242,31 @@ export function createSupervisor(options: SupervisorOptions) {
         const decoder = createDecoder({
             onEvent: (event) => {
                 if (event.type !== "connected") return sequencer.push(event);
-                sequencer.pause();
                 subscribed = true;
+                if (event.replayed) {
+                    sequencer.resumeLive();
+                    liveSince = options.clock.now();
+                    setStatus("live");
+                    return;
+                }
+                sequencer.pause();
                 void sync();
             },
             onResync: () => void sync(),
         });
-        void options.transport.connect(options.sessionId, controller.signal, (event) => {
-            if (mine !== epoch || stopped || ended) return;
-            if (event.type === "closed") return onClosed(event);
-            if (event.type === "open") streamOpen = true;
-            armWatchdog(mine);
-            if (event.type === "frame") decoder.push(event.data);
-        });
+        const resume = hydrated ? sequencer.position() : null;
+        void options.transport.connect(
+            options.sessionId,
+            controller.signal,
+            (event) => {
+                if (mine !== epoch || stopped || ended) return;
+                if (event.type === "closed") return onClosed(event);
+                if (event.type === "open") streamOpen = true;
+                armWatchdog(mine);
+                if (event.type === "frame") decoder.push(event.data);
+            },
+            resume
+        );
     }
 
     return {
@@ -267,11 +293,22 @@ export function createSupervisor(options: SupervisorOptions) {
         setHidden(hidden: boolean): void {
             if (hidden) {
                 hiddenSince = options.clock.now();
+                cancelRelease?.();
+                cancelRelease = options.clock.setTimer(release, HIDDEN_RELEASE_MS);
                 return;
             }
+            cancelRelease?.();
+            cancelRelease = null;
             const away = hiddenSince === null ? 0 : options.clock.now() - hiddenSince;
             hiddenSince = null;
-            if (away < HIDDEN_RESYNC_MS || !hydrated || !subscribed || ended || stopped) return;
+            if (!hydrated || ended || stopped) return;
+            if (released) {
+                released = false;
+                attempts = 0;
+                connect();
+                return;
+            }
+            if (away < HIDDEN_RELEASE_MS || !subscribed) return;
             sequencer.pause();
             void sync();
         },

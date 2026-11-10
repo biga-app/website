@@ -33,7 +33,8 @@ stateDiagram-v2
 ## Rejoining
 
 On rejoin the CLI compares your local files with the server's copy and uploads
-only what changed. Local files are always the source of truth, so a crash, a
+only what changed. If the first upload of a large project was interrupted, running
+the command again resumes it: content the server already stored is not sent again. Local files are always the source of truth, so a crash, a
 server restart or a dropped connection is fixed by running the same command
 again.
 

@@ -186,7 +186,12 @@ export function decodeStreamEvent(bytes: Uint8Array): StreamEvent | null {
     const { event } = fromBinary(pb.StreamEventSchema, bytes);
     switch (event.case) {
         case "connected":
-            return { type: "connected", sessionId: event.value.sessionId, timestamp: Number(event.value.timestamp) };
+            return {
+                type: "connected",
+                sessionId: event.value.sessionId,
+                timestamp: Number(event.value.timestamp),
+                replayed: event.value.replayed,
+            };
         case "snapshot":
             return { type: "snapshot", payload: snapshot(event.value) };
         case "checkpoint":

@@ -28,7 +28,7 @@ test("a keepalive is a valid frame that carries no event", () => {
 test("garbage, empty frames and wrong values are rejected", () => {
     assert.equal(decodeFrame(invalidFrame.data).ok, false);
     assert.equal(decodeFrame(new Uint8Array(0)).ok, false);
-    const noSession = encodeStreamEvent({ type: "connected", sessionId: "", timestamp: 1 });
+    const noSession = encodeStreamEvent({ type: "connected", sessionId: "", timestamp: 1, replayed: false });
     assert.equal(decodeFrame(noSession).ok, false);
 });
 

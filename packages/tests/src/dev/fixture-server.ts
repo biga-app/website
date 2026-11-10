@@ -221,7 +221,7 @@ function fileHistory(session: Session, path: string): FileHistoryEntry[] {
 
 function stream(session: Session, req: IncomingMessage, res: ServerResponse): void {
     res.writeHead(200, { "Content-Type": STREAM_TYPE, "Cache-Control": "no-cache, no-transform" });
-    res.write(delimited(encodeStreamEvent({ type: "connected", sessionId: session.id, timestamp: Date.now() })));
+    res.write(delimited(encodeStreamEvent({ type: "connected", sessionId: session.id, timestamp: Date.now(), replayed: false })));
     if (session.status !== "active") return void res.end();
     session.subscribers.add(res);
     const keepalive = setInterval(() => res.write(delimited(encodeStreamEvent("keepalive"))), 15_000);

@@ -39,6 +39,7 @@ them: `/healthz`, `/readyz`, the retention cron and the
 | 403 | `session_locked` | The session has no owner token and accepts no writes. Start a new one. |
 | 404 | `not_found` | No such session, checkpoint or file version. |
 | 409 | `invalid_state`, `inactive_session` | The session has ended. |
+| 409 | `missing_blob` | A snapshot refers to file content that was not uploaded. `details` has the `count` and the `first` hash. |
 | 413 | `payload_too_large`, `storage_quota_exceeded` | The body is over the endpoint's limit, or the session is full. |
 | 406 | `not_acceptable` | The request did not ask for protobuf. Always JSON. |
 | 415 | `unsupported_encoding`, `unsupported_media_type` | Send protobuf, plain or gzip. |
@@ -76,7 +77,9 @@ Each needs the owner token, except creating a session.
 | --- | --- | --- |
 | `PUT` | `/api/sessions/:id` | Creates the session (`201`, with its token), or reactivates it for its owner (`200`). |
 | `DELETE` | `/api/sessions/:id` | Ends the session. |
-| `POST` | `/api/sessions/:id/snapshot` | Replaces the whole tree. Answers `202`. |
+| `POST` | `/api/sessions/:id/blobs/missing` | Which of a list of content hashes the server has not stored yet. |
+| `POST` | `/api/sessions/:id/blobs` | Stores file content ahead of the snapshot that refers to it. Answers `202`. |
+| `POST` | `/api/sessions/:id/snapshot` | Replaces the whole tree. Answers `202`. A text file may carry only its hash, if its content was uploaded as a blob. |
 | `POST` | `/api/sessions/:id/checkpoint` | Records one batch of changes. Answers `202`. |
 | `GET` | `/api/sessions/:id/manifest` | Path, hash and size of every file, for rejoining. Never cached. |
 | `POST` | `/api/sessions/:id/heartbeat` | Says the broadcast is still alive. |
@@ -102,6 +105,7 @@ doesn't gets plain protobuf, and a `415` makes the CLI fall back too.
 | Endpoint | Largest body | Rate limit |
 | --- | --- | --- |
 | `snapshot` | 32 MiB | 15 per minute, per session |
+| `blobs`, `blobs/missing` | 8 MiB | 600 per minute, per session |
 | `checkpoint` | 8 MiB | 240 per minute, per session |
 | `PUT` session | 16 KiB | 60 per hour, per client |
 | `heartbeat` | none | 30 per minute, per session |
@@ -114,6 +118,20 @@ bytes, exactly as sent; paths must be relative, with no `.` or `..` segments.
 The CLI splits a large change set across several checkpoints, each under 6 MB
 uncompressed, so a branch switch stays inside the 8 MiB limit.
 
+### Large projects
+
+A snapshot of a big project would not fit in one request, so the CLI sends
+the content first. It hashes every file, asks `blobs/missing` which hashes the
+server lacks, uploads those in batches under the limit, and only then posts the
+snapshot with hashes and no content. A server that already has a file's content
+is never sent it twice, which is also why an interrupted first upload picks up
+where it stopped: start the same broadcast again.
+
+The response that creates or reactivates a session reports `limits`: the most
+files a session may hold (`max_snapshot_files`, 50,000 by default), the largest
+file and the largest blob batch. The CLI checks the file count before it uploads
+anything, and suggests `--only` when a project has too many.
+
 ## Events
 
 `GET /api/sessions/:id/stream` answers `application/vnd.biga.stream+protobuf`
@@ -123,7 +141,7 @@ varint. A `StreamEvent` holds exactly one of these:
 
 | Field | Payload |
 | --- | --- |
-| `connected` | The session ID and the server's time. |
+| `connected` | The session ID, the server's time and `replayed`: whether the server will send what the viewer missed (below). |
 | `checkpoint` | A full checkpoint: its summary and `changes`. |
 | `snapshot` | The new tree. |
 | `session_ended` | Nothing more. The stream closes after it. |
@@ -132,6 +150,16 @@ varint. A `StreamEvent` holds exactly one of these:
 The server closes the stream with `session_ended` when the broadcast has gone
 quiet for too long, and ends it when the client disconnects. A viewer that
 falls too far behind is disconnected, reconnects, and reloads `state`.
+
+### Resuming
+
+A viewer that reconnects says where it left off with `?after=<seq>&snapshot=<timestamp>`:
+the last checkpoint it applied, and the `timestamp` of the snapshot it holds.
+If that snapshot is still the session's current one and the viewer is at most 64
+checkpoints behind, the server answers `connected` with `replayed` set, then sends
+each missed `checkpoint` in order, and then the live events, never one twice. The
+viewer does not reload `state`. Otherwise `replayed` is false, and the viewer
+reloads `state` as it does on a first visit.
 
 ## Upgrading
 

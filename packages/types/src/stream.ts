@@ -10,8 +10,11 @@ export type TransportEvent =
     | { type: "frame"; data: Uint8Array }
     | { type: "closed"; reason: "network" | "http" | "ended"; status?: number; retryAfterMs?: number | null };
 
+/** Where a reconnecting viewer left off: its latest checkpoint and the snapshot it holds. */
+export type ResumePosition = { after: number; snapshot: number };
+
 export type StreamTransport = {
-    connect(sessionId: string, signal: AbortSignal, emit: (event: TransportEvent) => void): Promise<void>;
+    connect(sessionId: string, signal: AbortSignal, emit: (event: TransportEvent) => void, resume: ResumePosition | null): Promise<void>;
 };
 
 export type StreamTransportOptions = {

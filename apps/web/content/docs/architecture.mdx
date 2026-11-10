@@ -96,7 +96,10 @@ file's content only when someone opens it.
 
 ## Starting and rejoining
 
-A new session uploads a full snapshot first, then streams changes.
+A new session uploads a full snapshot first, then streams changes. The snapshot
+is sent in two steps so a large project never has to fit in one request: the file
+content goes first, in batches, and the snapshot that follows carries only
+hashes.
 
 ```mermaid title="Starting a new session" summary="The CLI creates the session with a PUT, arms the file watcher, scans the folder and uploads a full snapshot. The server stores the tree and blobs. When a viewer opens the link it loads the state and then opens the event stream, which answers with a connected event." caption="The watcher is armed before the tree is read, so an edit made during the first upload is queued, not lost."
 sequenceDiagram
@@ -105,8 +108,9 @@ sequenceDiagram
   participant V as Viewer
   C->>S: PUT /sessions/:id
   Note over C: arm the file watcher, then scan the folder
-  C->>S: POST /snapshot (full tree)
-  S->>S: store tree and blobs, seq 0
+  C->>S: POST /blobs/missing, POST /blobs
+  C->>S: POST /snapshot (hashes only)
+  S->>S: store tree, seq 0
   rect rgba(120, 120, 120, 0.12)
     Note over V,S: a viewer opens the link
     V->>S: GET /state
@@ -161,7 +165,7 @@ so a streaming HTTP response is enough: ordinary HTTP, with no second channel
 to keep open. The viewer reads the stream itself rather
 than leaving reconnection to the browser, so it can see why a connection was
 refused and wait as long as the server asks. When a stream drops, the viewer
-re-reads the state and merges what it missed. [How the viewer handles
+reconnects saying where it left off, and the server sends what it missed. [How the viewer handles
 this](#how-the-viewer-applies-events) is covered below.
 
 A broadcast that stops sending heartbeats is marked ended once its session has
@@ -212,9 +216,9 @@ flowchart LR
 | The stream closes or errors | Shows **Reconnecting**, keeps the last state on screen, and retries after a delay that starts at one second, grows to 30, and is randomised so viewers don't retry together. |
 | The server answers 429 or 503 | Waits for the `Retry-After` it was given. |
 | Nothing arrives for 45 seconds | Treats the stream as dead and reconnects. The server sends a keepalive frame every 15 seconds, so this means three missed in a row. |
-| It reconnects | Opens the stream first, then re-reads the state and applies whatever it missed in order. |
+| It reconnects | Opens the stream saying which checkpoint and snapshot it holds. If the server can replay what it missed, it applies those in order. Otherwise it re-reads the state first. |
 | Eight attempts in a row fail | Shows **Offline** with a reconnect button. The browser coming back online also tries again. |
-| The tab was hidden for more than 30 seconds | Re-reads the state when it is visible again, before showing anything new. |
+| The tab was hidden for 30 seconds | Lets go of the stream, so a forgotten tab does not hold a connection. When it is visible again it reconnects and catches up the same way. |
 | `session_ended` arrives | Shows the final state and stops reconnecting. |
 
 ### More than one server

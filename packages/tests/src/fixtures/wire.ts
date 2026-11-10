@@ -171,7 +171,7 @@ export function encodeStreamEvent(value: StreamEvent | "keepalive"): Uint8Array 
     const event = (() => {
         switch (value.type) {
             case "connected":
-                return { case: "connected", value: { sessionId: value.sessionId, timestamp: BigInt(value.timestamp) } } as const;
+                return { case: "connected", value: { sessionId: value.sessionId, timestamp: BigInt(value.timestamp), replayed: value.replayed } } as const;
             case "session_ended":
                 return { case: "sessionEnded", value: { sessionId: value.sessionId, timestamp: BigInt(value.timestamp) } } as const;
             case "snapshot":

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file biga/v1/biga.proto.
  */
 export const file_biga_v1_biga: GenFile = /*@__PURE__*/
-  fileDesc("ChJiaWdhL3YxL2JpZ2EucHJvdG8SB2JpZ2EudjEi5gEKB1Nlc3Npb24SCgoCaWQYASABKAkSDQoFdGl0bGUYAiABKAkSGAoLZGVzY3JpcHRpb24YAyABKAlIAIgBARImCgZzdGF0dXMYBCABKA4yFi5iaWdhLnYxLlNlc3Npb25TdGF0dXMSEgoKY3JlYXRlZF9hdBgFIAEoCRISCgp1cGRhdGVkX2F0GAYgASgJEhUKCGVuZGVkX2F0GAcgASgJSAGIAQESFQoIZ3JvdXBfaWQYCCABKAlIAogBAUIOCgxfZGVzY3JpcHRpb25CCwoJX2VuZGVkX2F0QgsKCV9ncm91cF9pZCJ/ChFQdXRTZXNzaW9uUmVxdWVzdBISCgV0aXRsZRgBIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAIgASgJSAGIAQESFQoIZ3JvdXBfaWQYAyABKAlIAogBAUIICgZfdGl0bGVCDgoMX2Rlc2NyaXB0aW9uQgsKCV9ncm91cF9pZCJTCgxTZXNzaW9uR3JhbnQSIQoHc2Vzc2lvbhgBIAEoCzIQLmJpZ2EudjEuU2Vzc2lvbhINCgV0b2tlbhgCIAEoCRIRCglzaGFyZV91cmwYAyABKAkifgoIRmlsZU5vZGUSDAoEbmFtZRgBIAEoCRIMCgRwYXRoGAIgASgJEiEKBGZpbGUYAyABKAsyES5iaWdhLnYxLkZpbGVJbmZvSAASKwoJZGlyZWN0b3J5GAQgASgLMhYuYmlnYS52MS5EaXJlY3RvcnlJbmZvSABCBgoEa2luZCJHCghGaWxlSW5mbxIMCgRzaXplGAEgASgDEgwKBGhhc2gYAiABKAkSDgoGYmluYXJ5GAMgASgIEg8KB2NvbnRlbnQYBCABKAwiRQoNRGlyZWN0b3J5SW5mbxIjCghjaGlsZHJlbhgBIAMoCzIRLmJpZ2EudjEuRmlsZU5vZGUSDwoHaWdub3JlZBgCIAEoCCJsCgxGaWxlU25hcHNob3QSEgoKc2Vzc2lvbl9pZBgBIAEoCRIfCgR0cmVlGAIgASgLMhEuYmlnYS52MS5GaWxlTm9kZRIRCgl0aW1lc3RhbXAYAyABKAMSFAoMc2VxdWVuY2VfbnVtGAQgASgDIqYBCg9DaGVja3BvaW50RW50cnkSDAoEcGF0aBgBIAEoCRIoCgtjaGFuZ2VfdHlwZRgCIAEoDjITLmJpZ2EudjEuQ2hhbmdlVHlwZRIQCghvbGRfcGF0aBgDIAEoCRIRCgRoYXNoGAQgASgJSACIAQESDAoEc2l6ZRgFIAEoAxIOCgZiaW5hcnkYBiABKAgSDwoHY29udGVudBgHIAEoDEIHCgVfaGFzaCJkChBDaGVja3BvaW50VXBsb2FkEhIKCnNlc3Npb25faWQYASABKAkSKQoHZW50cmllcxgCIAMoCzIYLmJpZ2EudjEuQ2hlY2twb2ludEVudHJ5EhEKCXRpbWVzdGFtcBgDIAEoAyLkAQoQQ2hlY2twb2ludENoYW5nZRIMCgRwYXRoGAEgASgJEigKC2NoYW5nZV90eXBlGAIgASgOMhMuYmlnYS52MS5DaGFuZ2VUeXBlEhAKCG9sZF9wYXRoGAMgASgJEhgKC2JlZm9yZV9oYXNoGAQgASgJSACIAQESFwoKYWZ0ZXJfaGFzaBgFIAEoCUgBiAEBEhEKCWFkZGl0aW9ucxgGIAEoBRIRCglkZWxldGlvbnMYByABKAUSDgoGYmluYXJ5GAggASgIQg4KDF9iZWZvcmVfaGFzaEINCgtfYWZ0ZXJfaGFzaCKjAQoRQ2hlY2twb2ludFN1bW1hcnkSDQoFbmFtZWQYASABKAgSEgoKc2Vzc2lvbl9pZBgCIAEoCRILCgNzZXEYAyABKAUSDQoFbGFiZWwYBCABKAkSEgoKY3JlYXRlZF9hdBgFIAEoCRIVCg1maWxlc19jaGFuZ2VkGAYgASgFEhEKCWFkZGl0aW9ucxgHIAEoBRIRCglkZWxldGlvbnMYCCABKAUiZQoKQ2hlY2twb2ludBIrCgdzdW1tYXJ5GAEgASgLMhouYmlnYS52MS5DaGVja3BvaW50U3VtbWFyeRIqCgdjaGFuZ2VzGAIgAygLMhkuYmlnYS52MS5DaGVja3BvaW50Q2hhbmdlIvQBChBGaWxlSGlzdG9yeUVudHJ5EgsKA3NlcRgBIAEoBRINCgVsYWJlbBgCIAEoCRISCgpjcmVhdGVkX2F0GAMgASgJEigKC2NoYW5nZV90eXBlGAQgASgOMhMuYmlnYS52MS5DaGFuZ2VUeXBlEhgKC2JlZm9yZV9oYXNoGAUgASgJSACIAQESFwoKYWZ0ZXJfaGFzaBgGIAEoCUgBiAEBEhEKCWFkZGl0aW9ucxgHIAEoBRIRCglkZWxldGlvbnMYCCABKAUSDgoGYmluYXJ5GAkgASgIQg4KDF9iZWZvcmVfaGFzaEINCgtfYWZ0ZXJfaGFzaCJJCg1NYW5pZmVzdEVudHJ5EgwKBHBhdGgYASABKAkSDAoEaGFzaBgCIAEoCRIMCgRzaXplGAMgASgDEg4KBmJpbmFyeRgEIAEoCCIxCghNYW5pZmVzdBIlCgVmaWxlcxgBIAMoCzIWLmJpZ2EudjEuTWFuaWZlc3RFbnRyeSKmAgoMU2Vzc2lvblN0YXRlEiEKB3Nlc3Npb24YASABKAsyEC5iaWdhLnYxLlNlc3Npb24SLAoIc25hcHNob3QYAiABKAsyFS5iaWdhLnYxLkZpbGVTbmFwc2hvdEgAiAEBEi8KC2NoZWNrcG9pbnRzGAMgAygLMhouYmlnYS52MS5DaGVja3BvaW50U3VtbWFyeRIfCgRtb2RlGAQgASgOMhEuYmlnYS52MS5Mb2FkTW9kZRI1Cghjb250ZW50cxgFIAMoCzIjLmJpZ2EudjEuU2Vzc2lvblN0YXRlLkNvbnRlbnRzRW50cnkaLwoNQ29udGVudHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAw6AjgBQgsKCV9zbmFwc2hvdCI8CgtGaWxlQ29udGVudBIPCgdjb250ZW50GAEgASgMEg4KBmJpbmFyeRgCIAEoCBIMCgRoYXNoGAMgASgJIkoKF0xpc3RDaGVja3BvaW50c1Jlc3BvbnNlEi8KC2NoZWNrcG9pbnRzGAEgAygLMhouYmlnYS52MS5DaGVja3BvaW50U3VtbWFyeSJBChNGaWxlSGlzdG9yeVJlc3BvbnNlEioKB2hpc3RvcnkYASADKAsyGS5iaWdhLnYxLkZpbGVIaXN0b3J5RW50cnkiJQoVTWFya0NoZWNrcG9pbnRSZXF1ZXN0EgwKBG5hbWUYASABKAkiOQoJRXh0ZW5zaW9uEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSEgoKY3JlYXRlZF9hdBgDIAEoCSJGCg5FeHRlbnNpb25HcmFudBIlCglleHRlbnNpb24YASABKAsyEi5iaWdhLnYxLkV4dGVuc2lvbhINCgV0b2tlbhgCIAEoCSImChZDcmVhdGVFeHRlbnNpb25SZXF1ZXN0EgwKBG5hbWUYASABKAkiQAoWTGlzdEV4dGVuc2lvbnNSZXNwb25zZRImCgpleHRlbnNpb25zGAEgAygLMhIuYmlnYS52MS5FeHRlbnNpb24ihAEKBUVycm9yEgwKBGNvZGUYASABKAkSDwoHbWVzc2FnZRgCIAEoCRIsCgdkZXRhaWxzGAMgAygLMhsuYmlnYS52MS5FcnJvci5EZXRhaWxzRW50cnkaLgoMRGV0YWlsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiMgoJQ29ubmVjdGVkEhIKCnNlc3Npb25faWQYASABKAkSEQoJdGltZXN0YW1wGAIgASgDIjUKDFNlc3Npb25FbmRlZBISCgpzZXNzaW9uX2lkGAEgASgJEhEKCXRpbWVzdGFtcBgCIAEoAyIeCglLZWVwYWxpdmUSEQoJdGltZXN0YW1wGAEgASgDIu4BCgtTdHJlYW1FdmVudBInCgljb25uZWN0ZWQYASABKAsyEi5iaWdhLnYxLkNvbm5lY3RlZEgAEikKCHNuYXBzaG90GAIgASgLMhUuYmlnYS52MS5GaWxlU25hcHNob3RIABIpCgpjaGVja3BvaW50GAMgASgLMhMuYmlnYS52MS5DaGVja3BvaW50SAASLgoNc2Vzc2lvbl9lbmRlZBgEIAEoCzIVLmJpZ2EudjEuU2Vzc2lvbkVuZGVkSAASJwoJa2VlcGFsaXZlGAUgASgLMhIuYmlnYS52MS5LZWVwYWxpdmVIAEIHCgVldmVudCJVCg1CcmlkZ2VNZXNzYWdlEhMKC2luc3RhbmNlX2lkGAEgASgJEhIKCnNlc3Npb25faWQYAiABKAkSDAoEbmFtZRgDIAEoCRINCgVmcmFtZRgEIAEoDCpkCg1TZXNzaW9uU3RhdHVzEh4KGlNFU1NJT05fU1RBVFVTX1VOU1BFQ0lGSUVEEAASGQoVU0VTU0lPTl9TVEFUVVNfQUNUSVZFEAESGAoUU0VTU0lPTl9TVEFUVVNfRU5ERUQQAiqMAQoKQ2hhbmdlVHlwZRIbChdDSEFOR0VfVFlQRV9VTlNQRUNJRklFRBAAEhUKEUNIQU5HRV9UWVBFX0FEREVEEAESGAoUQ0hBTkdFX1RZUEVfTU9ESUZJRUQQAhIXChNDSEFOR0VfVFlQRV9ERUxFVEVEEAMSFwoTQ0hBTkdFX1RZUEVfUkVOQU1FRBAEKk4KCExvYWRNb2RlEhkKFUxPQURfTU9ERV9VTlNQRUNJRklFRBAAEhMKD0xPQURfTU9ERV9FQUdFUhABEhIKDkxPQURfTU9ERV9MQVpZEAJiBnByb3RvMw");
+  fileDesc("ChJiaWdhL3YxL2JpZ2EucHJvdG8SB2JpZ2EudjEi5gEKB1Nlc3Npb24SCgoCaWQYASABKAkSDQoFdGl0bGUYAiABKAkSGAoLZGVzY3JpcHRpb24YAyABKAlIAIgBARImCgZzdGF0dXMYBCABKA4yFi5iaWdhLnYxLlNlc3Npb25TdGF0dXMSEgoKY3JlYXRlZF9hdBgFIAEoCRISCgp1cGRhdGVkX2F0GAYgASgJEhUKCGVuZGVkX2F0GAcgASgJSAGIAQESFQoIZ3JvdXBfaWQYCCABKAlIAogBAUIOCgxfZGVzY3JpcHRpb25CCwoJX2VuZGVkX2F0QgsKCV9ncm91cF9pZCJ/ChFQdXRTZXNzaW9uUmVxdWVzdBISCgV0aXRsZRgBIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAIgASgJSAGIAQESFQoIZ3JvdXBfaWQYAyABKAlIAogBAUIICgZfdGl0bGVCDgoMX2Rlc2NyaXB0aW9uQgsKCV9ncm91cF9pZCJaCgZMaW1pdHMSGgoSbWF4X3NuYXBzaG90X2ZpbGVzGAEgASgFEhYKDm1heF9maWxlX2J5dGVzGAIgASgDEhwKFG1heF9ibG9iX2JhdGNoX2J5dGVzGAMgASgDInQKDFNlc3Npb25HcmFudBIhCgdzZXNzaW9uGAEgASgLMhAuYmlnYS52MS5TZXNzaW9uEg0KBXRva2VuGAIgASgJEhEKCXNoYXJlX3VybBgDIAEoCRIfCgZsaW1pdHMYBCABKAsyDy5iaWdhLnYxLkxpbWl0cyJ+CghGaWxlTm9kZRIMCgRuYW1lGAEgASgJEgwKBHBhdGgYAiABKAkSIQoEZmlsZRgDIAEoCzIRLmJpZ2EudjEuRmlsZUluZm9IABIrCglkaXJlY3RvcnkYBCABKAsyFi5iaWdhLnYxLkRpcmVjdG9yeUluZm9IAEIGCgRraW5kIkcKCEZpbGVJbmZvEgwKBHNpemUYASABKAMSDAoEaGFzaBgCIAEoCRIOCgZiaW5hcnkYAyABKAgSDwoHY29udGVudBgEIAEoDCJFCg1EaXJlY3RvcnlJbmZvEiMKCGNoaWxkcmVuGAEgAygLMhEuYmlnYS52MS5GaWxlTm9kZRIPCgdpZ25vcmVkGAIgASgIImwKDEZpbGVTbmFwc2hvdBISCgpzZXNzaW9uX2lkGAEgASgJEh8KBHRyZWUYAiABKAsyES5iaWdhLnYxLkZpbGVOb2RlEhEKCXRpbWVzdGFtcBgDIAEoAxIUCgxzZXF1ZW5jZV9udW0YBCABKAMipgEKD0NoZWNrcG9pbnRFbnRyeRIMCgRwYXRoGAEgASgJEigKC2NoYW5nZV90eXBlGAIgASgOMhMuYmlnYS52MS5DaGFuZ2VUeXBlEhAKCG9sZF9wYXRoGAMgASgJEhEKBGhhc2gYBCABKAlIAIgBARIMCgRzaXplGAUgASgDEg4KBmJpbmFyeRgGIAEoCBIPCgdjb250ZW50GAcgASgMQgcKBV9oYXNoImQKEENoZWNrcG9pbnRVcGxvYWQSEgoKc2Vzc2lvbl9pZBgBIAEoCRIpCgdlbnRyaWVzGAIgAygLMhguYmlnYS52MS5DaGVja3BvaW50RW50cnkSEQoJdGltZXN0YW1wGAMgASgDIuQBChBDaGVja3BvaW50Q2hhbmdlEgwKBHBhdGgYASABKAkSKAoLY2hhbmdlX3R5cGUYAiABKA4yEy5iaWdhLnYxLkNoYW5nZVR5cGUSEAoIb2xkX3BhdGgYAyABKAkSGAoLYmVmb3JlX2hhc2gYBCABKAlIAIgBARIXCgphZnRlcl9oYXNoGAUgASgJSAGIAQESEQoJYWRkaXRpb25zGAYgASgFEhEKCWRlbGV0aW9ucxgHIAEoBRIOCgZiaW5hcnkYCCABKAhCDgoMX2JlZm9yZV9oYXNoQg0KC19hZnRlcl9oYXNoIqMBChFDaGVja3BvaW50U3VtbWFyeRINCgVuYW1lZBgBIAEoCBISCgpzZXNzaW9uX2lkGAIgASgJEgsKA3NlcRgDIAEoBRINCgVsYWJlbBgEIAEoCRISCgpjcmVhdGVkX2F0GAUgASgJEhUKDWZpbGVzX2NoYW5nZWQYBiABKAUSEQoJYWRkaXRpb25zGAcgASgFEhEKCWRlbGV0aW9ucxgIIAEoBSJlCgpDaGVja3BvaW50EisKB3N1bW1hcnkYASABKAsyGi5iaWdhLnYxLkNoZWNrcG9pbnRTdW1tYXJ5EioKB2NoYW5nZXMYAiADKAsyGS5iaWdhLnYxLkNoZWNrcG9pbnRDaGFuZ2Ui9AEKEEZpbGVIaXN0b3J5RW50cnkSCwoDc2VxGAEgASgFEg0KBWxhYmVsGAIgASgJEhIKCmNyZWF0ZWRfYXQYAyABKAkSKAoLY2hhbmdlX3R5cGUYBCABKA4yEy5iaWdhLnYxLkNoYW5nZVR5cGUSGAoLYmVmb3JlX2hhc2gYBSABKAlIAIgBARIXCgphZnRlcl9oYXNoGAYgASgJSAGIAQESEQoJYWRkaXRpb25zGAcgASgFEhEKCWRlbGV0aW9ucxgIIAEoBRIOCgZiaW5hcnkYCSABKAhCDgoMX2JlZm9yZV9oYXNoQg0KC19hZnRlcl9oYXNoIkkKDU1hbmlmZXN0RW50cnkSDAoEcGF0aBgBIAEoCRIMCgRoYXNoGAIgASgJEgwKBHNpemUYAyABKAMSDgoGYmluYXJ5GAQgASgIIjEKCE1hbmlmZXN0EiUKBWZpbGVzGAEgAygLMhYuYmlnYS52MS5NYW5pZmVzdEVudHJ5IqYCCgxTZXNzaW9uU3RhdGUSIQoHc2Vzc2lvbhgBIAEoCzIQLmJpZ2EudjEuU2Vzc2lvbhIsCghzbmFwc2hvdBgCIAEoCzIVLmJpZ2EudjEuRmlsZVNuYXBzaG90SACIAQESLwoLY2hlY2twb2ludHMYAyADKAsyGi5iaWdhLnYxLkNoZWNrcG9pbnRTdW1tYXJ5Eh8KBG1vZGUYBCABKA4yES5iaWdhLnYxLkxvYWRNb2RlEjUKCGNvbnRlbnRzGAUgAygLMiMuYmlnYS52MS5TZXNzaW9uU3RhdGUuQ29udGVudHNFbnRyeRovCg1Db250ZW50c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDDoCOAFCCwoJX3NuYXBzaG90IjwKC0ZpbGVDb250ZW50Eg8KB2NvbnRlbnQYASABKAwSDgoGYmluYXJ5GAIgASgIEgwKBGhhc2gYAyABKAkiSgoXTGlzdENoZWNrcG9pbnRzUmVzcG9uc2USLwoLY2hlY2twb2ludHMYASADKAsyGi5iaWdhLnYxLkNoZWNrcG9pbnRTdW1tYXJ5IkEKE0ZpbGVIaXN0b3J5UmVzcG9uc2USKgoHaGlzdG9yeRgBIAMoCzIZLmJpZ2EudjEuRmlsZUhpc3RvcnlFbnRyeSIlChNNaXNzaW5nQmxvYnNSZXF1ZXN0Eg4KBmhhc2hlcxgBIAMoCSImChRNaXNzaW5nQmxvYnNSZXNwb25zZRIOCgZoYXNoZXMYASADKAkiJQoEQmxvYhIMCgRoYXNoGAEgASgJEg8KB2NvbnRlbnQYAiABKAwiMgoSVXBsb2FkQmxvYnNSZXF1ZXN0EhwKBWJsb2JzGAEgAygLMg0uYmlnYS52MS5CbG9iIiUKFU1hcmtDaGVja3BvaW50UmVxdWVzdBIMCgRuYW1lGAEgASgJIjkKCUV4dGVuc2lvbhIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhIKCmNyZWF0ZWRfYXQYAyABKAkiRgoORXh0ZW5zaW9uR3JhbnQSJQoJZXh0ZW5zaW9uGAEgASgLMhIuYmlnYS52MS5FeHRlbnNpb24SDQoFdG9rZW4YAiABKAkiJgoWQ3JlYXRlRXh0ZW5zaW9uUmVxdWVzdBIMCgRuYW1lGAEgASgJIkAKFkxpc3RFeHRlbnNpb25zUmVzcG9uc2USJgoKZXh0ZW5zaW9ucxgBIAMoCzISLmJpZ2EudjEuRXh0ZW5zaW9uIoQBCgVFcnJvchIMCgRjb2RlGAEgASgJEg8KB21lc3NhZ2UYAiABKAkSLAoHZGV0YWlscxgDIAMoCzIbLmJpZ2EudjEuRXJyb3IuRGV0YWlsc0VudHJ5Gi4KDERldGFpbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIkQKCUNvbm5lY3RlZBISCgpzZXNzaW9uX2lkGAEgASgJEhEKCXRpbWVzdGFtcBgCIAEoAxIQCghyZXBsYXllZBgDIAEoCCI1CgxTZXNzaW9uRW5kZWQSEgoKc2Vzc2lvbl9pZBgBIAEoCRIRCgl0aW1lc3RhbXAYAiABKAMiHgoJS2VlcGFsaXZlEhEKCXRpbWVzdGFtcBgBIAEoAyLuAQoLU3RyZWFtRXZlbnQSJwoJY29ubmVjdGVkGAEgASgLMhIuYmlnYS52MS5Db25uZWN0ZWRIABIpCghzbmFwc2hvdBgCIAEoCzIVLmJpZ2EudjEuRmlsZVNuYXBzaG90SAASKQoKY2hlY2twb2ludBgDIAEoCzITLmJpZ2EudjEuQ2hlY2twb2ludEgAEi4KDXNlc3Npb25fZW5kZWQYBCABKAsyFS5iaWdhLnYxLlNlc3Npb25FbmRlZEgAEicKCWtlZXBhbGl2ZRgFIAEoCzISLmJpZ2EudjEuS2VlcGFsaXZlSABCBwoFZXZlbnQiYgoNQnJpZGdlTWVzc2FnZRITCgtpbnN0YW5jZV9pZBgBIAEoCRISCgpzZXNzaW9uX2lkGAIgASgJEgwKBG5hbWUYAyABKAkSDQoFZnJhbWUYBCABKAwSCwoDc2VxGAUgASgFKmQKDVNlc3Npb25TdGF0dXMSHgoaU0VTU0lPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIZChVTRVNTSU9OX1NUQVRVU19BQ1RJVkUQARIYChRTRVNTSU9OX1NUQVRVU19FTkRFRBACKowBCgpDaGFuZ2VUeXBlEhsKF0NIQU5HRV9UWVBFX1VOU1BFQ0lGSUVEEAASFQoRQ0hBTkdFX1RZUEVfQURERUQQARIYChRDSEFOR0VfVFlQRV9NT0RJRklFRBACEhcKE0NIQU5HRV9UWVBFX0RFTEVURUQQAxIXChNDSEFOR0VfVFlQRV9SRU5BTUVEEAQqTgoITG9hZE1vZGUSGQoVTE9BRF9NT0RFX1VOU1BFQ0lGSUVEEAASEwoPTE9BRF9NT0RFX0VBR0VSEAESEgoOTE9BRF9NT0RFX0xBWlkQAmIGcHJvdG8z");
 
 /**
  * Timestamps named *_at are RFC 3339 UTC strings with millisecond precision.
@@ -95,6 +95,35 @@ export const PutSessionRequestSchema: GenMessage<PutSessionRequest> = /*@__PURE_
   messageDesc(file_biga_v1_biga, 1);
 
 /**
+ * What the server accepts, so a client can fail early with a useful message.
+ *
+ * @generated from message biga.v1.Limits
+ */
+export type Limits = Message<"biga.v1.Limits"> & {
+  /**
+   * @generated from field: int32 max_snapshot_files = 1;
+   */
+  maxSnapshotFiles: number;
+
+  /**
+   * @generated from field: int64 max_file_bytes = 2;
+   */
+  maxFileBytes: bigint;
+
+  /**
+   * @generated from field: int64 max_blob_batch_bytes = 3;
+   */
+  maxBlobBatchBytes: bigint;
+};
+
+/**
+ * Describes the message biga.v1.Limits.
+ * Use `create(LimitsSchema)` to create a new message.
+ */
+export const LimitsSchema: GenMessage<Limits> = /*@__PURE__*/
+  messageDesc(file_biga_v1_biga, 2);
+
+/**
  * token is set only on the response that created the session.
  *
  * @generated from message biga.v1.SessionGrant
@@ -114,6 +143,11 @@ export type SessionGrant = Message<"biga.v1.SessionGrant"> & {
    * @generated from field: string share_url = 3;
    */
   shareUrl: string;
+
+  /**
+   * @generated from field: biga.v1.Limits limits = 4;
+   */
+  limits?: Limits | undefined;
 };
 
 /**
@@ -121,7 +155,7 @@ export type SessionGrant = Message<"biga.v1.SessionGrant"> & {
  * Use `create(SessionGrantSchema)` to create a new message.
  */
 export const SessionGrantSchema: GenMessage<SessionGrant> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 2);
+  messageDesc(file_biga_v1_biga, 3);
 
 /**
  * A tree entry. File content is present only in uploads; stored and served
@@ -163,9 +197,12 @@ export type FileNode = Message<"biga.v1.FileNode"> & {
  * Use `create(FileNodeSchema)` to create a new message.
  */
 export const FileNodeSchema: GenMessage<FileNode> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 3);
+  messageDesc(file_biga_v1_biga, 4);
 
 /**
+ * A snapshot may leave a text file's content out when the server already holds
+ * a blob with its hash, uploaded through UploadBlobs.
+ *
  * @generated from message biga.v1.FileInfo
  */
 export type FileInfo = Message<"biga.v1.FileInfo"> & {
@@ -195,7 +232,7 @@ export type FileInfo = Message<"biga.v1.FileInfo"> & {
  * Use `create(FileInfoSchema)` to create a new message.
  */
 export const FileInfoSchema: GenMessage<FileInfo> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 4);
+  messageDesc(file_biga_v1_biga, 5);
 
 /**
  * @generated from message biga.v1.DirectoryInfo
@@ -217,7 +254,7 @@ export type DirectoryInfo = Message<"biga.v1.DirectoryInfo"> & {
  * Use `create(DirectoryInfoSchema)` to create a new message.
  */
 export const DirectoryInfoSchema: GenMessage<DirectoryInfo> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 5);
+  messageDesc(file_biga_v1_biga, 6);
 
 /**
  * @generated from message biga.v1.FileSnapshot
@@ -249,7 +286,7 @@ export type FileSnapshot = Message<"biga.v1.FileSnapshot"> & {
  * Use `create(FileSnapshotSchema)` to create a new message.
  */
 export const FileSnapshotSchema: GenMessage<FileSnapshot> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 6);
+  messageDesc(file_biga_v1_biga, 7);
 
 /**
  * @generated from message biga.v1.CheckpointEntry
@@ -296,7 +333,7 @@ export type CheckpointEntry = Message<"biga.v1.CheckpointEntry"> & {
  * Use `create(CheckpointEntrySchema)` to create a new message.
  */
 export const CheckpointEntrySchema: GenMessage<CheckpointEntry> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 7);
+  messageDesc(file_biga_v1_biga, 8);
 
 /**
  * @generated from message biga.v1.CheckpointUpload
@@ -323,7 +360,7 @@ export type CheckpointUpload = Message<"biga.v1.CheckpointUpload"> & {
  * Use `create(CheckpointUploadSchema)` to create a new message.
  */
 export const CheckpointUploadSchema: GenMessage<CheckpointUpload> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 8);
+  messageDesc(file_biga_v1_biga, 9);
 
 /**
  * @generated from message biga.v1.CheckpointChange
@@ -375,7 +412,7 @@ export type CheckpointChange = Message<"biga.v1.CheckpointChange"> & {
  * Use `create(CheckpointChangeSchema)` to create a new message.
  */
 export const CheckpointChangeSchema: GenMessage<CheckpointChange> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 9);
+  messageDesc(file_biga_v1_biga, 10);
 
 /**
  * @generated from message biga.v1.CheckpointSummary
@@ -427,7 +464,7 @@ export type CheckpointSummary = Message<"biga.v1.CheckpointSummary"> & {
  * Use `create(CheckpointSummarySchema)` to create a new message.
  */
 export const CheckpointSummarySchema: GenMessage<CheckpointSummary> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 10);
+  messageDesc(file_biga_v1_biga, 11);
 
 /**
  * @generated from message biga.v1.Checkpoint
@@ -449,7 +486,7 @@ export type Checkpoint = Message<"biga.v1.Checkpoint"> & {
  * Use `create(CheckpointSchema)` to create a new message.
  */
 export const CheckpointSchema: GenMessage<Checkpoint> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 11);
+  messageDesc(file_biga_v1_biga, 12);
 
 /**
  * @generated from message biga.v1.FileHistoryEntry
@@ -506,7 +543,7 @@ export type FileHistoryEntry = Message<"biga.v1.FileHistoryEntry"> & {
  * Use `create(FileHistoryEntrySchema)` to create a new message.
  */
 export const FileHistoryEntrySchema: GenMessage<FileHistoryEntry> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 12);
+  messageDesc(file_biga_v1_biga, 13);
 
 /**
  * @generated from message biga.v1.ManifestEntry
@@ -538,7 +575,7 @@ export type ManifestEntry = Message<"biga.v1.ManifestEntry"> & {
  * Use `create(ManifestEntrySchema)` to create a new message.
  */
 export const ManifestEntrySchema: GenMessage<ManifestEntry> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 13);
+  messageDesc(file_biga_v1_biga, 14);
 
 /**
  * @generated from message biga.v1.Manifest
@@ -555,7 +592,7 @@ export type Manifest = Message<"biga.v1.Manifest"> & {
  * Use `create(ManifestSchema)` to create a new message.
  */
 export const ManifestSchema: GenMessage<Manifest> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 14);
+  messageDesc(file_biga_v1_biga, 15);
 
 /**
  * @generated from message biga.v1.SessionState
@@ -594,7 +631,7 @@ export type SessionState = Message<"biga.v1.SessionState"> & {
  * Use `create(SessionStateSchema)` to create a new message.
  */
 export const SessionStateSchema: GenMessage<SessionState> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 15);
+  messageDesc(file_biga_v1_biga, 16);
 
 /**
  * @generated from message biga.v1.FileContent
@@ -621,7 +658,7 @@ export type FileContent = Message<"biga.v1.FileContent"> & {
  * Use `create(FileContentSchema)` to create a new message.
  */
 export const FileContentSchema: GenMessage<FileContent> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 16);
+  messageDesc(file_biga_v1_biga, 17);
 
 /**
  * @generated from message biga.v1.ListCheckpointsResponse
@@ -638,7 +675,7 @@ export type ListCheckpointsResponse = Message<"biga.v1.ListCheckpointsResponse">
  * Use `create(ListCheckpointsResponseSchema)` to create a new message.
  */
 export const ListCheckpointsResponseSchema: GenMessage<ListCheckpointsResponse> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 17);
+  messageDesc(file_biga_v1_biga, 18);
 
 /**
  * @generated from message biga.v1.FileHistoryResponse
@@ -655,7 +692,80 @@ export type FileHistoryResponse = Message<"biga.v1.FileHistoryResponse"> & {
  * Use `create(FileHistoryResponseSchema)` to create a new message.
  */
 export const FileHistoryResponseSchema: GenMessage<FileHistoryResponse> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 18);
+  messageDesc(file_biga_v1_biga, 19);
+
+/**
+ * @generated from message biga.v1.MissingBlobsRequest
+ */
+export type MissingBlobsRequest = Message<"biga.v1.MissingBlobsRequest"> & {
+  /**
+   * @generated from field: repeated string hashes = 1;
+   */
+  hashes: string[];
+};
+
+/**
+ * Describes the message biga.v1.MissingBlobsRequest.
+ * Use `create(MissingBlobsRequestSchema)` to create a new message.
+ */
+export const MissingBlobsRequestSchema: GenMessage<MissingBlobsRequest> = /*@__PURE__*/
+  messageDesc(file_biga_v1_biga, 20);
+
+/**
+ * @generated from message biga.v1.MissingBlobsResponse
+ */
+export type MissingBlobsResponse = Message<"biga.v1.MissingBlobsResponse"> & {
+  /**
+   * @generated from field: repeated string hashes = 1;
+   */
+  hashes: string[];
+};
+
+/**
+ * Describes the message biga.v1.MissingBlobsResponse.
+ * Use `create(MissingBlobsResponseSchema)` to create a new message.
+ */
+export const MissingBlobsResponseSchema: GenMessage<MissingBlobsResponse> = /*@__PURE__*/
+  messageDesc(file_biga_v1_biga, 21);
+
+/**
+ * @generated from message biga.v1.Blob
+ */
+export type Blob = Message<"biga.v1.Blob"> & {
+  /**
+   * @generated from field: string hash = 1;
+   */
+  hash: string;
+
+  /**
+   * @generated from field: bytes content = 2;
+   */
+  content: Uint8Array;
+};
+
+/**
+ * Describes the message biga.v1.Blob.
+ * Use `create(BlobSchema)` to create a new message.
+ */
+export const BlobSchema: GenMessage<Blob> = /*@__PURE__*/
+  messageDesc(file_biga_v1_biga, 22);
+
+/**
+ * @generated from message biga.v1.UploadBlobsRequest
+ */
+export type UploadBlobsRequest = Message<"biga.v1.UploadBlobsRequest"> & {
+  /**
+   * @generated from field: repeated biga.v1.Blob blobs = 1;
+   */
+  blobs: Blob[];
+};
+
+/**
+ * Describes the message biga.v1.UploadBlobsRequest.
+ * Use `create(UploadBlobsRequestSchema)` to create a new message.
+ */
+export const UploadBlobsRequestSchema: GenMessage<UploadBlobsRequest> = /*@__PURE__*/
+  messageDesc(file_biga_v1_biga, 23);
 
 /**
  * @generated from message biga.v1.MarkCheckpointRequest
@@ -672,7 +782,7 @@ export type MarkCheckpointRequest = Message<"biga.v1.MarkCheckpointRequest"> & {
  * Use `create(MarkCheckpointRequestSchema)` to create a new message.
  */
 export const MarkCheckpointRequestSchema: GenMessage<MarkCheckpointRequest> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 19);
+  messageDesc(file_biga_v1_biga, 24);
 
 /**
  * @generated from message biga.v1.Extension
@@ -699,7 +809,7 @@ export type Extension = Message<"biga.v1.Extension"> & {
  * Use `create(ExtensionSchema)` to create a new message.
  */
 export const ExtensionSchema: GenMessage<Extension> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 20);
+  messageDesc(file_biga_v1_biga, 25);
 
 /**
  * token is shown once, when the extension is created.
@@ -723,7 +833,7 @@ export type ExtensionGrant = Message<"biga.v1.ExtensionGrant"> & {
  * Use `create(ExtensionGrantSchema)` to create a new message.
  */
 export const ExtensionGrantSchema: GenMessage<ExtensionGrant> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 21);
+  messageDesc(file_biga_v1_biga, 26);
 
 /**
  * @generated from message biga.v1.CreateExtensionRequest
@@ -740,7 +850,7 @@ export type CreateExtensionRequest = Message<"biga.v1.CreateExtensionRequest"> &
  * Use `create(CreateExtensionRequestSchema)` to create a new message.
  */
 export const CreateExtensionRequestSchema: GenMessage<CreateExtensionRequest> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 22);
+  messageDesc(file_biga_v1_biga, 27);
 
 /**
  * @generated from message biga.v1.ListExtensionsResponse
@@ -757,7 +867,7 @@ export type ListExtensionsResponse = Message<"biga.v1.ListExtensionsResponse"> &
  * Use `create(ListExtensionsResponseSchema)` to create a new message.
  */
 export const ListExtensionsResponseSchema: GenMessage<ListExtensionsResponse> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 23);
+  messageDesc(file_biga_v1_biga, 28);
 
 /**
  * @generated from message biga.v1.Error
@@ -784,9 +894,13 @@ export type Error = Message<"biga.v1.Error"> & {
  * Use `create(ErrorSchema)` to create a new message.
  */
 export const ErrorSchema: GenMessage<Error> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 24);
+  messageDesc(file_biga_v1_biga, 29);
 
 /**
+ * replayed is true when the server will send every checkpoint after the
+ * position the viewer asked to resume from, so the viewer need not reload the
+ * session state.
+ *
  * @generated from message biga.v1.Connected
  */
 export type Connected = Message<"biga.v1.Connected"> & {
@@ -799,6 +913,11 @@ export type Connected = Message<"biga.v1.Connected"> & {
    * @generated from field: int64 timestamp = 2;
    */
   timestamp: bigint;
+
+  /**
+   * @generated from field: bool replayed = 3;
+   */
+  replayed: boolean;
 };
 
 /**
@@ -806,7 +925,7 @@ export type Connected = Message<"biga.v1.Connected"> & {
  * Use `create(ConnectedSchema)` to create a new message.
  */
 export const ConnectedSchema: GenMessage<Connected> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 25);
+  messageDesc(file_biga_v1_biga, 30);
 
 /**
  * @generated from message biga.v1.SessionEnded
@@ -828,7 +947,7 @@ export type SessionEnded = Message<"biga.v1.SessionEnded"> & {
  * Use `create(SessionEndedSchema)` to create a new message.
  */
 export const SessionEndedSchema: GenMessage<SessionEnded> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 26);
+  messageDesc(file_biga_v1_biga, 31);
 
 /**
  * @generated from message biga.v1.Keepalive
@@ -845,7 +964,7 @@ export type Keepalive = Message<"biga.v1.Keepalive"> & {
  * Use `create(KeepaliveSchema)` to create a new message.
  */
 export const KeepaliveSchema: GenMessage<Keepalive> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 27);
+  messageDesc(file_biga_v1_biga, 32);
 
 /**
  * The live stream is a sequence of StreamEvent messages, each preceded by its
@@ -895,7 +1014,7 @@ export type StreamEvent = Message<"biga.v1.StreamEvent"> & {
  * Use `create(StreamEventSchema)` to create a new message.
  */
 export const StreamEventSchema: GenMessage<StreamEvent> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 28);
+  messageDesc(file_biga_v1_biga, 33);
 
 /**
  * Carries an already encoded stream frame between server instances.
@@ -922,6 +1041,13 @@ export type BridgeMessage = Message<"biga.v1.BridgeMessage"> & {
    * @generated from field: bytes frame = 4;
    */
   frame: Uint8Array;
+
+  /**
+   * The checkpoint number, for frames named "checkpoint".
+   *
+   * @generated from field: int32 seq = 5;
+   */
+  seq: number;
 };
 
 /**
@@ -929,7 +1055,7 @@ export type BridgeMessage = Message<"biga.v1.BridgeMessage"> & {
  * Use `create(BridgeMessageSchema)` to create a new message.
  */
 export const BridgeMessageSchema: GenMessage<BridgeMessage> = /*@__PURE__*/
-  messageDesc(file_biga_v1_biga, 29);
+  messageDesc(file_biga_v1_biga, 34);
 
 /**
  * @generated from enum biga.v1.SessionStatus

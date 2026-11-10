@@ -16,10 +16,11 @@ async function pump(body: ReadableStream<Uint8Array>, emit: (event: TransportEve
 
 export function createStreamTransport(options: StreamTransportOptions): StreamTransport {
     return {
-        async connect(sessionId, signal, emit) {
+        async connect(sessionId, signal, emit, resume) {
+            const position = resume ? `?after=${resume.after}&snapshot=${resume.snapshot}` : "";
             let response: Response;
             try {
-                response = await options.fetch(`${options.baseUrl}/api/sessions/${sessionId}/stream`, {
+                response = await options.fetch(`${options.baseUrl}/api/sessions/${sessionId}/stream${position}`, {
                     headers: { Accept: STREAM_TYPE },
                     cache: "no-store",
                     signal,

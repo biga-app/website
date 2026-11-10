@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { TransportEvent } from "@biga/types/stream";
+import type { ResumePosition, TransportEvent } from "@biga/types/stream";
 import { STREAM_TYPE } from "@biga/types/wire";
 import { createStreamTransport } from "@biga/viewer-core/transport/stream-transport";
 
@@ -24,7 +24,7 @@ function streamResponse(body: ReadableStream<Uint8Array>, type = STREAM_TYPE): R
     return new Response(body, { status: 200, headers: { "Content-Type": type } });
 }
 
-async function run(respond: () => Response | Promise<Response>, signal = new AbortController().signal) {
+async function run(respond: () => Response | Promise<Response>, signal = new AbortController().signal, resume: ResumePosition | null = null) {
     const events: TransportEvent[] = [];
     const calls: { url: string; init: RequestInit }[] = [];
     const transport = createStreamTransport({
@@ -34,7 +34,7 @@ async function run(respond: () => Response | Promise<Response>, signal = new Abo
             return respond();
         }) as unknown as typeof fetch,
     });
-    await transport.connect("s1", signal, (event) => events.push(event));
+    await transport.connect("s1", signal, (event) => events.push(event), resume);
     return { events, calls };
 }
 
@@ -52,6 +52,13 @@ test("frames from the stream are emitted in order, then a clean close", async ()
         { type: "frame", data: checkpointFrame(1).data },
         { type: "closed", reason: "ended" },
     ]);
+});
+
+test("a reconnecting viewer says where it left off, and a first connection says nothing", async () => {
+    const resumed = await run(() => streamResponse(bodyOf([])), undefined, { after: 12, snapshot: 1700000000000 });
+    assert.equal(resumed.calls[0]?.url, "https://api.test/api/sessions/s1/stream?after=12&snapshot=1700000000000");
+    const first = await run(() => streamResponse(bodyOf([])));
+    assert.equal(first.calls[0]?.url, "https://api.test/api/sessions/s1/stream");
 });
 
 test("a 429 is reported with the status and Retry-After and never opens", async () => {

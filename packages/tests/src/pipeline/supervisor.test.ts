@@ -4,17 +4,17 @@ import test from "node:test";
 import type { Checkpoint } from "@biga/types/checkpoint";
 import type { SupervisorOptions } from "@biga/types/pipeline";
 import type { SessionState } from "@biga/types/state";
-import type { TransportEvent } from "@biga/types/stream";
+import type { ResumePosition, TransportEvent } from "@biga/types/stream";
 import { ApiRequestError } from "@biga/types/api";
 import { backoffMs, createSupervisor, HEALTHY_MS, MAX_ATTEMPTS, WATCHDOG_MS } from "@biga/viewer-core/pipeline/supervisor";
 import { buildTreeTable } from "@biga/viewer-core/pipeline/tree-table";
 
 import { makeCheckpoint } from "../fixtures/checkpoints.ts";
 import { createFakeClock } from "../fixtures/clock.ts";
-import { checkpointFrame, connectedFrame, endedFrame, invalidFrame, keepaliveFrame, snapshotFrame } from "../fixtures/frames.ts";
+import { checkpointFrame, connectedFrame, endedFrame, invalidFrame, keepaliveFrame, resumedFrame, snapshotFrame } from "../fixtures/frames.ts";
 import { makeState } from "../fixtures/session.ts";
 
-type Conn = { signal: AbortSignal; emit: (event: TransportEvent) => void };
+type Conn = { signal: AbortSignal; emit: (event: TransportEvent) => void; resume: ResumePosition | null };
 type StateRequest = { resolve: (state: SessionState) => void; reject: (error: unknown) => void; signal: AbortSignal };
 
 const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
@@ -32,8 +32,8 @@ function setup(overrides: Partial<SupervisorOptions> = {}) {
     const supervisor = createSupervisor({
         sessionId: "s1",
         transport: {
-            connect: (_id, signal, emit) => {
-                conns.push({ signal, emit });
+            connect: (_id, signal, emit, resume) => {
+                conns.push({ signal, emit, resume });
                 return new Promise<void>(() => {});
             },
         },
@@ -298,19 +298,107 @@ test("a state fetch that fails after loading is treated as a dropped connection"
     assert.equal(t.conns.length, 2);
 });
 
-test("returning to a tab after more than 30 seconds resyncs once", async () => {
+test("a tab hidden for less than 30 seconds keeps its stream and does nothing on return", async () => {
     const t = setup();
     await t.goLive();
     t.supervisor.setHidden(true);
     t.advance(10_000);
     t.supervisor.setHidden(false);
     assert.equal(t.stateCalls(), 1);
+    assert.equal(t.conns.length, 1);
+    assert.equal(t.conn().signal.aborted, false);
+});
+
+test("a tab hidden for 30 seconds lets go of its stream and picks up where it left off on return", async () => {
+    const t = setup();
+    await t.goLive();
+    t.conn().emit(checkpointFrame(1));
+    const first = t.conn();
+    t.supervisor.setHidden(true);
+    t.advance(29_000);
+    assert.equal(first.signal.aborted, false);
+    t.advance(1_000);
+    assert.equal(first.signal.aborted, true);
+    assert.equal(t.conns.length, 1, "nothing reconnects while the tab is hidden");
+    t.advance(10 * 60_000);
+    assert.equal(t.conns.length, 1);
+
+    t.supervisor.setHidden(false);
+    assert.equal(t.conns.length, 2);
+    assert.deepEqual(t.conn().resume, { after: 1, snapshot: 1700000000000 });
+    t.conn().emit({ type: "open" });
+    t.conn().emit(resumedFrame);
+    t.conn().emit(checkpointFrame(2));
+    await flush();
+    assert.equal(t.stateCalls(), 1, "a replayed stream needs no reload");
+    assert.equal(t.supervisor.status, "live");
+    assert.deepEqual(t.names().slice(-2), ["checkpoint:1", "checkpoint:2"]);
+});
+
+test("returning to a released tab reloads when the server cannot replay", async () => {
+    const t = setup();
+    await t.goLive();
     t.supervisor.setHidden(true);
     t.advance(31_000);
     t.supervisor.setHidden(false);
+    await t.open();
     assert.equal(t.stateCalls(), 2);
     await t.respond(makeState());
     assert.equal(t.names().filter((name) => name === "hydrate:resync").length, 1);
+});
+
+test("a hidden tab that was mid-reconnect also lets go and stops retrying", async () => {
+    const t = setup();
+    await t.goLive();
+    t.conn().emit({ type: "closed", reason: "network" });
+    assert.equal(t.supervisor.status, "reconnecting");
+    t.supervisor.setHidden(true);
+    t.advance(31_000);
+    const held = t.conns.length;
+    assert.equal(t.conn().signal.aborted, true, "whatever the tab had open was let go");
+    t.advance(10 * 60_000);
+    assert.equal(t.conns.length, held, "no reconnect while the tab stays hidden");
+    t.supervisor.setHidden(false);
+    assert.equal(t.conns.length, held + 1);
+});
+
+test("a first connection has no position to resume from, and a reconnect does", async () => {
+    const t = setup();
+    t.supervisor.start();
+    assert.equal(t.conn().resume, null);
+    await t.open();
+    await t.respond(makeState({ seqs: [0, 1, 2] }));
+    t.conn().emit({ type: "closed", reason: "network" });
+    t.advance(backoffMs(1, 0.5));
+    assert.deepEqual(t.conn().resume, { after: 2, snapshot: 1700000000000 });
+});
+
+test("a reconnect that the server replays skips the reload and keeps the viewer live", async () => {
+    const t = setup();
+    await t.goLive(makeState({ seqs: [0, 1] }));
+    t.conn().emit({ type: "closed", reason: "network" });
+    assert.equal(t.supervisor.status, "reconnecting");
+    t.advance(backoffMs(1, 0.5));
+    t.conn().emit({ type: "open" });
+    t.conn().emit(resumedFrame);
+    t.conn().emit(checkpointFrame(2));
+    t.conn().emit(checkpointFrame(3));
+    await flush();
+    assert.equal(t.stateCalls(), 1);
+    assert.equal(t.supervisor.status, "live");
+    assert.deepEqual(t.names().filter((name) => name.startsWith("checkpoint")), ["checkpoint:2", "checkpoint:3"]);
+});
+
+test("a replay with a gap in it falls back to a reload", async () => {
+    const t = setup();
+    await t.goLive(makeState({ seqs: [0, 1] }));
+    t.conn().emit({ type: "closed", reason: "network" });
+    t.advance(backoffMs(1, 0.5));
+    t.conn().emit({ type: "open" });
+    t.conn().emit(resumedFrame);
+    t.conn().emit(checkpointFrame(4));
+    await flush();
+    assert.equal(t.stateCalls(), 2);
 });
 
 test("coming back online cancels the backoff wait and reconnects now", async () => {

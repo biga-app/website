@@ -13,7 +13,12 @@ export function checkpointFrame(seq: number, changes: CheckpointChange[] = []): 
 
 export const connectedFrame: Frame = {
     type: "frame",
-    data: encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: TIMESTAMP }),
+    data: encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: TIMESTAMP, replayed: false }),
+};
+
+export const resumedFrame: Frame = {
+    type: "frame",
+    data: encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: TIMESTAMP, replayed: true }),
 };
 
 export const endedFrame: Frame = {

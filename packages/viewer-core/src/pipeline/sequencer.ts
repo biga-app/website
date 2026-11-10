@@ -49,6 +49,17 @@ export function createSequencer(options: SequencerOptions) {
             pending = [];
             overflowed = false;
         },
+        /** Where the viewer is, or null before it has a snapshot to resume from. */
+        position(): { after: number; snapshot: number } | null {
+            return latestSnapshot < 0 ? null : { after: latestCheckpoint, snapshot: latestSnapshot };
+        },
+        /** Starts applying events from where the viewer already is, without a reload. */
+        resumeLive(): void {
+            const buffered = pending ?? [];
+            pending = null;
+            overflowed = false;
+            buffered.forEach(push);
+        },
         push,
         resume(state: SequencerState): void {
             if (overflowed) {

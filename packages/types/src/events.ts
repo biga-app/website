@@ -6,6 +6,11 @@ export const ConnectedEventSchema = z.object({
     type: z.literal("connected"),
     sessionId: z.string().min(1),
     timestamp: z.number().int().positive(),
+    /**
+     * True when the server will send every checkpoint after the position the
+     * viewer resumed from, so it need not reload the session state.
+     */
+    replayed: z.boolean(),
 });
 export type ConnectedEvent = z.infer<typeof ConnectedEventSchema>;
 

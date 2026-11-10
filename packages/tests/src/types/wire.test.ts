@@ -126,11 +126,17 @@ test("an error body decodes to its code and message", () => {
 });
 
 test("every stream event decodes to the viewer's event shape", () => {
-    assert.deepEqual(decodeStreamEvent(encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: 1700000000000 })), {
+    assert.deepEqual(decodeStreamEvent(encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: 1700000000000, replayed: false })), {
         type: "connected",
         sessionId: "s1",
         timestamp: 1700000000000,
+        replayed: false,
     });
+    assert.equal(
+        decodeStreamEvent(encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: 1700000000000, replayed: true }))?.type === "connected" &&
+            (decodeStreamEvent(encodeStreamEvent({ type: "connected", sessionId: "s1", timestamp: 1700000000000, replayed: true })) as { replayed: boolean }).replayed,
+        true
+    );
     assert.deepEqual(decodeStreamEvent(encodeStreamEvent({ type: "session_ended", sessionId: "s1", timestamp: 5 })), {
         type: "session_ended",
         sessionId: "s1",
