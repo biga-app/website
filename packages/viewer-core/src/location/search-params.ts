@@ -1,11 +1,5 @@
+import type { CompareBase, ViewerView } from "@biga/types";
 import { createParser, createSearchParamsCache, createSerializer, parseAsString } from "nuqs/server";
-
-export type CompareBase = { kind: "start" } | { kind: "checkpoint"; seq: number };
-
-export type ViewerView =
-    | { type: "live" }
-    | { type: "file"; path: string; base: CompareBase | null }
-    | { type: "checkpoint"; seq: number; file: string | null };
 
 const MAX_SEQ = 2147483647;
 const SEQ_PATTERN = /^\d{1,10}$/;

@@ -1,49 +1,25 @@
 import {
+    ApiRequestError,
     CheckpointSchema,
     CheckpointsResponseSchema,
     FileContentSchema,
     FileHistoryResponseSchema,
     SessionStateSchema,
     isValidHash,
+    type ApiClientOptions,
+    type ApiErrorKind,
     type Checkpoint,
     type CheckpointSummary,
     type FileContent,
     type FileHistoryEntry,
+    type RequestOptions,
     type SessionState,
 } from "@biga/types";
 
-export type ApiErrorKind = "not_found" | "rate_limited" | "network" | "server" | "invalid";
-
-export class ApiError extends Error {
-    readonly kind: ApiErrorKind;
-    readonly status: number | null;
-    readonly retryAfterMs: number | null;
-
-    constructor(kind: ApiErrorKind, message: string, status: number | null = null, retryAfterMs: number | null = null) {
-        super(message);
-        this.name = "ApiError";
-        this.kind = kind;
-        this.status = status;
-        this.retryAfterMs = retryAfterMs;
-    }
-}
-
-export type ApiClientOptions = {
-    baseUrl: string;
-    fetch: typeof fetch;
-    sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
-    maxAttempts?: number;
-    backoffMs?: number;
-};
-
-export type RequestOptions = {
-    signal?: AbortSignal;
-    priority?: "high" | "low" | "auto";
-};
+import { parseRetryAfter } from "../http/retry-after.ts";
 
 const DEFAULT_ATTEMPTS = 3;
 const DEFAULT_BACKOFF_MS = 400;
-const MAX_RETRY_AFTER_MS = 30_000;
 
 type Parser<T> = { safeParse(data: unknown): { success: true; data: T } | { success: false } };
 
@@ -53,14 +29,7 @@ function kindForStatus(status: number): ApiErrorKind {
     return "server";
 }
 
-export function parseRetryAfter(header: string | null): number | null {
-    if (header === null) return null;
-    const seconds = Number(header);
-    if (!Number.isFinite(seconds) || seconds < 0) return null;
-    return Math.min(seconds * 1000, MAX_RETRY_AFTER_MS);
-}
-
-function isRetryable(error: ApiError): boolean {
+function isRetryable(error: ApiRequestError): boolean {
     return error.kind === "network" || error.kind === "server" || error.kind === "rate_limited";
 }
 
@@ -73,7 +42,7 @@ async function readEnvelope(response: Response): Promise<unknown> {
     try {
         body = await response.json();
     } catch {
-        throw new ApiError(
+        throw new ApiRequestError(
             kindForStatus(response.status),
             `The server returned an unexpected response (${response.status}).`,
             response.status,
@@ -81,7 +50,7 @@ async function readEnvelope(response: Response): Promise<unknown> {
         );
     }
     if (!response.ok || body.ok !== true) {
-        throw new ApiError(
+        throw new ApiRequestError(
             kindForStatus(response.status),
             body.error?.message || response.statusText || "The request failed.",
             response.status,
@@ -93,7 +62,7 @@ async function readEnvelope(response: Response): Promise<unknown> {
 
 function parseWith<T>(schema: Parser<T>, data: unknown): T {
     const result = schema.safeParse(data);
-    if (!result.success) throw new ApiError("invalid", "The server sent data the viewer does not understand.");
+    if (!result.success) throw new ApiRequestError("invalid", "The server sent data the viewer does not understand.");
     return result.data;
 }
 
@@ -111,18 +80,18 @@ export function createApiClient(options: ApiClientOptions) {
             } as RequestInit);
         } catch (error) {
             if (request.signal?.aborted) throw error;
-            throw new ApiError("network", "Unable to reach the server. Check your connection and try again.");
+            throw new ApiRequestError("network", "Unable to reach the server. Check your connection and try again.");
         }
         return readEnvelope(response);
     }
 
     async function send(path: string, cache: RequestCache, request: RequestOptions): Promise<unknown> {
-        let lastError: ApiError | null = null;
+        let lastError: ApiRequestError | null = null;
         for (let index = 0; index < attempts; index++) {
             try {
                 return await attempt(path, cache, request);
             } catch (error) {
-                if (!(error instanceof ApiError) || !isRetryable(error)) throw error;
+                if (!(error instanceof ApiRequestError) || !isRetryable(error)) throw error;
                 lastError = error;
                 if (index === attempts - 1) break;
                 await options.sleep(error.retryAfterMs ?? backoff * 2 ** index, request.signal);
@@ -162,5 +131,3 @@ export function createApiClient(options: ApiClientOptions) {
         },
     };
 }
-
-export type ApiClient = ReturnType<typeof createApiClient>;
