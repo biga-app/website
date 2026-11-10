@@ -41,3 +41,7 @@ yarn-error.log*
 skills-lock.json
 .agents/
 .claude
+
+# Playwright
+test-results
+playwright-report

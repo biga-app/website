@@ -146,7 +146,7 @@ export function MonacoViewer({
           value={value}
           theme={theme}
           loading={<Skeleton className="size-full rounded-none" />}
-          options={{ ...MONACO_OPTIONS, ...tier.options, wordWrap }}
+          options={{ ...MONACO_OPTIONS, ...tier.options, ariaLabel: `${path}, read-only`, wordWrap }}
           onMount={(editor, monacoInstance) => {
             setHost({ editor, monaco: monacoInstance });
             remeasureOnFontLoad(editor, monacoInstance);
@@ -201,6 +201,9 @@ export function MonacoDiffViewer({
           options={{
             ...MONACO_OPTIONS,
             ...tier.options,
+            ariaLabel: `${path}, read-only`,
+            originalAriaLabel: `${path}, before`,
+            modifiedAriaLabel: `${path}, after`,
             renderSideBySide: sideBySide,
             originalEditable: false,
             wordWrap,

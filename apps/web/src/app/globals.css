@@ -52,7 +52,7 @@
   --muted-foreground: oklch(0.5 0.01 260);
   --accent: oklch(0.955 0.003 260);
   --accent-foreground: oklch(0.21 0.006 260);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.53 0.23 27.325);
   /* Status hues, darkened in light mode so they pass as small text. */
   --success: oklch(0.52 0.13 155);
   --warning: oklch(0.56 0.15 55);

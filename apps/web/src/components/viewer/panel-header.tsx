@@ -22,7 +22,7 @@ export function PanelHeader({
                 {title}
             </h2>
             {meta !== undefined && (
-                <span className="text-muted-foreground/80 text-[11px] tabular-nums">{meta}</span>
+                <span className="text-muted-foreground text-[11px] tabular-nums">{meta}</span>
             )}
             {actions && <div className="ml-auto flex items-center gap-0.5">{actions}</div>}
         </div>
