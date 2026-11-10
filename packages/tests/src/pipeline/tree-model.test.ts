@@ -1,21 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-    flattenTree,
-    indexTree,
-    insertFile,
-    removeFile,
-    sortTree,
-    baseName,
-    type CheckpointChange,
-    type FileNode,
-} from "@biga/types";
+import { baseName, indexTree, type CheckpointChange, type FileNode } from "@biga/types";
 
 import { createTreeModel } from "@biga/viewer-core/pipeline/tree-model";
 import { buildTreeTable, patchesFromChanges } from "@biga/viewer-core/pipeline/tree-table";
 
 import { makeChange } from "../fixtures/checkpoints.ts";
+import { flattenTree, insertFile, removeFile, sortTree } from "../fixtures/reference-tree.ts";
 import { hash } from "../fixtures/hash.ts";
 import { rootNode } from "../fixtures/tree.ts";
 
