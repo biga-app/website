@@ -1,5 +1,5 @@
 import type { SessionPreflight } from "@biga/types/state";
-import { decodeSession, PROTOBUF_TYPE } from "@biga/types/wire";
+import { decodeSession, PROTOBUF_TYPE, ROUTE_GET_SESSION_PATH, routePath } from "@biga/types/wire";
 import { cache } from "react";
 
 const TIMEOUT_MS = 1500;
@@ -11,7 +11,7 @@ function serverOrigin(): string | null {
 }
 
 async function fetchTitle(origin: string, sessionId: string): Promise<SessionPreflight> {
-    const response = await fetch(`${origin}/api/sessions/${encodeURIComponent(sessionId)}`, {
+    const response = await fetch(`${origin}${routePath(ROUTE_GET_SESSION_PATH, { id: sessionId })}`, {
         headers: { Accept: PROTOBUF_TYPE },
         cache: "no-store",
         signal: AbortSignal.timeout(TIMEOUT_MS),

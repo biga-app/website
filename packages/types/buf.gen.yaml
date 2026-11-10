@@ -5,5 +5,8 @@ plugins:
     opt:
       - target=ts
       - import_extension=js
+  - local: ["sh", "-c", "cd ../../../proto && go run ./cmd/protoc-gen-biga-contract"]
+    out: src/gen
+    opt: lang=ts
 inputs:
   - directory: ../../../proto

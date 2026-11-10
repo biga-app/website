@@ -1,5 +1,5 @@
 import type { StreamTransport, StreamTransportOptions, TransportEvent } from "@biga/types/stream";
-import { STREAM_TYPE } from "@biga/types/wire";
+import { ROUTE_STREAM_PATH, routePath, STREAM_TYPE } from "@biga/types/wire";
 
 import { parseRetryAfter } from "../http/retry-after.ts";
 import { createFrameParser } from "./frame-parser.ts";
@@ -20,7 +20,7 @@ export function createStreamTransport(options: StreamTransportOptions): StreamTr
             const position = resume ? `?after=${resume.after}&snapshot=${resume.snapshot}` : "";
             let response: Response;
             try {
-                response = await options.fetch(`${options.baseUrl}/api/sessions/${sessionId}/stream${position}`, {
+                response = await options.fetch(`${options.baseUrl}${routePath(ROUTE_STREAM_PATH, { id: sessionId })}${position}`, {
                     headers: { Accept: STREAM_TYPE },
                     cache: "no-store",
                     signal,

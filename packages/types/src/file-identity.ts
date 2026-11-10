@@ -1,5 +1,7 @@
+import { PATTERN_HASH } from "./gen/biga/v1/contract_consts.js";
+
 /** Matches a valid SHA-256 blob hash (64 lowercase or uppercase hex digits). */
-export const HASH_RE = /^[0-9a-f]{64}$/i;
+export const HASH_RE = new RegExp(PATTERN_HASH);
 
 export function isValidHash(value: string): boolean {
     return HASH_RE.test(value);

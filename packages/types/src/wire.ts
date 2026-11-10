@@ -7,8 +7,21 @@ import * as pb from "./gen/biga/v1/biga_pb.js";
 import type { SessionResponse } from "./session.js";
 import type { FileContent, LoadMode, SessionState } from "./state.js";
 
-export const PROTOBUF_TYPE = "application/x-protobuf";
-export const STREAM_TYPE = "application/vnd.biga.stream+protobuf";
+import { MEDIA_TYPE_PROTOBUF, MEDIA_TYPE_STREAM } from "./gen/biga/v1/contract_consts.js";
+
+export * from "./gen/biga/v1/contract_consts.js";
+
+export const PROTOBUF_TYPE = MEDIA_TYPE_PROTOBUF;
+export const STREAM_TYPE = MEDIA_TYPE_STREAM;
+
+/** Fills the `{placeholders}` of a route's path template, escaped for a URL path. */
+export function routePath(template: string, params: Record<string, string | number>): string {
+    return template.replace(/\{(\w+)\}/g, (_, name: string) => {
+        const value = params[name];
+        if (value === undefined) throw new Error(`route parameter ${name} is missing`);
+        return encodeURIComponent(String(value));
+    });
+}
 
 const utf8 = new TextDecoder();
 

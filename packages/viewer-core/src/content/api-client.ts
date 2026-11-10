@@ -3,7 +3,7 @@ import { CheckpointSchema, type Checkpoint, type CheckpointSummary, type FileHis
 import type { ApiClient, ApiClientOptions, RequestOptions } from "@biga/types/content";
 import { isValidHash } from "@biga/types/file-identity";
 import { CheckpointsResponseSchema, FileContentSchema, FileHistoryResponseSchema, SessionStateSchema, type FileContent, type SessionState } from "@biga/types/state";
-import { decodeApiError, decodeCheckpoint, decodeCheckpointList, decodeFileContent, decodeFileHistory, decodeState, PROTOBUF_TYPE, utf8Text } from "@biga/types/wire";
+import { decodeApiError, decodeCheckpoint, decodeCheckpointList, decodeFileContent, decodeFileHistory, decodeState, PROTOBUF_TYPE, ROUTE_GET_CHECKPOINT_PATH, ROUTE_GET_FILE_HISTORY_PATH, ROUTE_GET_FILE_PATH, ROUTE_GET_STATE_PATH, ROUTE_LIST_CHECKPOINTS_PATH, routePath, utf8Text } from "@biga/types/wire";
 
 import { createContentOpener } from "../crypto/content-crypto.ts";
 
@@ -138,7 +138,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 
     return {
         async getState(sessionId: string, request: RequestOptions = {}): Promise<SessionState> {
-            const bytes = await send(`/api/sessions/${sessionId}/state`, "no-store", request);
+            const bytes = await send(routePath(ROUTE_GET_STATE_PATH, { id: sessionId }), "no-store", request);
             const raw = decoded(() => decodeState(bytes));
             const state = parseWith(SessionStateSchema, () => raw.state);
             if (state.session.encrypted) requireKey();
@@ -151,14 +151,14 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
         },
         async getFile(sessionId: string, path: string, ref: string, request: RequestOptions = {}): Promise<FileContent> {
             const query = new URLSearchParams({ path, ref });
-            const bytes = await send(`/api/sessions/${sessionId}/file?${query}`, cacheModeFor(ref), request);
+            const bytes = await send(`${routePath(ROUTE_GET_FILE_PATH, { id: sessionId })}?${query}`, cacheModeFor(ref), request);
             const raw = decoded(() => decodeFileContent(bytes));
             if (raw.encrypted) requireKey();
             const content = raw.encrypted && !raw.binary ? await unseal(raw.hash, raw.content) : utf8Text(raw.content);
             return parseWith(FileContentSchema, () => ({ content, binary: raw.binary, hash: raw.hash }));
         },
         async getCheckpoint(sessionId: string, seq: number, request: RequestOptions = {}): Promise<Checkpoint> {
-            const bytes = await send(`/api/sessions/${sessionId}/checkpoints/${seq}`, "no-store", request);
+            const bytes = await send(routePath(ROUTE_GET_CHECKPOINT_PATH, { id: sessionId, seq }), "no-store", request);
             return parseWith(CheckpointSchema, () => decodeCheckpoint(bytes));
         },
         async getCheckpoints(
@@ -170,12 +170,12 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
             if (page.before !== undefined) query.set("before", String(page.before));
             if (page.limit !== undefined) query.set("limit", String(page.limit));
             const suffix = query.size > 0 ? `?${query}` : "";
-            const bytes = await send(`/api/sessions/${sessionId}/checkpoints${suffix}`, "no-store", request);
+            const bytes = await send(`${routePath(ROUTE_LIST_CHECKPOINTS_PATH, { id: sessionId })}${suffix}`, "no-store", request);
             return parseWith(CheckpointsResponseSchema, () => ({ checkpoints: decodeCheckpointList(bytes) })).checkpoints;
         },
         async getFileHistory(sessionId: string, path: string, request: RequestOptions = {}): Promise<FileHistoryEntry[]> {
             const query = new URLSearchParams({ path });
-            const bytes = await send(`/api/sessions/${sessionId}/file/history?${query}`, "no-store", request);
+            const bytes = await send(`${routePath(ROUTE_GET_FILE_HISTORY_PATH, { id: sessionId })}?${query}`, "no-store", request);
             return parseWith(FileHistoryResponseSchema, () => ({ history: decodeFileHistory(bytes) })).history;
         },
     };

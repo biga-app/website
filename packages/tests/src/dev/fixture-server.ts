@@ -4,6 +4,7 @@ import { parseArgs } from "node:util";
 
 import type { Checkpoint, CheckpointChange, FileHistoryEntry } from "@biga/types/checkpoint";
 import type { FileNode } from "@biga/types/file";
+import { isValidHash } from "@biga/types/file-identity";
 import type { SessionResponse } from "@biga/types/session";
 import type { SessionState } from "@biga/types/state";
 import { PROTOBUF_TYPE, STREAM_TYPE } from "@biga/types/wire";
@@ -195,7 +196,7 @@ const ok = (res: ServerResponse, body: Uint8Array, cache?: string) => send(res, 
 const fail = (res: ServerResponse, status: number, message: string) => send(res, status, encodeApiError("error", message));
 
 function fileAt(session: Session, path: string, ref: string): string | undefined {
-    if (/^[0-9a-f]{64}$/i.test(ref)) return session.blobs.get(ref) ?? session.files.get(path);
+    if (isValidHash(ref)) return session.blobs.get(ref) ?? session.files.get(path);
     if (ref === "latest") return session.files.get(path);
     const seq = Number(ref);
     const version = [...(session.versions.get(path) ?? [])].reverse().find((entry) => entry.seq <= seq);
@@ -286,7 +287,7 @@ createServer((req, res) => {
         const ref = url.searchParams.get("ref") ?? "latest";
         const content = fileAt(session, path, ref);
         if (content === undefined) return fail(res, 404, "File not found");
-        const immutable = /^[0-9a-f]{64}$/i.test(ref);
+        const immutable = isValidHash(ref);
         return ok(res, encodeFileContent({ content, binary: false, hash: sha(content) }), immutable ? "public, max-age=31536000, immutable" : "no-store");
     }
     if (route === "file/history") return ok(res, encodeFileHistory(fileHistory(session, url.searchParams.get("path") ?? "")));
