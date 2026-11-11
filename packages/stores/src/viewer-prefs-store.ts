@@ -1,11 +1,12 @@
-import { create } from "zustand";
+import { create, type StateCreator } from "zustand";
+import { createStore } from "zustand/vanilla";
 import { persist } from "zustand/middleware";
 
 export type DiffLayout = "unified" | "split";
 export type LayoutPreset = "default" | "review" | "focus";
 export type PanelTab = "changes" | "activity";
 
-interface ViewerPrefsState {
+export interface ViewerPrefsState {
     diffLayout: DiffLayout;
     wordWrap: boolean;
     follow: boolean;
@@ -20,9 +21,7 @@ interface ViewerPrefsState {
     setPanelTab: (tab: PanelTab) => void;
 }
 
-export const useViewerPrefsStore = create<ViewerPrefsState>()(
-    persist(
-        (set) => ({
+const initialize: StateCreator<ViewerPrefsState> = (set) => ({
             diffLayout: "split",
             wordWrap: false,
             follow: true,
@@ -35,7 +34,10 @@ export const useViewerPrefsStore = create<ViewerPrefsState>()(
             setLayout: (layout) => set({ layout }),
             setPanelOpen: (panelOpen) => set({ panelOpen }),
             setPanelTab: (panelTab) => set({ panelTab }),
-        }),
-        { name: "biga-viewer-prefs" }
-    )
-);
+        });
+
+export const useViewerPrefsStore = create<ViewerPrefsState>()(persist(initialize, { name: "biga-viewer-prefs" }));
+
+export function createViewerPrefsStore() {
+    return createStore<ViewerPrefsState>()(initialize);
+}

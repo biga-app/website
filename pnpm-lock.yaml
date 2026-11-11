@@ -23,12 +23,24 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@biga/art':
+        specifier: workspace:*
+        version: link:../../packages/art
+      '@biga/demo':
+        specifier: workspace:*
+        version: link:../../packages/demo
       '@biga/stores':
         specifier: workspace:*
         version: link:../../packages/stores
       '@biga/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@biga/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@biga/viewer':
+        specifier: workspace:*
+        version: link:../../packages/viewer
       '@biga/viewer-core':
         specifier: workspace:*
         version: link:../../packages/viewer-core
@@ -151,6 +163,74 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
+  packages/art:
+    dependencies:
+      '@biga/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@biga/viewer':
+        specifier: workspace:*
+        version: link:../viewer
+      lucide-react:
+        specifier: ^1.70.0
+        version: 1.70.0(@types/react@19.3.0)(react@19.3.1)
+      motion:
+        specifier: ^14.11.1
+        version: 14.11.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@biga/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@biga/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
+  packages/demo:
+    dependencies:
+      '@biga/types':
+        specifier: workspace:*
+        version: link:../types
+      '@bufbuild/protobuf':
+        specifier: 2.17.0
+        version: 2.17.0
+      '@faker-js/faker':
+        specifier: ^10.6.0
+        version: 10.6.0
+    devDependencies:
+      '@biga/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@biga/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   packages/e2e:
     devDependencies:
       '@axe-core/playwright':
@@ -241,6 +321,9 @@ importers:
 
   packages/tests:
     dependencies:
+      '@biga/demo':
+        specifier: workspace:*
+        version: link:../demo
       '@biga/types':
         specifier: workspace:*
         version: link:../types
@@ -296,6 +379,134 @@ importers:
         version: 6.0.3
 
   packages/typescript-config: {}
+
+  packages/ui:
+    dependencies:
+      '@base-ui/react':
+        specifier: ^1.9.0
+        version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cmdk:
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      lucide-react:
+        specifier: ^1.70.0
+        version: 1.70.0(@types/react@19.3.0)(react@19.3.1)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+      react-resizable-panels:
+        specifier: ^4.21.0
+        version: 4.21.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      sonner:
+        specifier: ^2.0.8
+        version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      tailwind-merge:
+        specifier: ^3.7.0
+        version: 3.7.0
+    devDependencies:
+      '@biga/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@biga/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
+  packages/viewer:
+    dependencies:
+      '@biga/stores':
+        specifier: workspace:*
+        version: link:../stores
+      '@biga/types':
+        specifier: workspace:*
+        version: link:../types
+      '@biga/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@biga/viewer-core':
+        specifier: workspace:*
+        version: link:../viewer-core
+      '@monaco-editor/react':
+        specifier: ^4.7.0
+        version: 4.7.0(monaco-editor@0.57.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@shikijs/monaco':
+        specifier: ^4.6.0
+        version: 4.6.0
+      '@tanstack/react-virtual':
+        specifier: ^3.14.26
+        version: 3.14.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      lucide-react:
+        specifier: ^1.70.0
+        version: 1.70.0(@types/react@19.3.0)(react@19.3.1)
+      monaco-editor:
+        specifier: ^0.57.0
+        version: 0.57.0
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+      react-resizable-panels:
+        specifier: ^4.21.0
+        version: 4.21.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      shiki:
+        specifier: ^4.6.0
+        version: 4.6.0
+      sonner:
+        specifier: ^2.0.8
+        version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      zustand:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/react@19.3.0)(immer@10.2.0)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
+    devDependencies:
+      '@biga/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@biga/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   packages/viewer-core:
     dependencies:
@@ -682,6 +893,10 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@faker-js/faker@10.6.0':
+    resolution: {integrity: sha512-3RQHgEtvL1Frl/d1cSreo7qhJ3Gk1OdNUai/CtZ8G+wYeRQnJih3s9xJ9/kgYekPQRdwgh0HXRPqMlzWGwivIQ==}
+    engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@floating-ui/core@1.8.0':
     resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
@@ -4500,6 +4715,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@faker-js/faker@10.6.0': {}
 
   '@floating-ui/core@1.8.0':
     dependencies:

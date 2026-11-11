@@ -177,7 +177,7 @@ export function delimited(payload: Uint8Array): Uint8Array {
 
 export function encodeStreamEvent(value: StreamEvent | "keepalive"): Uint8Array {
     if (value === "keepalive") {
-        return toBinary(pb.StreamEventSchema, create(pb.StreamEventSchema, { event: { case: "keepalive", value: { timestamp: 1700000000000n } } }));
+        return toBinary(pb.StreamEventSchema, create(pb.StreamEventSchema, { event: { case: "keepalive", value: { timestamp: BigInt(1700000000000) } } }));
     }
     const event = (() => {
         switch (value.type) {

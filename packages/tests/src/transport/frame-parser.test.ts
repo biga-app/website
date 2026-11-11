@@ -4,7 +4,7 @@ import test from "node:test";
 import { createFrameParser } from "@biga/viewer-core/transport/frame-parser";
 
 import { checkpointFrame, connectedFrame, keepaliveFrame } from "../fixtures/frames.ts";
-import { delimited } from "../fixtures/wire.ts";
+import { delimited } from "@biga/demo/wire";
 
 const payloads = [connectedFrame.data, keepaliveFrame.data, checkpointFrame(1).data, new Uint8Array(300).fill(7)];
 

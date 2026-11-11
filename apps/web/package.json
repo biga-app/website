@@ -41,7 +41,11 @@
     "shiki": "^4.6.0",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
-    "zustand": "^5.1.0"
+    "zustand": "^5.1.0",
+    "@biga/ui": "workspace:*",
+    "@biga/viewer": "workspace:*",
+    "@biga/art": "workspace:*",
+    "@biga/demo": "workspace:*"
   },
   "devDependencies": {
     "@biga/eslint-config": "workspace:*",

@@ -1,0 +1,41 @@
+{
+  "name": "@biga/art",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*",
+    "./segment-bar": "./src/segment-bar.tsx",
+    "./broadcast-figure": "./src/broadcast-figure.tsx",
+    "./primitives": "./src/primitives.tsx",
+    "./save-to-checkpoint-figure": "./src/save-to-checkpoint-figure.tsx",
+    "./link-anatomy-figure": "./src/link-anatomy-figure.tsx",
+    "./hash-dedup-figure": "./src/hash-dedup-figure.tsx",
+    "./ignore-filter-figure": "./src/ignore-filter-figure.tsx",
+    "./pixels-vs-text-figure": "./src/pixels-vs-text-figure.tsx",
+    "./art-frame": "./src/art-frame.tsx",
+    "./follow-figure": "./src/follow-figure.tsx"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@biga/ui": "workspace:*",
+    "@biga/viewer": "workspace:*",
+    "motion": "^14.11.1",
+    "lucide-react": "^1.70.0"
+  },
+  "peerDependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@biga/eslint-config": "workspace:*",
+    "@biga/typescript-config": "workspace:*",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "^9.39.5",
+    "typescript": "6.0.3"
+  }
+}
