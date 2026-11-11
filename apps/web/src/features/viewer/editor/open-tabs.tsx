@@ -1,33 +1,45 @@
 "use client";
 
 import { baseName } from "@biga/types/file-identity";
-import { XIcon } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { LayoutDashboardIcon, XIcon } from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
+import { Button } from "@/components/ui/button";
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { dirName } from "@/lib/change-meta";
 import { cn } from "@/lib/utils";
 
-/**
- * Open files as a row of tabs. Each tab is a real button (with
- * `aria-current` on the active one) beside its own close button, middle-click
- * closes, and two files with the same name show their folder to tell them
- * apart.
- */
+const DRAG_TYPE = "application/x-biga-tab";
+
+type OverviewTab = { active: boolean; onSelect: () => void };
+
+type DropTarget = { path: string; after: boolean };
+
 export function OpenTabs({
     tabs,
     activePath,
+    label = "Open files",
+    overview,
     onSelect,
     onClose,
+    onMove,
+    menu,
 }: {
-    tabs: string[];
-    activePath: string;
+    tabs: readonly string[];
+    activePath: string | null;
+    label?: string;
+    overview?: OverviewTab | null;
     onSelect: (path: string) => void;
     onClose: (path: string) => void;
+    onMove?: (path: string, index: number) => void;
+    menu?: (path: string) => ReactNode;
 }) {
     const listRef = useRef<HTMLUListElement>(null);
     const refocusActive = useRef(false);
+    const [dragging, setDragging] = useState<string | null>(null);
+    const [drop, setDrop] = useState<DropTarget | null>(null);
 
     const duplicateNames = useMemo(() => {
         const counts = new Map<string, number>();
@@ -38,12 +50,8 @@ export function OpenTabs({
         return counts;
     }, [tabs]);
 
-    // Keep the active tab in view, and give focus back to it after a tab was
-    // closed from the keyboard so focus never falls to the page.
     useEffect(() => {
         const active = listRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
-        // Scroll the tab strip itself. `scrollIntoView` would also scroll every
-        // ancestor, and the page with it when the viewer is embedded in one.
         const viewport = listRef.current?.closest<HTMLElement>('[data-slot="scroll-area-viewport"]');
         if (active && viewport) {
             const tab = active.getBoundingClientRect();
@@ -58,34 +66,83 @@ export function OpenTabs({
             refocusActive.current = false;
             active?.focus();
         }
-    }, [activePath, tabs]);
+    }, [activePath, tabs, overview?.active]);
 
     const close = (path: string, fromKeyboard: boolean) => {
         refocusActive.current = fromKeyboard;
         onClose(path);
     };
 
+    const endDrag = () => {
+        setDragging(null);
+        setDrop(null);
+    };
+
+    const commitDrop = () => {
+        if (dragging !== null && drop !== null && onMove) {
+            const without = tabs.filter((tab) => tab !== dragging);
+            const anchor = without.indexOf(drop.path);
+            if (anchor !== -1) onMove(dragging, anchor + (drop.after ? 1 : 0));
+        }
+        endDrag();
+    };
+
+    const variantFor = (active: boolean) => (active ? "secondary" : "ghost");
+
     return (
         <ScrollArea className="min-w-0 flex-1">
-            <ul ref={listRef} aria-label="Open files" className="flex h-10 w-max items-center gap-0.5 px-1.5">
+            <ul ref={listRef} aria-label={label} className="flex h-10 w-max items-center gap-0.5 px-1.5">
+                {overview ? (
+                    <li className="flex items-center">
+                        <Button
+                            variant={variantFor(overview.active)}
+                            size="xs"
+                            aria-current={overview.active ? "page" : undefined}
+                            onClick={overview.onSelect}
+                            className="gap-1.5 px-2.5 font-normal shadow-none"
+                        >
+                            <LayoutDashboardIcon className="size-3.5" aria-hidden />
+                            Overview
+                        </Button>
+                    </li>
+                ) : null}
                 {tabs.map((path) => {
                     const name = baseName(path);
                     const active = path === activePath;
                     const ambiguous = (duplicateNames.get(name) ?? 0) > 1;
                     const parent = ambiguous ? baseName(dirName(path)) : "";
-                    return (
+                    const marker = drop?.path === path && dragging !== path ? (drop.after ? "after" : "before") : null;
+                    const item = (
                         <li
-                            key={path}
                             data-active={active || undefined}
+                            draggable={Boolean(onMove)}
+                            onDragStart={(event) => {
+                                event.dataTransfer.setData(DRAG_TYPE, path);
+                                event.dataTransfer.effectAllowed = "move";
+                                setDragging(path);
+                            }}
+                            onDragOver={(event) => {
+                                if (dragging === null || dragging === path) return;
+                                event.preventDefault();
+                                const box = event.currentTarget.getBoundingClientRect();
+                                const after = event.clientX > box.left + box.width / 2;
+                                if (drop?.path !== path || drop.after !== after) setDrop({ path, after });
+                            }}
+                            onDrop={(event) => {
+                                event.preventDefault();
+                                commitDrop();
+                            }}
+                            onDragEnd={endDrag}
                             className={cn(
-                                "group/tab flex h-7 items-center rounded-md transition-colors duration-150",
-                                active
-                                    ? "bg-accent text-foreground"
-                                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                                "group/tab relative flex items-center",
+                                dragging === path && "opacity-50",
+                                marker === "before" && "before:bg-biga before:absolute before:inset-y-0.5 before:-start-px before:w-0.5 before:rounded-full",
+                                marker === "after" && "after:bg-biga after:absolute after:inset-y-0.5 after:-end-px after:w-0.5 after:rounded-full"
                             )}
                         >
-                            <button
-                                type="button"
+                            <Button
+                                variant={variantFor(active)}
+                                size="xs"
                                 aria-current={active ? "page" : undefined}
                                 title={path}
                                 onClick={() => onSelect(path)}
@@ -95,25 +152,33 @@ export function OpenTabs({
                                         close(path, false);
                                     }
                                 }}
-                                className="focus-visible:ring-ring/60 flex h-full items-center gap-1.5 rounded-md pr-1 pl-2.5 text-xs whitespace-nowrap outline-none focus-visible:ring-2"
+                                className="gap-1.5 rounded-e-none ps-2.5 pe-1 font-normal shadow-none"
                             >
                                 <FileTypeIcon kind="file" name={name} className="size-3.5" />
                                 {name}
                                 {parent && <span className="text-muted-foreground text-[11px]">{parent}</span>}
-                            </button>
-                            <button
-                                type="button"
+                            </Button>
+                            <Button
+                                variant={variantFor(active)}
+                                size="icon-xs"
                                 aria-label={`Close ${name}`}
                                 onClick={(event) => close(path, event.detail === 0)}
                                 className={cn(
-                                    "text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:ring-ring/60 me-1 grid size-6 place-items-center rounded transition-[opacity,background-color] duration-150 outline-none focus-visible:opacity-100 focus-visible:ring-2",
+                                    "text-muted-foreground hover:text-foreground rounded-s-none shadow-none transition-opacity duration-150 focus-visible:opacity-100",
                                     "pointer-coarse:opacity-100",
                                     active ? "opacity-100" : "opacity-0 group-hover/tab:opacity-100"
                                 )}
                             >
                                 <XIcon className="size-3" />
-                            </button>
+                            </Button>
                         </li>
+                    );
+                    if (!menu) return <Fragment key={path}>{item}</Fragment>;
+                    return (
+                        <ContextMenu key={path}>
+                            <ContextMenuTrigger render={item} />
+                            <ContextMenuContent className="w-60">{menu(path)}</ContextMenuContent>
+                        </ContextMenu>
                     );
                 })}
             </ul>

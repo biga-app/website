@@ -2,11 +2,10 @@
 
 import type { StreamStatus } from "@biga/types/stream";
 import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
-import { LinkIcon, LocateFixedIcon, SearchIcon } from "lucide-react";
+import { LinkIcon, LocateFixedIcon } from "lucide-react";
 
 import { CopyGlyph } from "@/components/copy-glyph";
 import { Button } from "@/components/ui/button";
-import { Kbd, useModKey } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCopyFeedback } from "@/components/viewer/copy-button";
 import { formatDateTime, formatRelativeTime } from "@/lib/change-meta";
@@ -75,15 +74,10 @@ export function FollowToggle() {
 
     return (
         <Tooltip>
-            <TooltipTrigger render={<Button variant="ghost"
+            <TooltipTrigger render={<Button variant={follow ? "secondary" : "outline"}
                     size="xs"
                     aria-pressed={follow}
-                    onClick={() => useViewerPrefsStore.getState().setFollow(!follow)}
-                    className={cn(
-                        follow
-                            ? "bg-biga/10 text-biga hover:bg-biga/15 hover:text-biga"
-                            : "text-muted-foreground hover:text-foreground"
-                    )} />}>
+                    onClick={() => useViewerPrefsStore.getState().setFollow(!follow)} />}>
                     <LocateFixedIcon className="size-3.5" />
                     <span className="max-md:sr-only">Follow</span>
                 </TooltipTrigger>
@@ -101,10 +95,9 @@ export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string
     return (
         <>
             <Tooltip>
-                <TooltipTrigger render={<Button variant="ghost"
+                <TooltipTrigger render={<Button variant="outline"
                         size="xs"
-                        onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq, shareKey))}
-                        className="text-muted-foreground hover:text-foreground" />}>
+                        onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq, shareKey))} />}>
                         {copied ? <CopyGlyph copied /> : <LinkIcon className="size-3.5" />}
                         <span className="max-sm:sr-only">{copied ? "Copied" : checkpointSeq === undefined ? "Copy link" : "Copy checkpoint link"}</span>
                     </TooltipTrigger>
@@ -114,24 +107,5 @@ export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string
                 {copied ? "Link copied" : ""}
             </span>
         </>
-    );
-}
-
-/** Looks like a search field so ⌘P is discoverable; opens Go to file. */
-export function GoToFileTrigger({ onClick }: { onClick: () => void }) {
-    const mod = useModKey();
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className="border-input bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring/50 hidden h-7 w-52 items-center gap-2 rounded-md border px-2 text-xs transition-colors outline-none focus-visible:ring-[3px] lg:flex xl:w-64"
-        >
-            <SearchIcon className="size-3.5" />
-            Go to file…
-            <span className="ms-auto flex gap-0.5">
-                <Kbd>{mod}</Kbd>
-                <Kbd>P</Kbd>
-            </span>
-        </button>
     );
 }

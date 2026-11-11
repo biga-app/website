@@ -6,6 +6,8 @@ import { GitGraphIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
+import { RowButton } from "@/components/viewer/row-button";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmptyState } from "@/components/viewer/empty-state";
 import { IconAction } from "@/components/viewer/icon-action";
@@ -15,6 +17,7 @@ import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
 import { baseName } from "@biga/types/file-identity";
 
+import { CommandMenuItem } from "../commands/menu-items";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
 import { useViewerView } from "../runtime/navigation-context";
 
@@ -140,52 +143,63 @@ export function Timeline({ onPicked }: { onPicked?: () => void }) {
                             if (row.kind === "change") {
                                 const meta = CHANGE_META[row.change.changeType];
                                 return (
-                                    <li key={`c${row.seq}:${row.change.path}`} style={style} className="absolute start-0 top-0 w-full">
-                                        <button
-                                            type="button"
-                                            aria-current={row.selected ? "true" : undefined}
-                                            onClick={() => pick(row.seq, row.change.path)}
-                                            className={cn(
-                                                "hover:bg-sidebar-accent/60 focus-visible:ring-ring/70 flex h-full w-full items-center gap-1.5 pe-2 ps-8 text-start text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-inset",
-                                                row.selected && "bg-sidebar-accent text-sidebar-accent-foreground"
-                                            )}
-                                        >
-                                            <FileTypeIcon kind="file" name={baseName(row.change.path)} className="size-4" />
-                                            <span className="truncate" title={row.change.path}>{baseName(row.change.path)}</span>
-                                            <span className={cn("ms-auto w-3 shrink-0 text-center font-mono text-[11px] font-semibold", meta.className)} title={meta.label}>
-                                                {meta.letter}
-                                                <span className="sr-only">, {meta.label.toLowerCase()}</span>
-                                            </span>
-                                        </button>
-                                    </li>
+                                    <ContextMenu key={`c${row.seq}:${row.change.path}`}>
+                                        <ContextMenuTrigger render={<li style={style} className="absolute start-0 top-0 w-full" />}>
+                                            <RowButton
+                                                selected={row.selected}
+                                                aria-current={row.selected ? "true" : undefined}
+                                                onClick={() => pick(row.seq, row.change.path)}
+                                                className="h-full gap-1.5 pe-2 ps-8"
+                                            >
+                                                <FileTypeIcon kind="file" name={baseName(row.change.path)} className="size-4" />
+                                                <span className="truncate" title={row.change.path}>{baseName(row.change.path)}</span>
+                                                <span className={cn("ms-auto w-3 shrink-0 text-center font-mono text-[11px] font-semibold", meta.className)} title={meta.label}>
+                                                    {meta.letter}
+                                                    <span className="sr-only">, {meta.label.toLowerCase()}</span>
+                                                </span>
+                                            </RowButton>
+                                        </ContextMenuTrigger>
+                                        <ContextMenuContent className="w-56">
+                                            <ContextMenuItem onClick={() => pick(row.seq, row.change.path)}>Open diff</ContextMenuItem>
+                                            <CommandMenuItem id="view.splitRight" kind="context" target={{ path: row.change.path }} label="Open file to the side" />
+                                            <ContextMenuSeparator />
+                                            <CommandMenuItem id="file.copyPath" kind="context" target={{ path: row.change.path }} />
+                                            <CommandMenuItem id="go.revealInFiles" kind="context" target={{ path: row.change.path }} />
+                                        </ContextMenuContent>
+                                    </ContextMenu>
                                 );
                             }
                             const { summary } = row;
                             return (
-                                <li key={`s${summary.seq}`} style={style} className="absolute start-0 top-0 w-full">
-                                    <button
-                                        type="button"
-                                        aria-expanded={row.selected}
-                                        onClick={() => (row.selected ? showLive("push") : pick(summary.seq, null))}
-                                        className={cn(
-                                            "hover:bg-sidebar-accent/60 focus-visible:ring-ring/70 flex h-full w-full flex-col justify-center gap-0.5 px-3 text-start outline-none focus-visible:ring-2 focus-visible:ring-inset",
-                                            row.selected && "bg-sidebar-accent/50"
-                                        )}
-                                    >
-                                        <span className="flex items-center gap-2 text-[13px] font-medium">
-                                            <span className="truncate">{summary.label}</span>
-                                            <span className="text-muted-foreground ms-auto shrink-0 text-[11px] font-normal tabular-nums">
-                                                {formatRelativeTime(summary.createdAt, now)}
+                                <ContextMenu key={`s${summary.seq}`}>
+                                    <ContextMenuTrigger render={<li style={style} className="absolute start-0 top-0 w-full" />}>
+                                        <RowButton
+                                            selected={row.selected}
+                                            aria-expanded={row.selected}
+                                            onClick={() => (row.selected ? showLive("push") : pick(summary.seq, null))}
+                                            className="h-full flex-col items-stretch justify-center gap-0.5 py-0"
+                                        >
+                                            <span className="flex items-center gap-2 text-[13px] font-medium">
+                                                <span className="truncate">{summary.label}</span>
+                                                <span className="text-muted-foreground ms-auto shrink-0 text-[11px] font-normal tabular-nums">
+                                                    {formatRelativeTime(summary.createdAt, now)}
+                                                </span>
                                             </span>
-                                        </span>
-                                        <span className="text-muted-foreground flex items-center gap-2 text-[11px] tabular-nums">
-                                            <span>#{summary.seq}</span>
-                                            <span>{summary.filesChanged === 1 ? "1 file" : `${summary.filesChanged} files`}</span>
-                                            <span className="text-success">+{summary.additions}</span>
-                                            <span className="text-destructive">−{summary.deletions}</span>
-                                        </span>
-                                    </button>
-                                </li>
+                                            <span className="text-muted-foreground flex items-center gap-2 text-[11px] tabular-nums">
+                                                <span>#{summary.seq}</span>
+                                                <span>{summary.filesChanged === 1 ? "1 file" : `${summary.filesChanged} files`}</span>
+                                                <span className="text-success">+{summary.additions}</span>
+                                                <span className="text-destructive">−{summary.deletions}</span>
+                                            </span>
+                                        </RowButton>
+                                    </ContextMenuTrigger>
+                                    <ContextMenuContent className="w-56">
+                                        <ContextMenuItem onClick={() => pick(summary.seq, null)}>Open checkpoint</ContextMenuItem>
+                                        <CommandMenuItem id="file.copyCheckpointLink" kind="context" target={{ seq: summary.seq }} />
+                                        <ContextMenuSeparator />
+                                        <CommandMenuItem id="go.live" kind="context" />
+                                    </ContextMenuContent>
+                                </ContextMenu>
                             );
                         })}
                     </ul>

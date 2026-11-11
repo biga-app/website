@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { ActivityBar } from "@/components/activity-bar";
+import { Badge } from "@/components/ui/badge";
 import { CodeBreadcrumbs } from "@/components/code-breadcrumbs";
 import { OpenTabs } from "@/features/viewer/editor/open-tabs";
 import { useViewerView } from "@/features/viewer/runtime/navigation-context";
@@ -44,14 +45,7 @@ export function PanelHeader({ live }: { live: boolean }) {
   if (!fixture) return <Placeholder />;
   return (
     <div className="bg-background size-full">
-      <ViewerHeader
-        status={live ? "live" : "ended"}
-        embed
-        sidebarCollapsed={false}
-        onToggleSidebar={noop}
-        onOpenDrawer={noop}
-        onOpenQuickOpen={noop}
-      />
+      <ViewerHeader status={live ? "live" : "ended"} embed />
     </div>
   );
 }
@@ -97,7 +91,7 @@ export function PanelCode(options: CodeOptions) {
 
 function CodePane({ fixture, save, firstLine, lastLine, wrap, tabSize }: CodeOptions & { fixture: ShowcaseFixture }) {
   const { stores } = useRuntime();
-  const tabs = useStoreValue(stores.workspace, (state) => state.tabs);
+  const tabs = useStoreValue(stores.workspace, (state) => state.groups[0]);
   const { activeFile: active } = useViewerView();
   const file = useMemo(
     () => fixture.shown.find((candidate) => candidate.path === active) ?? fixture.shown[0],
@@ -107,7 +101,7 @@ function CodePane({ fixture, save, firstLine, lastLine, wrap, tabSize }: CodeOpt
   if (!file || !loaded) return <Placeholder />;
 
   const path = file.path;
-  const shownTabs = tabs.length ? [...tabs] : [path];
+  const shownTabs = tabs.length ? tabs : [path];
   const replace = save && path === DEMO_FILE ? { line: DEMO_LINE, mark: true, ...save } : undefined;
 
   return (
@@ -117,9 +111,9 @@ function CodePane({ fixture, save, firstLine, lastLine, wrap, tabSize }: CodeOpt
       </div>
       <div className="flex h-8 shrink-0 items-center border-b">
         <CodeBreadcrumbs path={path} />
-        <span className="text-muted-foreground border-border mr-2 shrink-0 rounded-full border px-2 py-0.5 text-[11px]">
+        <Badge variant="outline" className="text-muted-foreground me-2 shrink-0 font-normal">
           Read only
-        </span>
+        </Badge>
       </div>
       <div className="min-h-0 flex-1">
         <StaticCode

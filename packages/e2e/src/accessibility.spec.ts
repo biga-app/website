@@ -66,6 +66,44 @@ test("the not-found page has no violations", async ({ page }) => {
     expect(await violations(page)).toEqual([]);
 });
 
+test("the session overview has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?overview=1");
+    await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the search panel with results has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.keyboard.press("ControlOrMeta+Shift+f");
+    await page.getByRole("textbox", { name: "Search in files" }).fill("greet");
+    await expect(page.getByRole("option").first()).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the menubar open has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.getByRole("menuitem", { name: "View" }).click();
+    await expect(page.getByRole("menuitemcheckbox", { name: /^Toggle Sidebar/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("a tab context menu open has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.getByRole("button", { name: "README.md", exact: true }).click({ button: "right" });
+    await expect(page.getByRole("menuitem", { name: /^Close Other Tabs/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the split view and the panel have no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=src/greet.ts");
+    await editorReady(page);
+    await page.keyboard.press("ControlOrMeta+\\");
+    await expect(page.getByRole("region", { name: "Second editor" })).toBeVisible();
+    await page.keyboard.press("ControlOrMeta+j");
+    await expect(page.getByRole("region", { name: "Panel" })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
 test.describe("in the dark theme", () => {
     test.use({ colorScheme: "dark" });
 
@@ -86,6 +124,19 @@ test.describe("in the dark theme", () => {
         await openSession(page, "/session/demo?file=README.md");
         await page.keyboard.press("ControlOrMeta+p");
         await expect(page.getByRole("dialog", { name: "Go to file" })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+
+    test("the session overview has no violations", async ({ page }) => {
+        await openSession(page, "/session/demo?overview=1");
+        await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+
+    test("the menubar open has no violations", async ({ page }) => {
+        await openSession(page, "/session/demo?file=README.md");
+        await page.getByRole("menuitem", { name: "View" }).click();
+        await expect(page.getByRole("menuitemcheckbox", { name: /^Toggle Sidebar/ })).toBeVisible();
         expect(await violations(page)).toEqual([]);
     });
 });

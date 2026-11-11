@@ -3,10 +3,11 @@
 import type { ChangeType } from "@biga/types/checkpoint";
 import { KIND_DIRECTORY, KIND_IGNORED, type TreeEntry } from "@biga/types/tree-table";
 import { defaultRangeExtractor, useVirtualizer, type Range } from "@tanstack/react-virtual";
-import { ChevronRight, ClockIcon, CopyIcon, DownloadIcon, FileTextIcon, FolderClosedIcon, ListCollapseIcon, SearchIcon } from "lucide-react";
+import { ChevronRight, FolderClosedIcon, ListCollapseIcon, SearchIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type HTMLAttributes } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
+import { Badge } from "@/components/ui/badge";
 import {
     ContextMenu,
     ContextMenuContent,
@@ -20,13 +21,12 @@ import { EmptyState } from "@/components/viewer/empty-state";
 import { IconAction } from "@/components/viewer/icon-action";
 import { PanelHeader } from "@/components/viewer/panel-header";
 import { CHANGE_META } from "@/lib/change-meta";
-import { copyWithToast } from "@/lib/file-actions";
 import { useRovingTree, type TreeItemMeta } from "@/lib/use-roving-tree";
 import { cn } from "@/lib/utils";
 
-import { revealInTimeline } from "../runtime/reveal-in-timeline";
+import { useCommandContext } from "../commands/command-provider";
+import { CommandMenuItem } from "../commands/menu-items";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { copyFileContent, downloadFile } from "../runtime/file-actions";
 import { useViewerView } from "../runtime/navigation-context";
 import { useDecorations } from "./use-decorations";
 
@@ -54,6 +54,8 @@ type RowProps = {
     itemProps: HTMLAttributes<HTMLDivElement>;
     onActivate: () => void;
 };
+
+type TreeMenu = { kind: "file" | "folder" | "root"; path: string | null };
 
 function rowPath(target: EventTarget): string | undefined {
     return (target as HTMLElement).closest<HTMLElement>("[role=treeitem]")?.dataset.path;
@@ -92,7 +94,7 @@ const TreeRow = memo(function TreeRow({
                 <span className="size-3.5 shrink-0" />
                 <FileTypeIcon kind="directory" name={entry.name} className="size-4 opacity-50" />
                 <span className="truncate">{entry.name}</span>
-                <span className="text-muted-foreground/80 ms-auto shrink-0 ps-2 text-[11px]">not shared</span>
+                <Badge variant="outline" className="text-muted-foreground ms-auto h-4 shrink-0 px-1.5 text-[10px] font-normal">not shared</Badge>
             </div>
         );
     }
@@ -152,8 +154,9 @@ export function FileTree({
     const touched = useStoreValue(tree, (state) => state.touched);
     const touchedRevision = useStoreValue(tree, (state) => state.touchedRevision);
     const { reader } = tree.getState();
-    const { activeFile, openFile, openCheckpoint } = useViewerView();
-    const [menuPath, setMenuPath] = useState<string | null>(null);
+    const { activeFile } = useViewerView();
+    const { actions } = useCommandContext();
+    const [menu, setMenu] = useState<TreeMenu>({ kind: "root", path: null });
     const decorations = useDecorations();
     const mod = useModKey();
     const parentRef = useRef<HTMLDivElement>(null);
@@ -197,10 +200,10 @@ export function FileTree({
                 tree.getState().setExpanded(path, !reader.expandedPaths().has(path));
                 return;
             }
-            openFile(path);
+            actions.openFile(path);
             onFileOpened?.();
         },
-        [rows, reader, tree, openFile, onFileOpened]
+        [rows, reader, tree, actions, onFileOpened]
     );
 
     const { activeIndex, getItemProps } = useRovingTree({
@@ -295,12 +298,16 @@ export function FileTree({
                     onOpenChange={(open, details) => {
                         if (!open) return;
                         const path = details.event.target ? rowPath(details.event.target) : undefined;
-                        const entry = path === undefined ? undefined : reader.entry(path);
-                        if (path === undefined || !entry || entry.kind === KIND_DIRECTORY || entry.kind === KIND_IGNORED) {
+                        if (path === undefined) {
+                            setMenu({ kind: "root", path: null });
+                            return;
+                        }
+                        const entry = reader.entry(path);
+                        if (!entry || entry.kind === KIND_IGNORED) {
                             details.cancel();
                             return;
                         }
-                        setMenuPath(path);
+                        setMenu({ kind: entry.kind === KIND_DIRECTORY ? "folder" : "file", path });
                     }}
                 >
                     <ContextMenuTrigger
@@ -350,26 +357,37 @@ export function FileTree({
                                 );
                             })}
                     </ContextMenuTrigger>
-                    <ContextMenuContent className="w-52">
-                        <ContextMenuItem onClick={() => menuPath && void copyWithToast(menuPath, "path")}>
-                            <CopyIcon />
-                            Copy path
-                        </ContextMenuItem>
-                        <ContextMenuItem onClick={() => menuPath && void copyFileContent(runtime, menuPath)}>
-                            <FileTextIcon />
-                            Copy contents
-                        </ContextMenuItem>
-                        <ContextMenuItem onClick={() => menuPath && void downloadFile(runtime, menuPath)}>
-                            <DownloadIcon />
-                            Download
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                            onClick={() => menuPath && void revealInTimeline(runtime, (seq, file) => openCheckpoint(seq, file, "push"), menuPath)}
-                        >
-                            <ClockIcon />
-                            Show in timeline
-                        </ContextMenuItem>
+                    <ContextMenuContent className="w-60">
+                        {menu.kind === "file" && menu.path ? (
+                            <>
+                                <CommandMenuItem id="view.splitRight" kind="context" target={{ path: menu.path }} label="Open to the Side" />
+                                <ContextMenuSeparator />
+                                <CommandMenuItem id="file.copyPath" kind="context" target={{ path: menu.path }} />
+                                <CommandMenuItem id="file.copyContents" kind="context" target={{ path: menu.path }} />
+                                <CommandMenuItem id="file.copyLink" kind="context" target={{ path: menu.path }} />
+                                <CommandMenuItem id="file.download" kind="context" target={{ path: menu.path }} label="Download" />
+                                <ContextMenuSeparator />
+                                <CommandMenuItem id="go.revealInTimeline" kind="context" target={{ path: menu.path }} label="Show in Timeline" />
+                            </>
+                        ) : null}
+                        {menu.kind === "folder" && menu.path ? (
+                            <>
+                                <ContextMenuItem onClick={() => tree.getState().setExpanded(menu.path as string, !expanded.has(menu.path as string))}>
+                                    {expanded.has(menu.path) ? "Collapse" : "Expand"}
+                                </ContextMenuItem>
+                                <CommandMenuItem id="view.searchInFolder" kind="context" target={{ folder: menu.path }} label="Search in Folder" />
+                                <ContextMenuSeparator />
+                                <CommandMenuItem id="file.copyPath" kind="context" target={{ path: menu.path }} />
+                            </>
+                        ) : null}
+                        {menu.kind === "root" ? (
+                            <>
+                                <CommandMenuItem id="go.file" kind="context" />
+                                <CommandMenuItem id="view.showSearch" kind="context" />
+                                <ContextMenuSeparator />
+                                <CommandMenuItem id="view.collapseFolders" kind="context" />
+                            </>
+                        ) : null}
                     </ContextMenuContent>
                 </ContextMenu>
             </ScrollArea>

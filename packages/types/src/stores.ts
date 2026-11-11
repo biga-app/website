@@ -4,6 +4,7 @@ import type { SessionResponse } from "./session.js";
 import type { LoadMode } from "./state.js";
 import type { StreamStatus } from "./stream.js";
 import type { TreeEntry, TreePatch, TreePosition, TreeTable } from "./tree-table.js";
+import type { GroupIndex } from "./viewer-location.js";
 
 export type ReadableStore<State> = {
     getState(): State;
@@ -62,18 +63,27 @@ export type HistoryStoreState = {
     reset(): void;
 };
 
-export type SidebarView = "explorer" | "timeline";
+export type SidebarView = "explorer" | "timeline" | "search";
 
 export type PausedFollow = { target: string; count: number };
 
+export type TabGroups = readonly [readonly string[], readonly string[]];
+
 export type WorkspaceStoreState = {
-    tabs: readonly string[];
+    groups: TabGroups;
+    focused: GroupIndex;
+    closed: readonly string[];
     sidebarView: SidebarView;
     pausedFollow: PausedFollow | null;
-    openTab(path: string): void;
-    closeTab(path: string): string | null;
-    closeOthers(path: string): void;
-    closeAll(): void;
+    openTab(path: string, group?: GroupIndex): void;
+    closeTab(path: string, group?: GroupIndex): string | null;
+    closeOthers(path: string, group?: GroupIndex): void;
+    closeToRight(path: string, group?: GroupIndex): void;
+    closeAll(group?: GroupIndex): void;
+    moveTab(path: string, index: number, group?: GroupIndex): void;
+    reopenClosed(): string | null;
+    focusGroup(group: GroupIndex): void;
+    restore(groups: TabGroups): void;
     setSidebarView(view: SidebarView): void;
     pauseFollow(target: string): void;
     resumeFollow(): void;

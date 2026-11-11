@@ -1,8 +1,10 @@
 "use client";
 
+import { useViewerPrefsStore } from "@biga/stores/viewer-prefs-store";
 import type { SidebarView } from "@biga/types/stores";
 import type { StreamStatus } from "@biga/types/stream";
-import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 
 import { SessionNotice } from "./session-notice";
@@ -11,18 +13,27 @@ import { ActivityBar } from "@/components/activity-bar";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { displayTitle } from "@/lib/session-title";
 
+import { CommandProvider, useCommandContext } from "../commands/command-provider";
 import { EditorPane } from "../editor/editor-pane";
-import { LazyQuickOpen } from "../quick-open/lazy-quick-open";
+import { LazyCommandPalette } from "../palette/lazy-command-palette";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
 import { useFollow } from "../runtime/use-follow";
+import { useTabPersistence } from "../runtime/use-tab-persistence";
 import { useUrlSync } from "../runtime/use-url-sync";
 import { useViewerView } from "../runtime/navigation-context";
 import { FrameSkeleton } from "./frame-skeleton";
+import { LazyShortcutsDialog } from "./lazy-shortcuts-dialog";
 import { SIDEBAR_COOKIE, SIDEBAR_MAX_PERCENT, SIDEBAR_MIN_PERCENT } from "./sidebar-size";
 import { SidebarBody } from "./sidebar-body";
+import { StatusBar } from "./status-bar";
+import { useViewerUi, useViewerUiStore, ViewerUiProvider } from "./ui-state";
 import { ViewerHeader } from "./viewer-header";
+
+const BottomPanel = dynamic(() => import("./bottom-panel").then((module) => module.BottomPanel), { ssr: false });
 
 const ANNOUNCEMENTS: Partial<Record<StreamStatus, string>> = {
     live: "Connected. Watching live.",
@@ -31,31 +42,71 @@ const ANNOUNCEMENTS: Partial<Record<StreamStatus, string>> = {
     ended: "This broadcast has ended.",
 };
 
+const DRAWER_VIEWS: { view: SidebarView; label: string }[] = [
+    { view: "explorer", label: "Files" },
+    { view: "search", label: "Search" },
+    { view: "timeline", label: "Timeline" },
+];
+
+const SIDEBAR_LABELS: Record<SidebarView, string> = { explorer: "Files", search: "Search", timeline: "Timeline" };
+
 function rememberSidebarSize(percent: number): void {
     if (percent <= 0) return;
     document.cookie = `${SIDEBAR_COOKIE}=${percent.toFixed(1)}; path=/; max-age=31536000; samesite=lax`;
 }
 
+function MainArea() {
+    const panelOpen = useViewerPrefsStore((state) => state.panelOpen);
+    const { embed } = useViewerView();
+    const showPanel = panelOpen && !embed;
+
+    return (
+        <ResizablePanelGroup orientation="vertical">
+            <ResizablePanel id="editor" minSize="30%">
+                <EditorPane />
+            </ResizablePanel>
+            {showPanel ? (
+                <>
+                    <ResizableHandle className="h-px w-full after:inset-x-0 after:inset-y-auto after:top-1/2 after:h-2 after:w-full after:-translate-y-1/2 after:translate-x-0" />
+                    <ResizablePanel id="panel" defaultSize="28%" minSize="12%" maxSize="60%">
+                        <BottomPanel />
+                    </ResizablePanel>
+                </>
+            ) : null}
+        </ResizablePanelGroup>
+    );
+}
+
 function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
     const runtime = useRuntime();
     const { stores } = runtime;
+    const ui = useViewerUiStore();
+    const { actions } = useCommandContext();
     const status = useStoreValue(stores.connection, (state) => state.status);
     const sidebarView = useStoreValue(stores.workspace, (state) => state.sidebarView);
     const session = useStoreValue(stores.session, (state) => state.session);
     const latestSeq = useStoreValue(stores.history, (state) => state.checkpoints.at(-1)?.seq ?? null);
-    const { view, embed, openFile } = useViewerView();
+    const { view, embed } = useViewerView();
     const sidebarRef = useRef<PanelImperativeHandle>(null);
-    const [collapsed, setCollapsed] = useState(false);
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [quickOpen, setQuickOpen] = useState(false);
+    const collapsed = useViewerUi((state) => state.sidebarCollapsed);
+    const drawerOpen = useViewerUi((state) => state.drawerOpen);
     const [seenSeq, setSeenSeq] = useState<number | null>(null);
+    const compact = useIsMobile();
 
     useUrlSync();
     useFollow();
+    useTabPersistence();
 
     useEffect(() => {
         if (session) document.title = `${displayTitle(session)} · biga`;
     }, [session]);
+
+    useEffect(() => {
+        const panel = sidebarRef.current;
+        if (!panel) return;
+        if (collapsed && !panel.isCollapsed()) panel.collapse();
+        if (!collapsed && panel.isCollapsed()) panel.expand();
+    }, [collapsed]);
 
     const timelineOnScreen = sidebarView === "timeline" && !collapsed;
     useEffect(() => {
@@ -63,36 +114,28 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
     }, [latestSeq, seenSeq, timelineOnScreen, drawerOpen]);
     const unseenTimeline = latestSeq !== null && seenSeq !== null && latestSeq > seenSeq;
 
-    useEffect(() => {
-        const onKey = (event: KeyboardEvent) => {
-            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "p") {
-                event.preventDefault();
-                setQuickOpen(true);
-            }
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, []);
+    const changeView = (next: SidebarView) => {
+        if (next === sidebarView && !collapsed) {
+            ui.getState().setSidebarCollapsed(true);
+            return;
+        }
+        actions.setSidebarView(next);
+    };
 
-    const toggleSidebar = useCallback(() => {
-        const panel = sidebarRef.current;
-        if (panel?.isCollapsed()) panel.expand();
-        else panel?.collapse();
-    }, []);
+    const openPalette = () => actions.openPalette("files");
 
-    const changeView = useCallback(
-        (next: SidebarView) => {
-            if (next === sidebarView && !collapsed) {
-                sidebarRef.current?.collapse();
-                return;
-            }
-            stores.workspace.getState().setSidebarView(next);
-            sidebarRef.current?.expand();
-        },
-        [sidebarView, collapsed, stores]
+    const main = (
+        <main
+            id="viewer-main"
+            tabIndex={-1}
+            className="h-full outline-none"
+            onPointerDown={() => runtime.noteActivity()}
+            onKeyDown={() => runtime.noteActivity()}
+            onWheel={() => runtime.noteActivity()}
+        >
+            <MainArea />
+        </main>
     );
-
-    const noteActivity = useCallback(() => runtime.noteActivity(), [runtime]);
 
     return (
         <div className="flex h-svh flex-col">
@@ -102,88 +145,72 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
             >
                 Skip to code
             </a>
-            <ViewerHeader
-                status={status}
-                embed={embed}
-                checkpointSeq={view.type === "checkpoint" ? view.seq : undefined}
-                sidebarCollapsed={collapsed}
-                onToggleSidebar={toggleSidebar}
-                onOpenDrawer={() => setDrawerOpen(true)}
-                onOpenQuickOpen={() => setQuickOpen(true)}
-            />
+            <ViewerHeader status={status} embed={embed} checkpointSeq={view.type === "checkpoint" ? view.seq : undefined} />
             <SessionNotice status={status} embed={embed} onReconnect={runtime.reconnect} />
             <div className="flex min-h-0 flex-1">
                 <div className="hidden md:flex">
                     <ActivityBar view={sidebarView} sidebarOpen={!collapsed} unseenTimeline={unseenTimeline} onChange={changeView} />
                 </div>
-                <ResizablePanelGroup
-                    onLayoutChanged={(layout) => {
-                        const size = layout.sidebar ?? 0;
-                        setCollapsed(size === 0);
-                        rememberSidebarSize(size);
-                    }}
-                    className="min-h-0 flex-1"
-                >
-                    <ResizablePanel
-                        panelRef={sidebarRef}
-                        id="sidebar"
-                        defaultSize={`${defaultSidebarSize}%`}
-                        minSize={`${SIDEBAR_MIN_PERCENT}%`}
-                        maxSize={`${SIDEBAR_MAX_PERCENT}%`}
-                        collapsible
-                        collapsedSize={0}
-                        className="bg-sidebar text-sidebar-foreground min-w-0 max-md:hidden"
+                {compact ? (
+                    <div className="min-w-0 flex-1">{main}</div>
+                ) : (
+                    <ResizablePanelGroup
+                        onLayoutChanged={(layout) => {
+                            const size = layout.sidebar ?? 0;
+                            ui.getState().setSidebarCollapsed(size === 0);
+                            rememberSidebarSize(size);
+                        }}
+                        className="min-h-0 flex-1"
                     >
-                        <aside aria-label={sidebarView === "explorer" ? "Files" : "Timeline"} className="h-full">
-                            <SidebarBody onOpenQuickOpen={() => setQuickOpen(true)} />
-                        </aside>
-                    </ResizablePanel>
-                    <ResizableHandle className="max-md:hidden" />
-                    <ResizablePanel id="main" minSize="40%">
-                        <main
-                            id="viewer-main"
-                            tabIndex={-1}
-                            className="h-full outline-none"
-                            onPointerDown={noteActivity}
-                            onKeyDown={noteActivity}
-                            onWheel={noteActivity}
+                        <ResizablePanel
+                            panelRef={sidebarRef}
+                            id="sidebar"
+                            defaultSize={`${defaultSidebarSize}%`}
+                            minSize={`${SIDEBAR_MIN_PERCENT}%`}
+                            maxSize={`${SIDEBAR_MAX_PERCENT}%`}
+                            collapsible
+                            collapsedSize={0}
+                            className="bg-sidebar text-sidebar-foreground min-w-0"
                         >
-                            <EditorPane onOpenQuickOpen={() => setQuickOpen(true)} />
-                        </main>
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+                            <aside aria-label={SIDEBAR_LABELS[sidebarView]} className="h-full">
+                                <SidebarBody onOpenQuickOpen={openPalette} />
+                            </aside>
+                        </ResizablePanel>
+                        <ResizableHandle />
+                        <ResizablePanel id="main" minSize="40%">
+                            {main}
+                        </ResizablePanel>
+                    </ResizablePanelGroup>
+                )}
             </div>
-            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+            <StatusBar status={status} />
+            <Sheet open={drawerOpen} onOpenChange={(open) => ui.getState().setDrawerOpen(open)}>
                 <SheetContent side="left" className="bg-sidebar text-sidebar-foreground w-[88vw] max-w-sm gap-0 p-0 md:hidden">
                     <SheetTitle className="sr-only">Browse session</SheetTitle>
-                    <SheetDescription className="sr-only">Switch between the session&apos;s files and its timeline of checkpoints.</SheetDescription>
-                    <div className="flex h-13 shrink-0 items-center gap-1 border-b pe-12 ps-2.5">
-                        {(["explorer", "timeline"] as const).map((item) => (
-                            <button
-                                key={item}
-                                type="button"
-                                aria-pressed={sidebarView === item}
-                                onClick={() => stores.workspace.getState().setSidebarView(item)}
-                                className="hover:bg-sidebar-accent aria-pressed:bg-sidebar-accent flex-1 rounded-md px-2 py-1.5 text-[13px]"
-                            >
-                                {item === "explorer" ? "Files" : "Timeline"}
-                            </button>
-                        ))}
+                    <SheetDescription className="sr-only">Switch between the session&apos;s files, search and timeline of checkpoints.</SheetDescription>
+                    <div className="flex h-13 shrink-0 items-center border-b pe-12 ps-2.5">
+                        <ToggleGroup
+                            value={[sidebarView]}
+                            onValueChange={([next]) => {
+                                if (next === "explorer" || next === "search" || next === "timeline") stores.workspace.getState().setSidebarView(next);
+                            }}
+                            aria-label="Sidebar view"
+                            className="h-9 w-full"
+                        >
+                            {DRAWER_VIEWS.map((item) => (
+                                <ToggleGroupItem key={item.view} value={item.view} className="flex-1 text-[13px]">
+                                    {item.label}
+                                </ToggleGroupItem>
+                            ))}
+                        </ToggleGroup>
                     </div>
                     <div className="min-h-0 flex-1">
-                        <SidebarBody comfortable onOpenQuickOpen={() => setQuickOpen(true)} onPicked={() => setDrawerOpen(false)} />
+                        <SidebarBody comfortable onOpenQuickOpen={openPalette} onPicked={() => ui.getState().setDrawerOpen(false)} />
                     </div>
                 </SheetContent>
             </Sheet>
-            <LazyQuickOpen
-                open={quickOpen}
-                onOpenChange={setQuickOpen}
-                onOpenFile={(path) => {
-                    setQuickOpen(false);
-                    setDrawerOpen(false);
-                    openFile(path);
-                }}
-            />
+            <LazyCommandPalette />
+            <LazyShortcutsDialog />
             <p role="status" className="sr-only">
                 {ANNOUNCEMENTS[status] ?? ""}
             </p>
@@ -202,5 +229,11 @@ export function ViewerFrame({ defaultSidebarSize }: { defaultSidebarSize: number
         return <SessionUnavailable sessionId={runtime.sessionId} error={{ kind: unavailable }} embed={embed} onRetry={runtime.retry} />;
     }
     if (!session) return <FrameSkeleton />;
-    return <LoadedFrame defaultSidebarSize={defaultSidebarSize} />;
+    return (
+        <ViewerUiProvider>
+            <CommandProvider>
+                <LoadedFrame defaultSidebarSize={defaultSidebarSize} />
+            </CommandProvider>
+        </ViewerUiProvider>
+    );
 }

@@ -50,10 +50,9 @@ export function ThemePicker() {
                         <PopoverTrigger
                             render={
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="icon-sm"
                                     aria-label={label}
-                                    className="text-muted-foreground hover:text-foreground"
                                 />
                             }
                         />

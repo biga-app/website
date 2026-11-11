@@ -289,6 +289,11 @@
   background-color: color-mix(in oklab, var(--biga-accent) 16%, transparent);
 }
 
+.biga-line-target {
+  background-color: color-mix(in oklab, var(--brand) 22%, transparent);
+  box-shadow: inset 2px 0 0 var(--brand);
+}
+
 .biga-gutter-changed {
   margin-inline-start: 3px;
   width: 3px !important;

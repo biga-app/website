@@ -1,13 +1,15 @@
 "use client";
 
 import type { SidebarView } from "@biga/types/stores";
-import { FilesIcon, GitGraphIcon } from "lucide-react";
+import { FilesIcon, GitGraphIcon, SearchIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const ITEMS: { view: SidebarView; label: string; Icon: typeof FilesIcon }[] = [
     { view: "explorer", label: "Files", Icon: FilesIcon },
+    { view: "search", label: "Search", Icon: SearchIcon },
     { view: "timeline", label: "Timeline", Icon: GitGraphIcon },
 ];
 
@@ -34,16 +36,18 @@ export function ActivityBar({
                 const badge = itemView === "timeline" && unseenTimeline && !active;
                 return (
                     <Tooltip key={itemView}>
-                        <TooltipTrigger render={<button type="button"
-                                aria-label={badge ? `${label}, new checkpoints` : label}
-                                aria-pressed={active}
-                                onClick={() => onChange(itemView)}
-                                className={cn(
-                                    "focus-visible:ring-ring/60 relative grid size-9 place-items-center rounded-md transition-colors duration-150 outline-none focus-visible:ring-2",
-                                    active
-                                        ? "text-foreground"
-                                        : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-                                )} />}>
+                        <TooltipTrigger
+                            render={
+                                <Button
+                                    variant={active ? "secondary" : "ghost"}
+                                    size="icon"
+                                    aria-label={badge ? `${label}, new checkpoints` : label}
+                                    aria-pressed={active}
+                                    onClick={() => onChange(itemView)}
+                                    className="relative size-9 shadow-none"
+                                />
+                            }
+                        >
                                 <span
                                     aria-hidden
                                     className={cn(

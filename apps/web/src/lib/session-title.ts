@@ -1,4 +1,5 @@
 import type { SessionResponse } from "@biga/types/session";
+import { serializeViewerUrl } from "@biga/viewer-core/location/search-params";
 
 const ISO_TIMESTAMP_RE = /^(?:session\s+)?(\d{4}-\d{2}-\d{2}T[\d:.]+Z?)$/i;
 
@@ -32,5 +33,11 @@ export function displayTitle(session: Pick<SessionResponse, "id" | "title" | "cr
 export function shareUrlFor(sessionId: string, checkpointSeq?: number, key?: string | null): string {
     const url = `${window.location.origin}/session/${encodeURIComponent(sessionId)}`;
     const link = checkpointSeq === undefined ? url : `${url}?checkpoint=${checkpointSeq}`;
+    return key ? `${link}#k=${key}` : link;
+}
+
+export function fileLinkFor(sessionId: string, file: string, line: number | null, key?: string | null): string {
+    const base = `${window.location.origin}/session/${encodeURIComponent(sessionId)}`;
+    const link = serializeViewerUrl(base, { file, line });
     return key ? `${link}#k=${key}` : link;
 }

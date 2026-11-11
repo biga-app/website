@@ -5,6 +5,8 @@ import "./monaco/monaco-loader";
 import { PlainTextNotice } from "./monaco/plain-text-notice";
 import { enableShiki } from "./monaco/shiki-monaco";
 import { type EditorHost, useChangeHighlight } from "./monaco/use-change-highlight";
+import { useEditorBridge, type EditorCursor, type EditorMenuAction } from "./monaco/use-editor-bridge";
+import { useLineTarget } from "./monaco/use-line-target";
 import { useDocumentTier } from "./monaco/use-document-tier";
 import { useThemeStore } from "@biga/stores/theme-store";
 import type * as Monaco from "monaco-editor";
@@ -123,10 +125,18 @@ export function MonacoViewer({
   path,
   value,
   wordWrap = "off",
+  line,
+  actions,
+  onCursor,
+  onFocus,
 }: {
   path: string;
   value: string;
   wordWrap?: "on" | "off";
+  line?: number | null;
+  actions?: readonly EditorMenuAction[];
+  onCursor?: (cursor: EditorCursor | null) => void;
+  onFocus?: () => void;
 }) {
   const { shikiTheme, fallback } = useEditorTheme();
   const tier = useDocumentTier(path, value);
@@ -134,6 +144,8 @@ export function MonacoViewer({
   const theme = ready ? shikiTheme : fallback;
   const [host, setHost] = useState<EditorHost | null>(null);
   useChangeHighlight(host, path, value, tier.changeHighlight);
+  useLineTarget(host, path, line);
+  useEditorBridge(host, actions, onCursor, onFocus);
 
   return (
     <div className="flex h-full flex-col">
@@ -142,6 +154,7 @@ export function MonacoViewer({
         <Editor
           height="100%"
           path={path}
+          keepCurrentModel
           language={tier.language}
           value={value}
           theme={theme}

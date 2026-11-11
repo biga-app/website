@@ -5,7 +5,6 @@ import { forwardRef, type ComponentProps, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 type IconActionProps = Omit<ComponentProps<typeof Button>, "aria-label"> & {
     /** Accessible name, also shown as the tooltip. */
@@ -21,7 +20,7 @@ type IconActionProps = Omit<ComponentProps<typeof Button>, "aria-label"> & {
  * the single source for both, so they can never drift apart.
  */
 export const IconAction = forwardRef<HTMLButtonElement, IconActionProps>(function IconAction(
-    { label, shortcut, tooltipSide, className, size = "icon-xs", variant = "ghost", children, ...props },
+    { label, shortcut, tooltipSide, className, size = "icon-xs", variant = "outline", children, ...props },
     ref
 ) {
     return (
@@ -30,7 +29,7 @@ export const IconAction = forwardRef<HTMLButtonElement, IconActionProps>(functio
                     variant={variant}
                     size={size}
                     aria-label={label}
-                    className={cn("text-muted-foreground hover:text-foreground", className)}
+                    className={className}
                     {...props} />}>
                     {children}
                 </TooltipTrigger>

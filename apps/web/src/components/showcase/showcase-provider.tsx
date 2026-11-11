@@ -3,9 +3,11 @@
 import type { ViewerNavigation } from "@biga/types/viewer-location";
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 
+import { CommandProvider } from "@/features/viewer/commands/command-provider";
 import { NavigationProvider } from "@/features/viewer/runtime/navigation-context";
 import { RuntimeProvider } from "@/features/viewer/runtime/runtime-provider";
 import { createStaticRuntime } from "@/features/viewer/runtime/static-runtime";
+import { ViewerUiProvider } from "@/features/viewer/shell/ui-state";
 import { DEMO_FILE, loadShowcase, seedShowcase, type ShowcaseFixture, type ShowcaseState } from "@/lib/showcase";
 
 const ShowcaseContext = createContext<ShowcaseFixture | null>(null);
@@ -20,9 +22,13 @@ const STATIC_NAVIGATION: ViewerNavigation = {
   view: { type: "live" },
   embed: true,
   activeFile: DEMO_FILE,
+  splitFile: null,
   openFile: noop,
   openCheckpoint: noop,
   showLive: noop,
+  showOverview: noop,
+  clearView: noop,
+  closeSplit: noop,
 };
 
 export function ShowcaseProvider({ state, children }: { state?: ShowcaseState; children: ReactNode }) {
@@ -52,7 +58,11 @@ export function ShowcaseProvider({ state, children }: { state?: ShowcaseState; c
   return (
     <RuntimeProvider runtime={runtime}>
       <NavigationProvider value={STATIC_NAVIGATION}>
-        <ShowcaseContext.Provider value={seeded ? fixture : null}>{children}</ShowcaseContext.Provider>
+        <ViewerUiProvider>
+          <CommandProvider>
+            <ShowcaseContext.Provider value={seeded ? fixture : null}>{children}</ShowcaseContext.Provider>
+          </CommandProvider>
+        </ViewerUiProvider>
       </NavigationProvider>
     </RuntimeProvider>
   );

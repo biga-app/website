@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 import { FileTypeIcon } from "@/components/file-icon";
 import { DiffStat } from "@/components/viewer/diff-stat";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/viewer/empty-state";
+import { RowButton } from "@/components/viewer/row-button";
 import { CHANGE_META, formatDateTime, formatRelativeTime, pluralize } from "@/lib/change-meta";
 import { useNow } from "@/lib/use-now";
 import { isSameBase, refToBase } from "@biga/viewer-core/location/compare-base";
@@ -27,9 +29,7 @@ import { cn } from "@/lib/utils";
 import { useRuntime } from "../runtime/runtime-provider";
 
 
-const ROW =
-    "relative flex w-full gap-3 rounded-md px-3 text-start outline-none transition-colors duration-150 " +
-    "focus-visible:ring-ring/60 focus-visible:ring-2";
+const ROW = "relative h-auto items-stretch gap-3 rounded-md px-3 py-2.5 whitespace-normal disabled:opacity-100";
 
 function RevisionRow({
     entry,
@@ -51,17 +51,12 @@ function RevisionRow({
     const now = useNow();
 
     return (
-        <button
-            type="button"
+        <RowButton
+            selected={selected}
             aria-pressed={current ? undefined : selected}
             disabled={current}
             onClick={() => onSelect(String(entry.seq))}
-            className={cn(
-                ROW,
-                "py-2.5 disabled:cursor-default",
-                !current && "hover:bg-accent/60",
-                selected && "bg-accent"
-            )}
+            className={cn(ROW, "disabled:cursor-default")}
         >
             <span aria-hidden className="relative flex w-3 shrink-0 justify-center">
                 <span
@@ -89,18 +84,18 @@ function RevisionRow({
                     <span className={meta.className}>{meta.label}</span>
                     <DiffStat additions={entry.additions} deletions={entry.deletions} />
                     {current ? (
-                        <span className="text-muted-foreground ms-auto">Current version</span>
+                        <Badge variant="secondary" className="ms-auto h-4 px-1.5 text-[10px]">Current version</Badge>
                     ) : (
                         selected && (
-                            <span className="text-foreground ms-auto flex items-center gap-1 font-medium">
-                                <CheckIcon className="size-3.5" />
+                            <Badge className="ms-auto h-4 gap-1 px-1.5 text-[10px]">
+                                <CheckIcon />
                                 Comparing
-                            </span>
+                            </Badge>
                         )
                     )}
                 </span>
             </span>
-        </button>
+        </RowButton>
     );
 }
 
@@ -208,15 +203,11 @@ export function FileHistorySheet({
                                 />
                             ))}
                             {showSessionStart && (
-                                <button
-                                    type="button"
+                                <RowButton
+                                    selected={isSameBase(base, { kind: "start" })}
                                     aria-pressed={isSameBase(base, { kind: "start" })}
                                     onClick={() => onSelectBase({ kind: "start" })}
-                                    className={cn(
-                                        ROW,
-                                        "hover:bg-accent/60 items-center py-2.5",
-                                        isSameBase(base, { kind: "start" }) && "bg-accent"
-                                    )}
+                                    className={cn(ROW, "items-center")}
                                 >
                                     <span aria-hidden className="flex w-3 shrink-0 justify-center">
                                         <FlagIcon className="text-muted-foreground size-3" />
@@ -233,7 +224,7 @@ export function FileHistorySheet({
                                             Comparing
                                         </span>
                                     )}
-                                </button>
+                                </RowButton>
                             )}
                         </div>
                     </ScrollArea>
@@ -241,7 +232,7 @@ export function FileHistorySheet({
 
                 {base !== null && (
                     <div className="flex justify-end border-t p-3">
-                        <Button variant="ghost" size="sm" onClick={onStopComparing}>
+                        <Button variant="outline" size="sm" onClick={onStopComparing}>
                             Stop comparing
                         </Button>
                     </div>

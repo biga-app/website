@@ -34,12 +34,12 @@ export function useFollow() {
             if (entry && entry.hash && !entry.binary) {
                 await Promise.race([runtime.loadBlob(entry.hash, path).catch(() => undefined), wait(PRELOAD_MS)]);
             }
-            latest.current.openFile(path, "replace");
+            latest.current.openFile(path, { history: "replace" });
         };
 
         const stopListening = runtime.onFollow((path) => {
             const current = latest.current;
-            if (!current.follow || current.view.type === "checkpoint") return;
+            if (!current.follow || current.view.type === "checkpoint" || current.view.type === "overview") return;
             if (runtime.recentlyActive()) {
                 runtime.stores.workspace.getState().pauseFollow(path);
                 return;

@@ -13,7 +13,7 @@ export function FollowPausedPill() {
 
     const resume = () => {
         workspace.getState().resumeFollow();
-        openFile(paused.target, "replace");
+        openFile(paused.target, { history: "replace" });
     };
 
     return (
