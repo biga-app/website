@@ -10,16 +10,78 @@ nothing to sign in to, and nothing on it can write back to your disk.
 
 - A **file tree** of the project, with a mark on files that changed in the
   checkpoint being viewed. Build folders appear as empty stubs.
-- **Quick open**: press <kbd>⌘</kbd> <kbd>P</kbd> (<kbd>Ctrl</kbd> <kbd>P</kbd>
-  elsewhere) to jump to any file by name.
-- **Tabs and breadcrumbs** for the files you have open.
+- **Tabs** for the files you have open, with breadcrumbs under them. Right-click
+  a tab (or press <kbd>Shift</kbd> <kbd>F10</kbd> on it) for close, close
+  others, close to the right, close all, move, copy path or link, reveal in
+  files and split right. Drag tabs to reorder them. Open tabs come back when
+  you reload the page.
 - **Syntax highlighting** that follows the page's light or dark theme, or one
   of the editor themes from the theme picker.
-- File actions: copy the contents, copy the path, download the file, wrap long
-  lines.
+- File actions: copy the contents, copy the path, copy a link to the file or a
+  line, download the file, wrap long lines.
 - A brief highlight on the lines that just changed when the open file is
   updated live, with a mark on the scrollbar for changes out of view. With
   reduced motion on, the highlight is static instead of fading.
+
+### Menus, palette and shortcuts
+
+Every action lives in one place and is reachable three ways: the **menubar**
+(File, View, Go, Help), the **command palette**, and a keyboard shortcut.
+
+The palette opens in three modes. <kbd>⌘</kbd> <kbd>P</kbd> goes to a file by
+name. <kbd>⌘</kbd> <kbd>K</kbd> opens the command list, and typing `>` in the
+file box switches to it. Typing `:` and a number jumps to that line of the open
+file. Use <kbd>Ctrl</kbd> instead of <kbd>⌘</kbd> outside macOS.
+
+| Shortcut | Action |
+| --- | --- |
+| <kbd>⌘</kbd> <kbd>P</kbd> | Go to file |
+| <kbd>⌘</kbd> <kbd>K</kbd> or <kbd>F1</kbd> | Command palette |
+| <kbd>⌘</kbd> <kbd>B</kbd> | Show or hide the sidebar |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>F</kbd> | Search in files |
+| <kbd>⌘</kbd> <kbd>J</kbd> | Show or hide the bottom panel |
+| <kbd>⌘</kbd> <kbd>&#92;</kbd> | Split right |
+| <kbd>Alt</kbd> <kbd>W</kbd> | Close the tab |
+| <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>W</kbd> | Close all tabs |
+| <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>T</kbd> | Reopen the last closed tab |
+| <kbd>Alt</kbd> <kbd>[</kbd> and <kbd>Alt</kbd> <kbd>]</kbd> | Previous and next tab |
+| <kbd>?</kbd> | List every shortcut |
+
+Right-clicking a file, a folder, a checkpoint or empty space in the tree and
+timeline opens a menu with the actions that make sense there.
+
+### Search in files
+
+<kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>F</kbd> opens **Search** in the sidebar. It reads
+the shared files in your browser, so it also works for encrypted sessions, where
+the server could not search. Options match case, whole words or a regular
+expression. Binary files and files over 1 MB are skipped, and results stop at
+2,000 matches. Choosing a result opens the file at that line, and the search
+can be limited to one folder from the folder's menu.
+
+### Split view
+
+**Split right** opens a second editor beside the first. Each side has its own
+tabs, and the file you open next goes to whichever side you last used. Close the
+split from the View menu or the palette.
+
+### Overview
+
+**Overview** is the session at a glance: its status and last save, how many
+files and checkpoints it has, how much changed, a chart of saves over time, the
+most changed files, the languages used and the share link. It opens when you
+close every tab, and from the first tab in the strip.
+
+### Status bar and panel
+
+The bar along the bottom shows the connection state and the age of the last
+save, the latest checkpoint, whether Follow is on, the cursor position, the
+language and whether long lines wrap. Most parts are buttons. <kbd>⌘</kbd>
+<kbd>J</kbd> opens a panel beneath the editor with the files in the current
+checkpoint and a log of every save as it arrives.
+
+**Layouts** in the View menu arrange all of this in one step: *Default*, *Review*
+(timeline, diffs and the changes panel) and *Focus* (editor only).
 
 ### Keyboard
 
@@ -54,6 +116,9 @@ Back and Forward behave as you expect.
 | `/session/<id>` | The latest state, following along. |
 | `/session/<id>?file=<path>` | That file. |
 | `/session/<id>?file=<path>&base=start` | The file compared with the first checkpoint. `base` can also be a checkpoint number. |
+| `/session/<id>?file=<path>&line=<n>` | That file, scrolled to and highlighting that line. |
+| `/session/<id>?file=<path>&split=<path>` | Two files side by side. |
+| `/session/<id>?overview=1` | The session overview. |
 | `/session/<id>?checkpoint=<n>` | The timeline, open on that checkpoint. |
 | `/session/<id>?checkpoint=<n>&file=<path>` | That file's diff in that checkpoint. |
 

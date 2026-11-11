@@ -20,6 +20,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           tree={source.getPageTree()}
           nav={{ title: <BigaLogo />, url: "/" }}
           githubUrl={CLI_REPO_URL}
+          links={[
+            { text: "Home", url: "/" },
+            { text: "Demo", url: "/#demo" },
+          ]}
           themeSwitch={{ component: <ThemeSwitch /> }}
         >
           {children}

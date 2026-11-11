@@ -1,24 +1,26 @@
 {
   "title": "biga",
   "pages": [
+    "---Get started---",
     "index",
     "quickstart",
     "installation",
-    "---Using biga---",
+    "---Share---",
     "cli",
     "workspaces",
     "what-gets-shared",
     "encryption",
     "sessions",
+    "---Watch---",
     "viewer",
-    "---How it works---",
-    "architecture",
-    "api",
-    "extensions",
-    "---Running it---",
-    "configuration",
+    "---Self-host---",
     "self-hosting",
     "docker",
-    "networking"
+    "configuration",
+    "networking",
+    "---Internals---",
+    "architecture",
+    "api",
+    "extensions"
   ]
 }

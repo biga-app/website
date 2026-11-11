@@ -173,3 +173,11 @@ test("the brand page has no violations", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1, name: /pixel that just got saved/ })).toBeVisible();
     expect(await violations(page)).toEqual([]);
 });
+
+for (const path of ["/docs", "/docs/viewer"]) {
+    test(`${path} has no violations`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+}

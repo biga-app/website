@@ -418,11 +418,17 @@
 .fd-docs h1,
 .fd-docs h2,
 .fd-docs h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 .fd-docs h1 {
   font-weight: 600;
+}
+.fd-docs figure.shiki {
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.fd-docs :not(pre) > code {
+  font-family: var(--font-mono);
 }
 .fd-docs ::selection {
   background: var(--brand-mark);
