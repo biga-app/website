@@ -11,7 +11,7 @@ import { makeChange, makeCheckpoint, makeSummary } from "../fixtures/checkpoints
 import { hash } from "../fixtures/hash.ts";
 import { makeState } from "../fixtures/session.ts";
 import { vector, vectorKeyText } from "../fixtures/e2ee-vectors.ts";
-import { encodeApiError, encodeCheckpoint, encodeCheckpointList, encodeFileContent, encodeFileHistory, encodeState } from "../fixtures/wire.ts";
+import { encodeApiError, encodeCheckpoint, encodeCheckpointList, encodeFileContent, encodeFileHistory, encodeState } from "@biga/demo/wire";
 
 const HASH = hash("a");
 

@@ -1,55 +1,30 @@
-import { BookOpenIcon } from "lucide-react";
-import Link from "next/link";
+import { HomeSection, SectionTitle } from "@/components/home/section";
+import { JoinForm } from "@/components/landing/join-form";
+import { CommandBlock } from "@/components/site/command-block";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
 
-import { Annotation } from "@/components/home/annotation";
-import { StartSteps } from "@/components/home/start-steps";
-import { GitHubGlyph } from "@/components/landing/primitives";
-import { Section } from "@/components/site/frame";
-import { CLI_REPO_URL } from "@/components/site/links";
-import { Button } from "@/components/ui/button";
-import { Mark, Typography } from "@/components/ui/typography";
-
-export function Install({ siteUrl }: { siteUrl: string }) {
-  const { hostname } = new URL(siteUrl);
-  // The CLI's default server is localhost:3000; anywhere else it needs telling.
-  const apiUrl = hostname === "localhost" || hostname === "127.0.0.1" ? null : siteUrl;
-
+export function Install() {
   return (
-    <Section id="install" stage>
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-16">
-        <div className="flex flex-col items-start gap-5">
-          <Typography variant="display" as="h2" className="max-w-[12ch]">
-            Share your <Mark>next save</Mark>.
-          </Typography>
-          <Typography variant="lead" tone="muted" className="max-w-[40ch]">
-            Run a workshop, pair across timezones, or let people watch you build. Two commands, then send the link.
-          </Typography>
-
-          <div className="mt-2 flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="rounded-full">
-                <a href={CLI_REPO_URL} target="_blank" rel="noreferrer">
-                  <GitHubGlyph className="size-4" />
-                  Star on GitHub
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full">
-                <Link href="/docs">
-                  <BookOpenIcon strokeWidth={1.75} />
-                  Read the docs
-                </Link>
-              </Button>
-            </div>
-            <Annotation direction="up" className="ml-2">
-              MIT licensed. Issues and PRs welcome
-            </Annotation>
-          </div>
-        </div>
-
-        <div className="bg-terminal text-terminal-foreground rounded-2xl border border-white/10 p-5 shadow-[0_1px_1px_oklch(0_0_0_/_0.05),0_28px_70px_-40px_oklch(0_0_0_/_0.55)] sm:p-7">
-          <StartSteps apiUrl={apiUrl} />
+    <HomeSection id="install" className="border-b-0">
+      <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
+        <SectionTitle title="Start your own broadcast." lead="Install the CLI, run biga start in a folder, and send the link. Nobody needs an account." />
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardContent>
+              <CommandBlock />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Got a link?</CardTitle>
+              <CardDescription>Paste a session link someone sent you to join their broadcast.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <JoinForm />
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </Section>
+    </HomeSection>
   );
 }

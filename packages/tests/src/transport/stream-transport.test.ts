@@ -6,7 +6,7 @@ import { STREAM_TYPE } from "@biga/types/wire";
 import { createStreamTransport } from "@biga/viewer-core/transport/stream-transport";
 
 import { checkpointFrame, connectedFrame, keepaliveFrame } from "../fixtures/frames.ts";
-import { delimited } from "../fixtures/wire.ts";
+import { delimited } from "@biga/demo/wire";
 
 function bodyOf(chunks: Uint8Array[], failAfter = false): ReadableStream<Uint8Array> {
     let index = 0;

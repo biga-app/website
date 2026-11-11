@@ -28,7 +28,7 @@ import {
     encodeSession,
     encodeState,
     encodeStreamEvent,
-} from "../fixtures/wire.ts";
+} from "@biga/demo/wire";
 
 test("a session keeps its optional fields as null when they are unset", () => {
     const session = makeSessionResponse("ended");

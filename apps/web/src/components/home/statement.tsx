@@ -1,17 +1,16 @@
-import { Reveal } from "@/components/home/reveal";
-import { Section } from "@/components/site/frame";
-import { Mark, Typography } from "@/components/ui/typography";
+import { PixelsVsTextFigure } from "@biga/art/pixels-vs-text-figure";
+import { HomeSection } from "@/components/home/section";
+import { Typography } from "@biga/ui/components/typography";
 
-/** The one-line pitch, set large, with the highlighter drawing across the payoff. */
 export function Statement() {
   return (
-    <Section columnClassName="py-14 sm:py-20 lg:py-24">
-      <Reveal>
-        <Typography variant="statement" className="max-w-[30ch]">
-          A screen share sends pixels. biga sends{" "}
-          <Mark draw>the files themselves</Mark>, so viewers can select, search and scroll at their own pace.
+    <HomeSection>
+      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+        <Typography variant="statement" className="max-w-[26ch]">
+          A screen share sends pixels. biga sends the files themselves, so viewers can select, search and scroll at their own pace.
         </Typography>
-      </Reveal>
-    </Section>
+        <PixelsVsTextFigure />
+      </div>
+    </HomeSection>
   );
 }

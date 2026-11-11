@@ -3,7 +3,7 @@ import { PROTOBUF_TYPE, STREAM_TYPE } from "@biga/types/wire";
 
 import type { Frame } from "./frames.ts";
 import { makeState } from "./session.ts";
-import { delimited, encodeApiError, encodeState } from "./wire.ts";
+import { delimited, encodeApiError, encodeState } from "@biga/demo/wire";
 
 type Stream = {
     push: (bytes: Uint8Array) => void;

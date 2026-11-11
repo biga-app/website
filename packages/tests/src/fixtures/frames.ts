@@ -1,7 +1,7 @@
 import type { CheckpointChange } from "@biga/types/checkpoint";
 
 import { makeCheckpoint } from "./checkpoints.ts";
-import { encodeStreamEvent } from "./wire.ts";
+import { encodeStreamEvent } from "@biga/demo/wire";
 
 export type Frame = { type: "frame"; data: Uint8Array };
 

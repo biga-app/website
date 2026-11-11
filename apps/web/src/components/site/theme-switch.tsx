@@ -5,8 +5,8 @@ import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@biga/ui/components/toggle-group";
+import { cn } from "@biga/ui/lib/utils";
 
 const OPTIONS = [
   { value: "light", label: "Light", Icon: SunIcon },
@@ -111,13 +111,10 @@ export function ThemeSwitch({ className }: { className?: string }) {
 
   return (
     <ToggleGroup
-      type="single"
-      // Controlled by next-themes. The segment's own click does the work, so it
-      // knows where the wipe starts, and pressing the active one stays a no-op.
-      value={mounted && theme ? theme : ""}
+      value={mounted && theme ? [theme] : []}
       onValueChange={() => {}}
       aria-label="Theme"
-      className={cn("border-rail bg-background h-9 gap-0.5 rounded-full border p-0.5", className)}
+      className={cn("bg-background h-9 gap-0.5 rounded-md border p-0.5", className)}
     >
       {OPTIONS.map(({ value, label, Icon }) => (
         <ToggleGroupItem
@@ -125,7 +122,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
           value={value}
           aria-label={label}
           onClick={(event) => choose(value, event.currentTarget)}
-          className="size-7 rounded-full p-0 data-[state=on]:bg-muted data-[state=on]:shadow-none"
+          className="size-7 rounded-sm p-0 data-pressed:bg-muted data-pressed:shadow-none"
         >
           <Icon aria-hidden strokeWidth={1.75} />
         </ToggleGroupItem>

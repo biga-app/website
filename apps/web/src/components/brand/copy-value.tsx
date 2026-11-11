@@ -3,8 +3,8 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@biga/ui/components/button";
+import { cn } from "@biga/ui/lib/utils";
 
 /**
  * A value that copies itself when pressed (a hex code, a class name), and

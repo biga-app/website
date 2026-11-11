@@ -8,7 +8,8 @@ export const ISSUES_URL = `${CLI_REPO_URL}/issues`;
 
 /** Section anchors on the home page, shared by the header and the footer. */
 export const SECTIONS = [
-  { id: "how", label: "How it works" },
+  { id: "demo", label: "Live demo" },
   { id: "privacy", label: "Privacy" },
-  { id: "demo", label: "Demo" },
+  { id: "checkpoints", label: "Checkpoints" },
+  { id: "install", label: "Install" },
 ] as const;

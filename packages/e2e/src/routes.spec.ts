@@ -31,11 +31,11 @@ test("a checkpoint link opens the timeline on that checkpoint", async ({ page })
 });
 
 for (const [path, face] of [
-    ["/", /Bricolage/i],
-    ["/brand", /Bricolage/i],
-    ["/docs", /Manrope|Bricolage/i],
+    ["/", /Geist/i],
+    ["/brand", /Geist/i],
+    ["/docs", /Geist/i],
 ] as const) {
-    test(`${path} still sets its headings in the marketing faces`, async ({ page }) => {
+    test(`${path} sets its headings in Geist`, async ({ page }) => {
         await page.goto(path);
         const family = await page.locator("h1").first().evaluate((heading) => getComputedStyle(heading).fontFamily);
         expect(family).toMatch(face);

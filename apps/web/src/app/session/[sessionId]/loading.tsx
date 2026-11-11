@@ -1,4 +1,4 @@
-import { FrameSkeleton } from "@/features/viewer/shell/frame-skeleton";
+import { FrameSkeleton } from "@biga/viewer/shell/frame-skeleton";
 
 export default function ViewerLoading() {
     return <FrameSkeleton />;

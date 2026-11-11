@@ -1,16 +1,21 @@
 ---
 title: Introduction
-description: biga broadcasts a folder as a live, read-only link. No accounts, and nothing for viewers to install.
+description: Broadcast a folder as a live, read-only link. No accounts, and nothing for viewers to install.
+full: true
 ---
 
-biga streams the files you are working on to a browser tab. You run one
-command in a project, share the link it prints, and anyone who opens it
-follows your saves as they happen: a file tree, syntax highlighting, and a
-timeline they can step back through.
+<DocsHub />
+
+## What biga is
+
+biga streams the files you are working on to a browser tab. You run one command
+in a project, share the link it prints, and anyone who opens it follows your
+saves as they happen: a file tree, syntax highlighting, search and a timeline
+they can step back through.
 
 A screen share sends pixels. biga sends the files themselves, so viewers can
-select, search and scroll at their own pace, and nothing is transmitted while
-you are not saving.
+select, search and scroll at their own pace, and nothing is transmitted while you
+are not saving.
 
 ## How it fits together
 
@@ -24,31 +29,11 @@ you are not saving.
     uploads checkpoints.
   </Card>
   <Card title="The server" href="/docs/self-hosting">
-    A Next.js app on Postgres that stores sessions and fans checkpoints out to
+    A Go API on Postgres that stores sessions and fans checkpoints out to
     viewers over a live protobuf stream.
   </Card>
   <Card title="The viewer" href="/docs/viewer">
-    The page a link opens. Read-only, with quick open, follow mode and a
-    checkpoint timeline.
+    The page a link opens. Read-only, with a command palette, search, split view
+    and a checkpoint timeline.
   </Card>
 </Cards>
-
-## Where to start
-
-<Steps>
-<Step>
-
-[Install the CLI](/docs/installation), or follow the [quickstart](/docs/quickstart) to go from nothing to a shared link in two commands.
-
-</Step>
-<Step>
-
-Read [what gets shared](/docs/what-gets-shared) before you broadcast a project that holds secrets. Credentials are excluded by default, but it is worth knowing exactly how.
-
-</Step>
-<Step>
-
-Running a server of your own? See [self-hosting](/docs/self-hosting).
-
-</Step>
-</Steps>

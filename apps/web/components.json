@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": true,
   "tsx": true,
   "tailwind": {
@@ -13,12 +13,9 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "utils": "@biga/ui/lib/utils",
+    "ui": "@biga/ui/components",
     "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "registries": {
-    "@keyframeui": "https://keyframeui.com/r/{name}.json"
+    "hooks": "@biga/ui/hooks"
   }
 }

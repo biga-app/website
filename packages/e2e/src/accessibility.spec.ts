@@ -66,6 +66,44 @@ test("the not-found page has no violations", async ({ page }) => {
     expect(await violations(page)).toEqual([]);
 });
 
+test("the session overview has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?overview=1");
+    await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the search panel with results has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.keyboard.press("ControlOrMeta+Shift+f");
+    await page.getByRole("textbox", { name: "Search in files" }).fill("greet");
+    await expect(page.getByRole("option").first()).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the menubar open has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.getByRole("menuitem", { name: "View" }).click();
+    await expect(page.getByRole("menuitemcheckbox", { name: /^Toggle Sidebar/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("a tab context menu open has no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=README.md");
+    await page.getByRole("button", { name: "README.md", exact: true }).click({ button: "right" });
+    await expect(page.getByRole("menuitem", { name: /^Close Other Tabs/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test("the split view and the panel have no violations", async ({ page }) => {
+    await openSession(page, "/session/demo?file=src/greet.ts");
+    await editorReady(page);
+    await page.keyboard.press("ControlOrMeta+\\");
+    await expect(page.getByRole("region", { name: "Second editor" })).toBeVisible();
+    await page.keyboard.press("ControlOrMeta+j");
+    await expect(page.getByRole("region", { name: "Panel" })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
 test.describe("in the dark theme", () => {
     test.use({ colorScheme: "dark" });
 
@@ -88,4 +126,59 @@ test.describe("in the dark theme", () => {
         await expect(page.getByRole("dialog", { name: "Go to file" })).toBeVisible();
         expect(await violations(page)).toEqual([]);
     });
+
+    test("the session overview has no violations", async ({ page }) => {
+        await openSession(page, "/session/demo?overview=1");
+        await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+
+    test("the menubar open has no violations", async ({ page }) => {
+        await openSession(page, "/session/demo?file=README.md");
+        await page.getByRole("menuitem", { name: "View" }).click();
+        await expect(page.getByRole("menuitemcheckbox", { name: /^Toggle Sidebar/ })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
 });
+
+test("the landing page has no violations", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1, name: /Stream your/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test.describe("the landing page in the dark theme", () => {
+    test.use({ colorScheme: "dark" });
+
+    test("has no violations", async ({ page }) => {
+        await page.goto("/");
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+});
+
+test("the landing page holds still when the visitor prefers reduced motion", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/");
+    const latest = page.getByRole("log", { name: "Latest checkpoint" });
+    await expect(latest).toContainText("checkpoint #", { timeout: 30_000 });
+    const before = await latest.innerText();
+    await page.waitForTimeout(6000);
+    expect(await latest.innerText()).toBe(before);
+    await context.close();
+});
+
+test("the brand page has no violations", async ({ page }) => {
+    await page.goto("/brand");
+    await expect(page.getByRole("heading", { level: 1, name: /pixel that just got saved/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+for (const path of ["/docs", "/docs/viewer"]) {
+    test(`${path} has no violations`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+}

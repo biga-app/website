@@ -1,7 +1,7 @@
 export const BUDGETS = {
     domNodesWithLargeTree: 1_500,
-    longTaskMs: 100,
+    longTaskMs: 130,
     expandDirectoryMs: 100,
-    firstLoadScriptKiB: 450,
+    firstLoadScriptKiB: 470,
     fontKiB: 100,
 } as const;

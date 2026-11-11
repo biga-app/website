@@ -1,50 +1,37 @@
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, BookOpenIcon } from "lucide-react";
 import Link from "next/link";
 
-import { Annotation } from "@/components/home/annotation";
-import { HeroCircuit, HeroMotion, OnAirPill } from "@/components/home/hero-live";
-import { InstallCommand } from "@/components/home/install-command";
-import { Section } from "@/components/site/frame";
-import { Button } from "@/components/ui/button";
-import { Mark, Typography } from "@/components/ui/typography";
+import { CommandBlock } from "@/components/site/command-block";
+import { SelectionMark } from "@/components/site/selection-mark";
+import { Button } from "@biga/ui/components/button";
+import { Typography } from "@biga/ui/components/typography";
 
-export function Hero({ siteUrl }: { siteUrl: string }) {
-  const host = new URL(siteUrl).host;
-
+export function Hero() {
   return (
-    <HeroMotion>
-      <Section id="top" className="biga-glow relative isolate" columnClassName="pt-10 pb-12 sm:pt-14 sm:pb-16 lg:pt-20 lg:pb-24">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-center lg:gap-12">
-          <div className="biga-rise flex min-w-0 flex-col items-start">
-            <OnAirPill />
-
-            <Typography variant="display" className="mt-6 max-w-[13ch]">
-              Stream your <Mark>saves</Mark>, not your screen.
-            </Typography>
-
-            <Typography variant="lead" tone="muted" className="mt-5 max-w-[42ch]">
-              One command turns a folder into a live, read-only link. Viewers follow every save in their browser, no
-              account needed.
-            </Typography>
-
-            <div className="mt-8 flex w-full max-w-xl flex-col gap-3">
-              <Annotation className="ml-1">Psst, start here</Annotation>
-              <InstallCommand />
-            </div>
-
-            <Button asChild variant="outline" size="lg" className="mt-6 rounded-full">
-              <Link href="#how">
-                <ArrowDownIcon strokeWidth={1.75} />
-                Watch it run
-              </Link>
-            </Button>
-          </div>
-
-          <div className="biga-rise min-w-0 [animation-delay:120ms]">
-            <HeroCircuit host={host} />
-          </div>
+    <section id="top">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 pt-14 pb-6 text-center sm:px-6 lg:pt-20">
+        <Typography variant="display" className="max-w-[16ch]">
+          Stream your{" "}
+          <span className="whitespace-nowrap">
+            <SelectionMark>saves</SelectionMark>,
+          </span>{" "}
+          not your screen.
+        </Typography>
+        <Typography variant="lead" tone="muted" className="max-w-[50ch]">
+          One command turns a folder into a live, read-only link. Everything below is the real viewer, following a project that was generated for this visit.
+        </Typography>
+        <CommandBlock className="max-w-xl text-start" />
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button render={<Link href="#demo" />} size="lg">
+            <ArrowDownIcon />
+            Watch it run
+          </Button>
+          <Button render={<Link href="/docs" />} variant="outline" size="lg">
+            <BookOpenIcon />
+            Read the docs
+          </Button>
         </div>
-      </Section>
-    </HeroMotion>
+      </div>
+    </section>
   );
 }

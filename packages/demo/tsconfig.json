@@ -1,0 +1,19 @@
+{
+  "extends": "@biga/typescript-config/node.json",
+  "compilerOptions": {
+    "lib": [
+      "es2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": [
+    "src"
+  ]
+}

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { preflightSession } from "@/features/viewer/server/preflight";
-import { SIDEBAR_COOKIE, parseSidebarSize } from "@/features/viewer/shell/sidebar-size";
-import { ViewerFrame } from "@/features/viewer/shell/viewer-frame";
+import { preflightSession } from "@/viewer-host/preflight";
+import { SIDEBAR_COOKIE, parseSidebarSize } from "@biga/viewer/shell/sidebar-size";
+import { ViewerFrame } from "@biga/viewer/shell/viewer-frame";
 
 type Params = { params: Promise<{ sessionId: string }> };
 

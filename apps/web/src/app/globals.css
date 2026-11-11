@@ -1,3 +1,4 @@
+@import "@biga/ui/styles/tokens.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 /* Documentation (Fumadocs): its colours are mapped onto the shadcn tokens below. */
@@ -8,204 +9,10 @@
    lose their underline. */
 @source not inline("[&_::highlight(fd-search)]:text-fd-primary [&_::highlight(fd-search)]:underline");
 
+@source "../../../../packages/*/src";
+@source "../../../../packages/*/src/**/*.{ts,tsx}";
+
 @custom-variant dark (&:is(.dark *));
-
-:root {
-  --radius: 0.625rem;
-  /* Every colour in this file is OKLCH. No hex, no rgb(). */
-  /*
-   * The viewer's blue means "now": the live broadcast, the newest checkpoint, the
-   * follow toggle. It is the one accent in the viewer, so it is never spent on
-   * decoration there.
-   */
-  --biga-accent: oklch(0.5513 0.2473 265.85);
-  --biga-accent-foreground: oklch(1 0 0);
-  /*
-   * Filled controls (white label on blue). Kept at the light-mode depth in both
-   * themes: the brighter dark-mode accent only reaches 3.8:1 under white text.
-   */
-  --biga-solid: oklch(0.5513 0.2473 265.85);
-  /* Terminal surface: always dark, regardless of theme. */
-  --terminal: oklch(0.1716 0.0097 255.65);
-  --terminal-foreground: oklch(0.91 0 0);
-  /*
-   * Accent text on the terminal surface. The surface never changes, so neither
-   * does this: the light-mode accent only reaches 3.7:1 against it.
-   */
-  --terminal-accent: oklch(0.6173 0.2057 267.32);
-  /*
-   * Neutrals carry a faint cool cast (hue 260) so app chrome sits in the same
-   * family as the terminal surfaces and the brand blue.
-   */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.16 0.006 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.006 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.006 260);
-  --primary: oklch(0.21 0.006 260);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.002 260);
-  --secondary-foreground: oklch(0.21 0.006 260);
-  --muted: oklch(0.965 0.002 260);
-  /* 0.5 lightness keeps 11–12px metadata above 4.5:1 on white and on --sidebar. */
-  --muted-foreground: oklch(0.5 0.01 260);
-  --accent: oklch(0.955 0.003 260);
-  --accent-foreground: oklch(0.21 0.006 260);
-  --destructive: oklch(0.53 0.23 27.325);
-  /* Status hues, darkened in light mode so they pass as small text. */
-  --success: oklch(0.52 0.13 155);
-  --warning: oklch(0.56 0.15 55);
-  --info: oklch(0.52 0.13 235);
-  --border: oklch(0.915 0.004 260);
-  --input: oklch(0.915 0.004 260);
-  --ring: oklch(0.7 0.01 260);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.982 0.002 260);
-  --sidebar-foreground: oklch(0.16 0.006 260);
-  --sidebar-primary: oklch(0.21 0.006 260);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.94 0.004 260);
-  --sidebar-accent-foreground: oklch(0.16 0.006 260);
-  --sidebar-border: oklch(0.915 0.004 260);
-  --sidebar-ring: oklch(0.7 0.01 260);
-
-  /*
-   * biga green (hue 155) is the marketing accent: the marker highlight, the
-   * packets on the hero circuit, small "annotation" labels. It means "this is
-   * the bit to read", never decoration. The viewer keeps its blue "now".
-   *   --brand        strokes, packets, icons (3:1 against the page is enough)
-   *   --brand-text   small green text, 7.3:1 on white
-   *   --brand-mark   the highlighter fill behind a phrase; text on it is
-   *                  --brand-mark-foreground in both themes (12:1)
-   */
-  --brand: oklch(0.5811 0.1403 155);
-  --brand-text: oklch(0.4416 0.1112 154.1);
-  --brand-mark: oklch(0.8196 0.1546 155);
-  --brand-mark-foreground: oklch(0.1408 0.0044 286);
-  /* Rails: the hairlines that frame the page column and divide sections. */
-  --rail: oklch(0.915 0.004 260);
-  --hatch: color-mix(in oklab, var(--foreground) 10%, transparent);
-  /* Stage bands: the page's louder chapters. A step off the page in each theme. */
-  --stage: oklch(0.972 0.006 155);
-}
-
-.dark {
-  --brand: oklch(0.72 0.16 155);
-  --brand-text: oklch(0.8196 0.1546 155);
-  --rail: oklch(1 0 0 / 10%);
-  --hatch: color-mix(in oklab, var(--foreground) 9%, transparent);
-  --stage: oklch(0.118 0.006 260);
-  --biga-accent: oklch(0.6173 0.2057 267.32);
-  --background: oklch(0.155 0.005 260);
-  --foreground: oklch(0.97 0.002 260);
-  --card: oklch(0.195 0.006 260);
-  --card-foreground: oklch(0.97 0.002 260);
-  --popover: oklch(0.205 0.006 260);
-  --popover-foreground: oklch(0.97 0.002 260);
-  --primary: oklch(0.93 0.003 260);
-  --primary-foreground: oklch(0.2 0.006 260);
-  --secondary: oklch(0.255 0.006 260);
-  --secondary-foreground: oklch(0.97 0.002 260);
-  --muted: oklch(0.255 0.006 260);
-  --muted-foreground: oklch(0.7 0.01 260);
-  --accent: oklch(0.26 0.007 260);
-  --accent-foreground: oklch(0.97 0.002 260);
-  --destructive: oklch(0.704 0.191 22.216);
-  --success: oklch(0.77 0.15 158);
-  --warning: oklch(0.8 0.15 75);
-  --info: oklch(0.75 0.13 235);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.56 0.01 260);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  /* One quiet step above the canvas: felt, not seen. */
-  --sidebar: oklch(0.175 0.005 260);
-  --sidebar-foreground: oklch(0.97 0.002 260);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.25 0.007 260);
-  --sidebar-accent-foreground: oklch(0.97 0.002 260);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.56 0.01 260);
-}
-
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-bricolage);
-  --font-body: var(--font-manrope);
-  --font-pixel: var(--font-geist-pixel-square);
-  --color-brand: var(--brand);
-  --color-brand-text: var(--brand-text);
-  --color-brand-mark: var(--brand-mark);
-  --color-brand-mark-foreground: var(--brand-mark-foreground);
-  --color-rail: var(--rail);
-  --color-hatch: var(--hatch);
-  --color-biga: var(--biga-accent);
-  --color-biga-foreground: var(--biga-accent-foreground);
-  --color-biga-solid: var(--biga-solid);
-  --color-terminal-accent: var(--terminal-accent);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-terminal: var(--terminal);
-  --color-terminal-foreground: var(--terminal-foreground);
-}
-
-/*
- * Motion. The viewer is a tool people sit in for an hour, so motion is short
- * and only explains a change: something opened, something new arrived. These
- * replace Tailwind's built-in curves, which are too soft to read as intentional.
- */
-@theme {
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-}
 
 @layer base {
   * {
@@ -235,22 +42,6 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5.5rem;
-  }
-}
-
-@layer utilities {
-  .biga-rise {
-    animation: biga-rise 500ms var(--ease-out) both;
-  }
-
-  /*
-   * Translucent chrome (the floating site nav). Content scrolls underneath it;
-   * where the reader asked for less transparency it turns solid.
-   */
-  .biga-glass {
-    background: color-mix(in oklab, var(--background) 72%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    backdrop-filter: blur(20px) saturate(160%);
   }
 }
 
@@ -289,6 +80,11 @@
   background-color: color-mix(in oklab, var(--biga-accent) 16%, transparent);
 }
 
+.biga-line-target {
+  background-color: color-mix(in oklab, var(--brand) 22%, transparent);
+  box-shadow: inset 2px 0 0 var(--brand);
+}
+
 .biga-gutter-changed {
   margin-inline-start: 3px;
   width: 3px !important;
@@ -325,31 +121,9 @@
   }
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .biga-glass {
-    background: var(--background);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-@keyframes biga-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-  .biga-rise {
-    animation: none;
   }
   .biga-live-ring::after {
     animation: none;
@@ -376,50 +150,7 @@
   z-index: 2;
 }
 
-/*
- * Landing page ("rails"). The page is one column framed by two hairline
- * rails; sections are divided by full-bleed hairlines, and where a divider
- * crosses a rail it gets a small diamond joint. Hatched bands are the
- * spacers between chapters. All of it is drawn in CSS so it costs no DOM.
- */
 @layer utilities {
-  .biga-hatch {
-    background-image: repeating-linear-gradient(
-      -45deg,
-      var(--hatch) 0 1px,
-      transparent 1px 7px
-    );
-  }
-
-  /* Diamond joints on the two bottom corners of a railed box. */
-  .biga-joints {
-    position: relative;
-  }
-  .biga-joints::before,
-  .biga-joints::after {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    bottom: -4.5px;
-    width: 8px;
-    height: 8px;
-    rotate: 45deg;
-    background: var(--background);
-    border: 1px solid var(--rail);
-    pointer-events: none;
-  }
-  .biga-joints::before {
-    left: -4.5px;
-  }
-  .biga-joints::after {
-    right: -4.5px;
-  }
-
-  /*
-   * Marker highlight. `box-decoration-break: clone` repeats the padding and
-   * radius on every line a highlighted phrase wraps onto, so it reads as a
-   * highlighter stroke rather than one ragged box.
-   */
   .biga-mark {
     background: var(--brand-mark);
     color: var(--brand-mark-foreground);
@@ -427,26 +158,6 @@
     padding: 0 0.18em;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
-  }
-
-  /* The highlighter draws on, left to right, once the phrase scrolls in. */
-  .biga-mark-draw {
-    background: linear-gradient(var(--brand-mark), var(--brand-mark)) no-repeat
-      0 0 / 0% 100%;
-    color: inherit;
-    transition:
-      background-size 700ms var(--ease-out),
-      color 300ms var(--ease-out) 250ms;
-  }
-  [data-revealed="true"] .biga-mark-draw,
-  .biga-mark-draw[data-revealed="true"] {
-    background-size: 100% 100%;
-    color: var(--brand-mark-foreground);
-  }
-
-  .biga-landing ::selection {
-    background: var(--brand-mark);
-    color: var(--brand-mark-foreground);
   }
 }
 
@@ -472,167 +183,35 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .biga-mark-draw {
-    transition: none;
-  }
   .biga-mark-sweep {
     animation: none;
   }
 }
 
-@media (scripting: none) {
-  .biga-mark-draw {
-    background-size: 100% 100%;
-    color: var(--brand-mark-foreground);
-  }
-}
-
-@layer utilities {
-  /* The footer wordmark: outlined, filled with the band hatch. */
-  .biga-wordmark {
-    color: transparent;
-    background-image: repeating-linear-gradient(
-      -45deg,
-      color-mix(in oklab, var(--foreground) 16%, transparent) 0 1px,
-      transparent 1px 6px
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 1px color-mix(in oklab, var(--foreground) 22%, transparent);
-  }
-}
-
-/*
- * Inputs stay at 16px on phones so iOS Safari doesn't zoom the page on
- * focus; this draws them at the surrounding size instead (13px by default)
- * by scaling the box, and widens it by the same factor so the visible width
- * is unchanged. The parent clips the overflow.
- */
-@media (max-width: 639.98px) {
-  .biga-apprink {
-    font-size: 16px;
-    width: calc(100% / var(--shrink, 0.8125));
-    max-width: none;
-    transform: scale(var(--shrink, 0.8125));
-    transform-origin: left center;
-  }
-}
-
-/*
- * Highlighted code on the landing page (`StaticCode`). Each token carries its
- * light and dark colour as variables; the theme class picks one.
- */
-@layer utilities {
-  .showcase-token {
-    color: var(--l);
-  }
-  .dark .showcase-token {
-    color: var(--d);
-  }
-  .tab-2 {
-    tab-size: 2;
-  }
-  .tab-4 {
-    tab-size: 4;
-  }
-}
-
-/*
- * Stage bands. A chapter marked `stage` sits on its own surface (`--stage`, a
- * step off the page in either theme) with a dot grid and a green glow from its
- * top edge, so the page alternates between airy and loud chapters. It follows
- * the theme: in dark the band is also the surface its contents sit on.
- */
-@layer utilities {
-  .biga-stage {
-    position: relative;
-    isolation: isolate;
-    background: var(--stage);
-  }
-  .dark .biga-stage {
-    --background: var(--stage);
-  }
-  .biga-stage::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(60rem 26rem at 50% -8%, color-mix(in oklab, var(--brand-mark) 26%, transparent), transparent 72%),
-      radial-gradient(color-mix(in oklab, var(--foreground) 16%, transparent) 1px, transparent 1.3px) 0 0 / 22px 22px;
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
-  }
-  .dark .biga-stage::before {
-    background:
-      radial-gradient(60rem 26rem at 50% -8%, color-mix(in oklab, var(--brand) 20%, transparent), transparent 72%),
-      radial-gradient(color-mix(in oklab, var(--foreground) 16%, transparent) 1px, transparent 1.3px) 0 0 / 22px 22px;
-  }
-
-  /* A soft green glow and dot grid for light surfaces (the hero). */
-  .biga-glow::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(46rem 24rem at 78% 30%, color-mix(in oklab, var(--brand-mark) 30%, transparent), transparent 70%),
-      radial-gradient(color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1.3px) 0 0 / 22px 22px;
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 60%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 60%, transparent 100%);
-  }
-
-  /* The use-case ticker: one copy slides left by its own width, forever. */
-  .biga-marquee-track {
-    animation: biga-marquee 48s linear infinite;
-  }
-  .biga-marquee:hover .biga-marquee-track {
-    animation-play-state: paused;
-  }
-}
-
-/*
- * The wire between the two machines in "how it works". Dashed and faint while
- * nothing is broadcasting; solid green dashes running downward, laptop to
- * browser, while it is.
- */
-@layer utilities {
-  .biga-wire {
-    background: repeating-linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--foreground) 24%, transparent) 0 4px,
-      transparent 4px 10px
-    );
-  }
-  .biga-wire[data-state="live"] {
-    background: repeating-linear-gradient(to bottom, var(--brand) 0 8px, transparent 8px 14px);
-    animation: biga-wire-flow 700ms linear infinite;
-  }
-}
-
-@keyframes biga-wire-flow {
-  from {
-    background-position: 0 0;
-  }
+@keyframes biga-draw {
   to {
-    background-position: 0 14px;
+    stroke-dashoffset: 0;
+  }
+}
+
+@layer utilities {
+  .biga-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: biga-draw 900ms 900ms cubic-bezier(0.2, 0, 0, 1) forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biga-draw {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .biga-wire[data-state="live"] {
     animation: none;
-  }
-}
-
-@keyframes biga-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
   }
 }
 
@@ -656,11 +235,17 @@
 .fd-docs h1,
 .fd-docs h2,
 .fd-docs h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 .fd-docs h1 {
-  font-weight: 800;
+  font-weight: 600;
+}
+.fd-docs figure.shiki {
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.fd-docs :not(pre) > code {
+  font-family: var(--font-mono);
 }
 .fd-docs ::selection {
   background: var(--brand-mark);

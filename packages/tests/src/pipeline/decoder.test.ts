@@ -4,7 +4,7 @@ import test from "node:test";
 import { createDecoder, decodeFrame } from "@biga/viewer-core/pipeline/decoder";
 
 import { checkpointFrame, connectedFrame, endedFrame, invalidFrame, keepaliveFrame, snapshotFrame } from "../fixtures/frames.ts";
-import { encodeStreamEvent } from "../fixtures/wire.ts";
+import { encodeStreamEvent } from "@biga/demo/wire";
 
 test("a valid frame decodes to a typed event", () => {
     const result = decodeFrame(connectedFrame.data);
