@@ -39,22 +39,20 @@ const viewerPolicy = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    transpilePackages: ["@biga/viewer-core"],
+    transpilePackages: ["@biga/viewer-core", "@biga/ui", "@biga/viewer", "@biga/art", "@biga/demo"],
     // The Docker image runs the self-contained server Next emits with this.
     output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
     // Trace dependencies from the monorepo root so workspace packages are
     // included in the standalone output.
     outputFileTracingRoot: path.join(here, "../.."),
     async headers() {
-        return [
-            {
-                source: "/session/:path*",
-                headers: [
-                    { key: "Content-Security-Policy", value: viewerPolicy },
-                    { key: "Referrer-Policy", value: "same-origin" },
-                ],
-            },
-        ];
+        return ["/session/:path*", "/demo/:path*"].map((source) => ({
+            source,
+            headers: [
+                { key: "Content-Security-Policy", value: viewerPolicy },
+                { key: "Referrer-Policy", value: "same-origin" },
+            ],
+        }));
     },
     async rewrites() {
         if (!serverUrl) {

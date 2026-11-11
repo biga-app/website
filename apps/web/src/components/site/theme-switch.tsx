@@ -5,8 +5,8 @@ import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@biga/ui/components/toggle-group";
+import { cn } from "@biga/ui/lib/utils";
 
 const OPTIONS = [
   { value: "light", label: "Light", Icon: SunIcon },

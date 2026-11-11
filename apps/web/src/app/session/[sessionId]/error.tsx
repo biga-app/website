@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 
-import { SessionUnavailable } from "@/features/viewer/shell/session-unavailable";
+import { SessionUnavailable } from "@biga/viewer/shell/session-unavailable";
 
 export default function ViewerError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     const { sessionId } = useParams<{ sessionId: string }>();

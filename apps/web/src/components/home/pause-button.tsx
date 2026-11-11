@@ -3,8 +3,8 @@
 import { PauseIcon, PlayIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@biga/ui/components/button";
+import { cn } from "@biga/ui/lib/utils";
 
 /**
  * The Pause control for anything on the page that moves by itself (WCAG

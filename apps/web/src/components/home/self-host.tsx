@@ -2,10 +2,10 @@ import { BookOpenIcon } from "lucide-react";
 import Link from "next/link";
 
 import { HomeSection } from "@/components/home/section";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
+import { Badge } from "@biga/ui/components/badge";
+import { Button } from "@biga/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
+import { Typography } from "@biga/ui/components/typography";
 
 const STACK = ["Go server", "Postgres", "Redis, optional", "S3-compatible storage, optional", "MIT licensed"];
 

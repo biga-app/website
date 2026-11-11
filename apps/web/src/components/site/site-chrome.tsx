@@ -1,11 +1,11 @@
 import { BookOpenIcon } from "lucide-react";
 import Link from "next/link";
 
-import { BigaLogo } from "@/components/site/biga-mark";
+import { BigaLogo } from "@biga/ui/components/biga-mark";
 import { CLI_REPO_URL, ISSUES_URL, RELEASES_URL, SECTIONS, WEB_REPO_URL } from "@/components/site/links";
 import { ThemeSwitch } from "@/components/site/theme-switch";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@biga/ui/components/button";
+import { Separator } from "@biga/ui/components/separator";
 import { siteConfig } from "@/lib/site-config";
 
 function GitHubMark() {

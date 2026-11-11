@@ -1,19 +1,16 @@
-import { BroadcastProvider } from "@/components/home/broadcast-clock";
 import { Checkpoints } from "@/components/home/checkpoints";
 import { Hero } from "@/components/home/hero";
-import { HowItWorks } from "@/components/home/how-it-works";
+import { Install } from "@/components/home/install";
+import { LiveDemoIsland } from "@/components/home/live-demo-island";
 import { Privacy } from "@/components/home/privacy";
-import { Reading } from "@/components/home/reading";
+import { SectionRail } from "@/components/home/section-rail";
 import { SelfHost } from "@/components/home/self-host";
 import { Statement } from "@/components/home/statement";
-import { TryIt } from "@/components/home/try-it";
-import { CLI_REPO_URL, WEB_REPO_URL } from "@/components/site/links";
+import { CLI_REPO_URL, SECTIONS, WEB_REPO_URL } from "@/components/site/links";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
-import { DEMO_SESSION_ID } from "@/lib/demo-session";
 import { siteConfig } from "@/lib/site-config";
 
 const siteUrl = siteConfig.url;
-const sessionPath = `/session/${DEMO_SESSION_ID}`;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -41,21 +38,19 @@ const jsonLd = {
 export default function Home() {
   const host = new URL(siteUrl).host;
   return (
-    <div className="relative overflow-x-clip">
+    <div className="relative overflow-x-clip md:pb-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
-      <BroadcastProvider>
-        <main id="content">
-          <Hero siteUrl={siteUrl} sessionPath={sessionPath} />
-          <Statement />
-          <HowItWorks host={host} />
-          <Reading />
-          <Privacy />
-          <Checkpoints />
-          <SelfHost />
-          <TryIt sessionPath={sessionPath} />
-        </main>
-      </BroadcastProvider>
+      <main id="content">
+        <Hero />
+        <LiveDemoIsland host={host} />
+        <Statement />
+        <Privacy />
+        <Checkpoints />
+        <SelfHost />
+        <Install />
+      </main>
+      <SectionRail sections={SECTIONS} />
       <SiteFooter />
     </div>
   );

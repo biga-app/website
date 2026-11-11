@@ -1,6 +1,6 @@
-import { PixelsVsTextFigure } from "@/components/art/pixels-vs-text-figure";
+import { PixelsVsTextFigure } from "@biga/art/pixels-vs-text-figure";
 import { HomeSection } from "@/components/home/section";
-import { Typography } from "@/components/ui/typography";
+import { Typography } from "@biga/ui/components/typography";
 
 export function Statement() {
   return (

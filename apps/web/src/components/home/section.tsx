@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
-import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
+import { Typography } from "@biga/ui/components/typography";
+import { cn } from "@biga/ui/lib/utils";
 
 export function HomeSection({ className, children, ...props }: ComponentProps<"section">) {
   return (

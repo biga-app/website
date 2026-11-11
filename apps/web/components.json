@@ -13,9 +13,9 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "utils": "@biga/ui/lib/utils",
+    "ui": "@biga/ui/components",
     "lib": "@/lib",
-    "hooks": "@/hooks"
+    "hooks": "@biga/ui/hooks"
   }
 }

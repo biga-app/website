@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { CopyValue } from "@/components/brand/copy-value";
-import { BigaLogo, MARK_CELLS } from "@/components/site/biga-mark";
+import { BigaLogo, MARK_CELLS } from "@biga/ui/components/biga-mark";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Typography } from "@/components/ui/typography";
+import { Badge } from "@biga/ui/components/badge";
+import { Button } from "@biga/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
+import { Typography } from "@biga/ui/components/typography";
 
 export const metadata: Metadata = {
   title: "Brand",

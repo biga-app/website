@@ -1,3 +1,4 @@
+@import "@biga/ui/styles/tokens.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 /* Documentation (Fumadocs): its colours are mapped onto the shadcn tokens below. */
@@ -8,196 +9,10 @@
    lose their underline. */
 @source not inline("[&_::highlight(fd-search)]:text-fd-primary [&_::highlight(fd-search)]:underline");
 
+@source "../../../../packages/*/src";
+@source "../../../../packages/*/src/**/*.{ts,tsx}";
+
 @custom-variant dark (&:is(.dark *));
-
-:root {
-  --radius: 0.625rem;
-  /* Every colour in this file is OKLCH. No hex, no rgb(). */
-  /*
-   * The viewer's blue means "now": the live broadcast, the newest checkpoint, the
-   * follow toggle. It is the one accent in the viewer, so it is never spent on
-   * decoration there.
-   */
-  --biga-accent: oklch(0.5513 0.2473 265.85);
-  --biga-accent-foreground: oklch(1 0 0);
-  /*
-   * Filled controls (white label on blue). Kept at the light-mode depth in both
-   * themes: the brighter dark-mode accent only reaches 3.8:1 under white text.
-   */
-  --biga-solid: oklch(0.5513 0.2473 265.85);
-  /* Terminal surface: always dark, regardless of theme. */
-  --terminal: oklch(0.1716 0.0097 255.65);
-  --terminal-foreground: oklch(0.91 0 0);
-  /*
-   * Accent text on the terminal surface. The surface never changes, so neither
-   * does this: the light-mode accent only reaches 3.7:1 against it.
-   */
-  --terminal-accent: oklch(0.6173 0.2057 267.32);
-  /*
-   * Neutrals carry a faint cool cast (hue 260) so app chrome sits in the same
-   * family as the terminal surfaces and the brand blue.
-   */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.16 0.006 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.006 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.006 260);
-  --primary: oklch(0.21 0.006 260);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.002 260);
-  --secondary-foreground: oklch(0.21 0.006 260);
-  --muted: oklch(0.965 0.002 260);
-  /* 0.5 lightness keeps 11–12px metadata above 4.5:1 on white and on --sidebar. */
-  --muted-foreground: oklch(0.5 0.01 260);
-  --accent: oklch(0.955 0.003 260);
-  --accent-foreground: oklch(0.21 0.006 260);
-  --destructive: oklch(0.53 0.23 27.325);
-  /* Status hues, darkened in light mode so they pass as small text. */
-  --success: oklch(0.52 0.13 155);
-  --warning: oklch(0.56 0.15 55);
-  --info: oklch(0.52 0.13 235);
-  --border: oklch(0.915 0.004 260);
-  --input: oklch(0.915 0.004 260);
-  --ring: oklch(0.7 0.01 260);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.982 0.002 260);
-  --sidebar-foreground: oklch(0.16 0.006 260);
-  --sidebar-primary: oklch(0.21 0.006 260);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.94 0.004 260);
-  --sidebar-accent-foreground: oklch(0.16 0.006 260);
-  --sidebar-border: oklch(0.915 0.004 260);
-  --sidebar-ring: oklch(0.7 0.01 260);
-
-  /*
-   * biga green (hue 155) is the marketing accent: the marker highlight, the
-   * packets on the hero circuit, small "annotation" labels. It means "this is
-   * the bit to read", never decoration. The viewer keeps its blue "now".
-   *   --brand        strokes, packets, icons (3:1 against the page is enough)
-   *   --brand-text   small green text, 7.3:1 on white
-   *   --brand-mark   the highlighter fill behind a phrase; text on it is
-   *                  --brand-mark-foreground in both themes (12:1)
-   */
-  --brand: oklch(0.5811 0.1403 155);
-  --brand-text: oklch(0.4416 0.1112 154.1);
-  --brand-mark: oklch(0.8196 0.1546 155);
-  --brand-mark-foreground: oklch(0.1408 0.0044 286);
-  /* Rails: the hairlines that frame the page column and divide sections. */
-  /* Stage bands: the page's louder chapters. A step off the page in each theme. */
-}
-
-.dark {
-  --brand: oklch(0.72 0.16 155);
-  --brand-text: oklch(0.8196 0.1546 155);
-  --biga-accent: oklch(0.6173 0.2057 267.32);
-  --background: oklch(0.155 0.005 260);
-  --foreground: oklch(0.97 0.002 260);
-  --card: oklch(0.195 0.006 260);
-  --card-foreground: oklch(0.97 0.002 260);
-  --popover: oklch(0.205 0.006 260);
-  --popover-foreground: oklch(0.97 0.002 260);
-  --primary: oklch(0.93 0.003 260);
-  --primary-foreground: oklch(0.2 0.006 260);
-  --secondary: oklch(0.255 0.006 260);
-  --secondary-foreground: oklch(0.97 0.002 260);
-  --muted: oklch(0.255 0.006 260);
-  --muted-foreground: oklch(0.7 0.01 260);
-  --accent: oklch(0.26 0.007 260);
-  --accent-foreground: oklch(0.97 0.002 260);
-  --destructive: oklch(0.704 0.191 22.216);
-  --success: oklch(0.77 0.15 158);
-  --warning: oklch(0.8 0.15 75);
-  --info: oklch(0.75 0.13 235);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.56 0.01 260);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  /* One quiet step above the canvas: felt, not seen. */
-  --sidebar: oklch(0.175 0.005 260);
-  --sidebar-foreground: oklch(0.97 0.002 260);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.25 0.007 260);
-  --sidebar-accent-foreground: oklch(0.97 0.002 260);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.56 0.01 260);
-}
-
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-geist-sans);
-  --font-body: var(--font-geist-sans);
-  --font-pixel: var(--font-geist-mono);
-  --color-brand: var(--brand);
-  --color-brand-text: var(--brand-text);
-  --color-brand-mark: var(--brand-mark);
-  --color-brand-mark-foreground: var(--brand-mark-foreground);
-  --color-biga: var(--biga-accent);
-  --color-biga-foreground: var(--biga-accent-foreground);
-  --color-biga-solid: var(--biga-solid);
-  --color-terminal-accent: var(--terminal-accent);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-terminal: var(--terminal);
-  --color-terminal-foreground: var(--terminal-foreground);
-}
-
-/*
- * Motion. The viewer is a tool people sit in for an hour, so motion is short
- * and only explains a change: something opened, something new arrived. These
- * replace Tailwind's built-in curves, which are too soft to read as intentional.
- */
-@theme {
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-}
 
 @layer base {
   * {
@@ -373,22 +188,24 @@
   }
 }
 
-/*
- * Highlighted code on the landing page (`StaticCode`). Each token carries its
- * light and dark colour as variables; the theme class picks one.
- */
+@keyframes biga-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @layer utilities {
-  .showcase-token {
-    color: var(--l);
+  .biga-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: biga-draw 900ms 900ms cubic-bezier(0.2, 0, 0, 1) forwards;
   }
-  .dark .showcase-token {
-    color: var(--d);
-  }
-  .tab-2 {
-    tab-size: 2;
-  }
-  .tab-4 {
-    tab-size: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biga-draw {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 

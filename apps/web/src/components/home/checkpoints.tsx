@@ -1,8 +1,8 @@
-import { HashDedupFigure } from "@/components/art/hash-dedup-figure";
-import { SaveToCheckpointFigure } from "@/components/art/save-to-checkpoint-figure";
+import { HashDedupFigure } from "@biga/art/hash-dedup-figure";
+import { SaveToCheckpointFigure } from "@biga/art/save-to-checkpoint-figure";
 import { HomeSection, SectionTitle } from "@/components/home/section";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CHECKPOINT_IDLE_MS, CHECKPOINT_MAX_WAIT_MS } from "@/lib/checkpoint-timing";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
+import { CHECKPOINT_IDLE_MS, CHECKPOINT_MAX_WAIT_MS } from "@biga/viewer/lib/checkpoint-timing";
 
 export function Checkpoints() {
   return (

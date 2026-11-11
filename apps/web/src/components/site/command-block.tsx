@@ -3,10 +3,10 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCopyFeedback } from "@/components/viewer/copy-button";
-import { cn } from "@/lib/utils";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from "@biga/ui/components/input-group";
+import { Tabs, TabsList, TabsTrigger } from "@biga/ui/components/tabs";
+import { useCopyFeedback } from "@biga/viewer/viewer/copy-button";
+import { cn } from "@biga/ui/lib/utils";
 
 export const INSTALL = {
     unix: {

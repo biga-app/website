@@ -2,9 +2,9 @@ import { HomeIcon } from "lucide-react";
 import Link from "next/link";
 
 import { JoinForm } from "@/components/landing/join-form";
-import { BigaMark } from "@/components/site/biga-mark";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BigaMark } from "@biga/ui/components/biga-mark";
+import { Button } from "@biga/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
 
 export default function NotFound() {
   return (

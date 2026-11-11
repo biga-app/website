@@ -1,8 +1,8 @@
-import { IgnoreFilterFigure } from "@/components/art/ignore-filter-figure";
-import { LinkAnatomyFigure } from "@/components/art/link-anatomy-figure";
+import { IgnoreFilterFigure } from "@biga/art/ignore-filter-figure";
+import { LinkAnatomyFigure } from "@biga/art/link-anatomy-figure";
 import { HomeSection, SectionTitle } from "@/components/home/section";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@biga/ui/components/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
 
 export function Privacy() {
   return (

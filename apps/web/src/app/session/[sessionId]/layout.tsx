@@ -1,8 +1,10 @@
+import { AppViewerHost } from "@/viewer-host/host-provider";
+
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
-import { SessionRuntimeProvider } from "@/features/viewer/runtime/runtime-provider";
-import { UrlNavigationProvider } from "@/features/viewer/runtime/url-navigation";
-import { FrameSkeleton } from "@/features/viewer/shell/frame-skeleton";
+import { SessionRuntimeProvider } from "@/viewer-host/session-runtime-provider";
+import { UrlNavigationProvider } from "@/viewer-host/url-navigation";
+import { FrameSkeleton } from "@biga/viewer/shell/frame-skeleton";
 
 export default async function ViewerLayout({
     children,
@@ -13,12 +15,12 @@ export default async function ViewerLayout({
 }) {
     const { sessionId } = await params;
     return (
-        <NuqsAdapter>
+        <AppViewerHost><NuqsAdapter>
             <UrlNavigationProvider>
                 <SessionRuntimeProvider sessionId={sessionId} fallback={<FrameSkeleton />}>
                     {children}
                 </SessionRuntimeProvider>
             </UrlNavigationProvider>
-        </NuqsAdapter>
+        </NuqsAdapter></AppViewerHost>
     );
 }

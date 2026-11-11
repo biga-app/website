@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 
-import { SessionUnavailable } from "@/features/viewer/shell/session-unavailable";
+import { SessionUnavailable } from "@biga/viewer/shell/session-unavailable";
 
 export default function ViewerNotFound() {
     const { sessionId } = useParams<{ sessionId: string }>();

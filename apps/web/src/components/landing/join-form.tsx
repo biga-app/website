@@ -4,11 +4,11 @@ import { ArrowRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useRef, useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
+import { Button } from "@biga/ui/components/button";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@biga/ui/components/input-group";
+import { Label } from "@biga/ui/components/label";
+import { Spinner } from "@biga/ui/components/spinner";
+import { cn } from "@biga/ui/lib/utils";
 
 const SESSION_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 

@@ -2,7 +2,7 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ReactNode } from "react";
 
-import { BigaLogo } from "@/components/site/biga-mark";
+import { BigaLogo } from "@biga/ui/components/biga-mark";
 import { CLI_REPO_URL } from "@/components/site/links";
 import { ThemeSwitch } from "@/components/site/theme-switch";
 import { source } from "@/lib/source";

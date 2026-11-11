@@ -3,7 +3,7 @@
 import { Mermaid as FumadocsMermaid } from "fumadocs-mermaid/ui";
 import { type ReactNode, Suspense } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@biga/ui/lib/utils";
 
 /*
  * Diagrams in the docs are fenced ```mermaid blocks. `fumadocs-mermaid`'s

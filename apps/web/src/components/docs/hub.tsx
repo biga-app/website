@@ -6,9 +6,9 @@ import Link from "next/link";
 
 import { CommandBlock } from "@/components/site/command-block";
 import { RELEASES_URL } from "@/components/site/links";
-import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Kbd, useModKey } from "@/components/ui/kbd";
+import { Button } from "@biga/ui/components/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@biga/ui/components/card";
+import { Kbd, useModKey } from "@biga/ui/components/kbd";
 
 const TASKS = [
   { href: "/docs/quickstart", title: "Share a folder", body: "Install the CLI and go from nothing to a live link in two commands." },
