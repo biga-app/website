@@ -1,0 +1,2 @@
+export const CHECKPOINT_IDLE_MS = 120;
+export const CHECKPOINT_MAX_WAIT_MS = 1000;

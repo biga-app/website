@@ -140,3 +140,36 @@ test.describe("in the dark theme", () => {
         expect(await violations(page)).toEqual([]);
     });
 });
+
+test("the landing page has no violations", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1, name: /Stream your/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});
+
+test.describe("the landing page in the dark theme", () => {
+    test.use({ colorScheme: "dark" });
+
+    test("has no violations", async ({ page }) => {
+        await page.goto("/");
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        expect(await violations(page)).toEqual([]);
+    });
+});
+
+test("the landing page holds still when the visitor prefers reduced motion", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.getByRole("log", { name: "What the biga command prints" })).toBeVisible();
+    const before = await page.getByRole("log", { name: "What the biga command prints" }).innerText();
+    await page.waitForTimeout(5000);
+    expect(await page.getByRole("log", { name: "What the biga command prints" }).innerText()).toBe(before);
+    await context.close();
+});
+
+test("the brand page has no violations", async ({ page }) => {
+    await page.goto("/brand");
+    await expect(page.getByRole("heading", { level: 1, name: /pixel that just got saved/ })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+});

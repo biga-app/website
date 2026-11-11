@@ -1,26 +1,45 @@
-import { PrivacyStack } from "@/components/home/privacy-stack";
-import { INSET, Section, SectionHeader } from "@/components/site/frame";
-import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
+import { IgnoreFilterFigure } from "@/components/art/ignore-filter-figure";
+import { LinkAnatomyFigure } from "@/components/art/link-anatomy-figure";
+import { HomeSection, SectionTitle } from "@/components/home/section";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function Privacy({ siteUrl }: { siteUrl: string }) {
+export function Privacy() {
   return (
-    <Section id="privacy" bleed stage>
-      <div className={cn(INSET, "pt-16 sm:pt-20 lg:pt-24")}>
-        <SectionHeader
-          eyebrow="03 / Privacy"
-          title={<Typography variant="h2">Your .env stays on your machine.</Typography>}
-          lead={
-            <Typography variant="lead" tone="muted">
-              This is the viewer your link opens, pulled apart. Every panel is built only from files that passed your
-              ignore rules, and only the ones that changed travel.
-            </Typography>
-          }
-        />
+    <HomeSection id="privacy">
+      <SectionTitle
+        title="Your .env stays on your machine."
+        lead="biga only shares files that pass your ignore rules and a secret scan. You can check before anyone sees a thing."
+      />
+      <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <Card>
+          <CardContent>
+            <IgnoreFilterFigure />
+          </CardContent>
+        </Card>
+        <div className="flex flex-col gap-4">
+          <Card className="bg-terminal text-terminal-foreground">
+            <CardHeader>
+              <CardTitle className="font-mono text-sm" translate="no">
+                $ biga start --dry-run
+              </CardTitle>
+              <CardDescription className="text-terminal-foreground/70">Prints what would be shared and what would be withheld. It never contacts the server.</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Encrypted sessions
+                <Badge variant="secondary">optional</Badge>
+              </CardTitle>
+              <CardDescription>Files are sealed before upload. The key lives in the link, after the hash sign.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LinkAnatomyFigure />
+            </CardContent>
+          </Card>
+        </div>
       </div>
-      <div className="pb-10 sm:pb-16">
-        <PrivacyStack host={new URL(siteUrl).host} />
-      </div>
-    </Section>
+    </HomeSection>
   );
 }

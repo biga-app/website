@@ -47,7 +47,7 @@ export function BigaLogo({ className, cell = 3 }: { className?: string; cell?: n
       <BigaMark cell={cell} />
       <span
         translate="no"
-        className="font-display text-[1.375rem] leading-none font-extrabold tracking-[-0.04em]"
+        className="text-[1.375rem] leading-none font-semibold tracking-[-0.05em]"
       >
         biga
       </span>

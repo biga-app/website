@@ -114,7 +114,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
       value={mounted && theme ? [theme] : []}
       onValueChange={() => {}}
       aria-label="Theme"
-      className={cn("border-rail bg-background h-9 gap-0.5 rounded-full border p-0.5", className)}
+      className={cn("bg-background h-9 gap-0.5 rounded-md border p-0.5", className)}
     >
       {OPTIONS.map(({ value, label, Icon }) => (
         <ToggleGroupItem
@@ -122,7 +122,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
           value={value}
           aria-label={label}
           onClick={(event) => choose(value, event.currentTarget)}
-          className="size-7 rounded-full p-0 data-pressed:bg-muted data-pressed:shadow-none"
+          className="size-7 rounded-sm p-0 data-pressed:bg-muted data-pressed:shadow-none"
         >
           <Icon aria-hidden strokeWidth={1.75} />
         </ToggleGroupItem>

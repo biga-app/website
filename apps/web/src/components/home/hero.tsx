@@ -1,48 +1,47 @@
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, BookOpenIcon } from "lucide-react";
 import Link from "next/link";
 
-import { Annotation } from "@/components/home/annotation";
-import { HeroCircuit, HeroMotion, OnAirPill } from "@/components/home/hero-live";
-import { InstallCommand } from "@/components/home/install-command";
-import { Section } from "@/components/site/frame";
+import { BroadcastFigure } from "@/components/art/broadcast-figure";
+import { HeroViewer } from "@/components/home/hero-viewer";
+import { CommandBlock } from "@/components/site/command-block";
+import { SelectionMark } from "@/components/site/selection-mark";
 import { Button } from "@/components/ui/button";
-import { Mark, Typography } from "@/components/ui/typography";
+import { Typography } from "@/components/ui/typography";
 
-export function Hero({ siteUrl }: { siteUrl: string }) {
+export function Hero({ siteUrl, sessionPath }: { siteUrl: string; sessionPath: string }) {
   const host = new URL(siteUrl).host;
 
   return (
-    <HeroMotion>
-      <Section id="top" className="biga-glow relative isolate" columnClassName="pt-10 pb-12 sm:pt-14 sm:pb-16 lg:pt-20 lg:pb-24">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-center lg:gap-12">
-          <div className="biga-rise flex min-w-0 flex-col items-start">
-            <OnAirPill />
-
-            <Typography variant="display" className="mt-6 max-w-[13ch]">
-              Stream your <Mark>saves</Mark>, not your screen.
+    <>
+      <section id="top" className="border-b">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 pt-12 pb-10 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-14 lg:pt-20 lg:pb-14">
+          <div className="flex min-w-0 flex-col items-start gap-6">
+            <Typography variant="display" className="max-w-[14ch]">
+              Stream your <span className="whitespace-nowrap"><SelectionMark>saves</SelectionMark>,</span> not your screen.
             </Typography>
-
-            <Typography variant="lead" tone="muted" className="mt-5 max-w-[42ch]">
-              One command turns a folder into a live, read-only link. Viewers follow every save in their browser, no
-              account needed.
+            <Typography variant="lead" tone="muted" className="max-w-[44ch]">
+              One command turns a folder into a live, read-only link. Viewers follow every save in their browser.
             </Typography>
-
-            <div className="mt-8 flex w-full max-w-xl flex-col gap-3">
-              <Annotation className="ml-1">Psst, start here</Annotation>
-              <InstallCommand />
-            </div>
-
-            <Button render={<Link href="#how" />} variant="outline" size="lg" className="mt-6 rounded-full">
-                <ArrowDownIcon strokeWidth={1.75} />
-                Watch it run
+            <CommandBlock />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button render={<Link href="#demo" />} size="lg">
+                <ArrowDownIcon />
+                See it run
               </Button>
+              <Button render={<Link href="/docs" />} variant="outline" size="lg">
+                <BookOpenIcon />
+                Read the docs
+              </Button>
+            </div>
           </div>
-
-          <div className="biga-rise min-w-0 [animation-delay:120ms]">
-            <HeroCircuit host={host} />
+          <div className="min-w-0">
+            <BroadcastFigure />
           </div>
         </div>
-      </Section>
-    </HeroMotion>
+        <div className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 lg:pb-16">
+          <HeroViewer host={host} sessionPath={sessionPath} />
+        </div>
+      </section>
+    </>
   );
 }

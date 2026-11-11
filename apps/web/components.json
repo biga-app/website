@@ -17,8 +17,5 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
-  },
-  "registries": {
-    "@keyframeui": "https://keyframeui.com/r/{name}.json"
   }
 }

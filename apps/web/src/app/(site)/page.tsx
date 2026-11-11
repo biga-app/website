@@ -1,13 +1,12 @@
+import { BroadcastProvider } from "@/components/home/broadcast-clock";
 import { Checkpoints } from "@/components/home/checkpoints";
-import { Demo } from "@/components/home/demo";
-import { Features } from "@/components/home/features";
 import { Hero } from "@/components/home/hero";
 import { HowItWorks } from "@/components/home/how-it-works";
-import { Install } from "@/components/home/install";
-import { Marquee } from "@/components/home/marquee";
 import { Privacy } from "@/components/home/privacy";
+import { Reading } from "@/components/home/reading";
+import { SelfHost } from "@/components/home/self-host";
 import { Statement } from "@/components/home/statement";
-import { HatchBand } from "@/components/site/frame";
+import { TryIt } from "@/components/home/try-it";
 import { CLI_REPO_URL, WEB_REPO_URL } from "@/components/site/links";
 import { SiteFooter, SiteHeader } from "@/components/site/site-chrome";
 import { DEMO_SESSION_ID } from "@/lib/demo-session";
@@ -40,25 +39,23 @@ const jsonLd = {
 };
 
 export default function Home() {
+  const host = new URL(siteUrl).host;
   return (
-    <div className="biga-landing font-body relative overflow-x-clip">
+    <div className="relative overflow-x-clip">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
       <SiteHeader />
-
-      <main id="content">
-        <Hero siteUrl={siteUrl} />
-        <Marquee />
-        <Statement />
-        <HowItWorks siteUrl={siteUrl} />
-        <Checkpoints />
-        <Privacy siteUrl={siteUrl} />
-        <Features />
-        <Demo siteUrl={siteUrl} sessionPath={sessionPath} />
-        <HatchBand />
-        <Install siteUrl={siteUrl} />
-      </main>
-
+      <BroadcastProvider>
+        <main id="content">
+          <Hero siteUrl={siteUrl} sessionPath={sessionPath} />
+          <Statement />
+          <HowItWorks host={host} />
+          <Reading />
+          <Privacy />
+          <Checkpoints />
+          <SelfHost />
+          <TryIt sessionPath={sessionPath} />
+        </main>
+      </BroadcastProvider>
       <SiteFooter />
     </div>
   );

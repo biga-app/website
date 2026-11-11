@@ -1,22 +1,14 @@
-import { RunDemo } from "@/components/home/run-demo";
-import { Section, SectionHeader } from "@/components/site/frame";
-import { Typography } from "@/components/ui/typography";
+import { FollowFigure } from "@/components/art/follow-figure";
+import { HomeSection, SectionTitle } from "@/components/home/section";
+import { HowTabs } from "@/components/home/how-tabs";
 
-export function HowItWorks({ siteUrl }: { siteUrl: string }) {
+export function HowItWorks({ host }: { host: string }) {
   return (
-    <Section id="how" stage>
-      <SectionHeader
-        eyebrow="01 / How it works"
-        title={<Typography variant="h2">Run it, share it, keep coding.</Typography>}
-        lead={
-          <Typography variant="lead" tone="muted">
-            A whole session, start to rejoin, in under a minute. Reach in and it steps aside so you can drive.
-          </Typography>
-        }
-      />
-      <div className="mt-10 sm:mt-12">
-        <RunDemo host={new URL(siteUrl).host} />
+    <HomeSection id="how">
+      <SectionTitle title="Run it, share it, keep coding." lead="A session takes three steps and one command. After that you just save files." />
+      <div className="mt-10 lg:mt-12">
+        <HowTabs host={host} follow={<FollowFigure />} />
       </div>
-    </Section>
+    </HomeSection>
   );
 }

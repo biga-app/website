@@ -105,7 +105,7 @@ export function SessionUnavailable({
                         <>
                             <div className="mt-8 border-t pt-6">
                                 <h2 className="mb-3 text-sm font-medium">Open another session</h2>
-                                <JoinForm tone="default" />
+                                <JoinForm />
                             </div>
                             <div className="mt-6 flex flex-wrap gap-2">
                                 <Button render={<Link href="/docs#getting-started" prefetch={false} target={linkTarget} />} variant="outline" size="sm">

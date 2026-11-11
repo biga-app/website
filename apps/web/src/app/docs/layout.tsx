@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { BigaLogo } from "@/components/site/biga-mark";
 import { CLI_REPO_URL } from "@/components/site/links";
 import { ThemeSwitch } from "@/components/site/theme-switch";
-import { siteFontClassName } from "@/lib/site-fonts";
 import { source } from "@/lib/source";
 
 /*
@@ -16,7 +15,7 @@ import { source } from "@/lib/source";
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <RootProvider theme={{ enabled: false }}>
-      <div className={`${siteFontClassName} fd-docs font-body flex min-h-screen flex-col`}>
+      <div className="fd-docs flex min-h-screen flex-col">
         <DocsLayout
           tree={source.getPageTree()}
           nav={{ title: <BigaLogo />, url: "/" }}

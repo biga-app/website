@@ -7,15 +7,13 @@ export const alt = "biga: stream your saves, not your screen";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// The landing page's dark tokens, as sRGB (Satori has no oklch()).
+// The site's dark tokens, as sRGB (Satori has no oklch()).
 const GROUND = "#0b0c0e";
 const CARD = "#0d1014";
 const RAIL = "rgba(255,255,255,0.10)";
-const HATCH = "rgba(255,255,255,0.07)";
 const FG = "#f4f5f6";
 const MUTED = "#9b9fa5";
-const MARK = "#63e197"; // --brand-mark
-const MARK_FG = "#09090b";
+const MARK = "#35c177"; // --brand, dark theme
 
 const MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace";
 
@@ -67,36 +65,20 @@ function Mark({ cell }: { cell: number }) {
 }
 
 export default async function OpengraphImage() {
-  const [bricolage, manrope, mono] = await Promise.all([
-    googleFont("Bricolage Grotesque", 800, `${HEADLINE}biga`),
-    googleFont("Manrope", 500, SUBTEXT),
+  const [display, body, mono] = await Promise.all([
+    googleFont("Geist", 600, `${HEADLINE}biga`),
+    googleFont("Geist", 400, SUBTEXT),
     googleFont("Geist Mono", 400, `$ biga start live ${share} ${STATUS}`),
   ]);
   const fonts = [
-    bricolage && { name: "Bricolage", data: bricolage, weight: 800 as const, style: "normal" as const },
-    manrope && { name: "Manrope", data: manrope, weight: 500 as const, style: "normal" as const },
+    display && { name: "Geist", data: display, weight: 600 as const, style: "normal" as const },
+    body && { name: "Geist", data: body, weight: 400 as const, style: "normal" as const },
     mono && { name: "Geist Mono", data: mono, weight: 400 as const, style: "normal" as const },
   ].filter((font) => font !== null);
 
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", background: GROUND, fontFamily: "sans-serif" }}>
-        {/* Rails and the hatched band under the header, as on the page. */}
-        <div style={{ position: "absolute", top: 0, bottom: 0, left: 56, width: 1, background: RAIL }} />
-        <div style={{ position: "absolute", top: 0, bottom: 0, right: 56, width: 1, background: RAIL }} />
-        <div
-          style={{
-            position: "absolute",
-            top: 108,
-            left: 56,
-            right: 56,
-            height: 22,
-            borderTop: `1px solid ${RAIL}`,
-            borderBottom: `1px solid ${RAIL}`,
-            backgroundImage: `repeating-linear-gradient(-45deg, ${HATCH} 0 1px, transparent 1px 8px)`,
-          }}
-        />
-
         <div
           style={{
             position: "relative",
@@ -109,7 +91,7 @@ export default async function OpengraphImage() {
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <Mark cell={5} />
-            <div style={{ color: FG, fontSize: 36, fontWeight: 800, letterSpacing: "-0.04em", fontFamily: "Bricolage" }}>
+            <div style={{ color: FG, fontSize: 36, fontWeight: 600, letterSpacing: "-0.05em", fontFamily: "Geist" }}>
               biga
             </div>
           </div>
@@ -121,10 +103,11 @@ export default async function OpengraphImage() {
                   display: "flex",
                   flexDirection: "column",
                   color: FG,
-                  fontFamily: "Bricolage",
-                  fontSize: 58,
-                  fontWeight: 800,
-                  lineHeight: 1.06,
+                  fontFamily: "Geist",
+                  fontSize: 62,
+                  fontWeight: 600,
+                  letterSpacing: "-0.045em",
+                  lineHeight: 1.05,
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -132,21 +115,23 @@ export default async function OpengraphImage() {
                   <div
                     style={{
                       display: "flex",
+                      position: "relative",
                       flexShrink: 0,
                       marginLeft: 16,
                       padding: "0 12px 4px",
-                      borderRadius: 14,
-                      background: MARK,
-                      color: MARK_FG,
+                      border: `2px solid ${MARK}`,
                     }}
                   >
                     saves
+                    {[[-6, -6], [-6, 52], [152, -6], [152, 52]].map(([x, y]) => (
+                      <div key={`${x}-${y}`} style={{ position: "absolute", left: x, top: y, width: 10, height: 10, background: GROUND, border: `2px solid ${MARK}` }} />
+                    ))}
                   </div>
                   <div style={{ display: "flex" }}>,</div>
                 </div>
                 <div style={{ display: "flex" }}>not your screen.</div>
               </div>
-              <div style={{ color: MUTED, fontFamily: "Manrope", fontSize: 24, lineHeight: 1.45, marginTop: 26, maxWidth: 500 }}>
+              <div style={{ color: MUTED, fontFamily: "Geist", fontSize: 24, lineHeight: 1.45, marginTop: 26, maxWidth: 500 }}>
                 {SUBTEXT}
               </div>
             </div>
@@ -159,7 +144,7 @@ export default async function OpengraphImage() {
                 gap: 12,
                 background: CARD,
                 border: `1px solid ${RAIL}`,
-                borderRadius: 18,
+                borderRadius: 12,
                 padding: "24px 26px",
                 fontFamily: `'Geist Mono', ${MONO}`,
                 fontSize: 19,
