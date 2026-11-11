@@ -26,18 +26,14 @@ export const IconAction = forwardRef<HTMLButtonElement, IconActionProps>(functio
 ) {
     return (
         <Tooltip>
-            <TooltipTrigger asChild>
-                <Button
-                    ref={ref}
+            <TooltipTrigger render={<Button ref={ref}
                     variant={variant}
                     size={size}
                     aria-label={label}
                     className={cn("text-muted-foreground hover:text-foreground", className)}
-                    {...props}
-                >
+                    {...props} />}>
                     {children}
-                </Button>
-            </TooltipTrigger>
+                </TooltipTrigger>
             <TooltipContent side={tooltipSide}>
                 {label}
                 {shortcut && (

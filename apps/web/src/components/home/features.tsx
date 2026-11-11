@@ -105,12 +105,10 @@ function SelfHost() {
           <span className="text-muted-foreground">REDIS_URL=     # optional</span>
         </code>
       </pre>
-      <Button asChild variant="outline" size="sm" className="w-fit rounded-full">
-        <Link href="/docs#self-hosting">
+      <Button render={<Link href="/docs#self-hosting" />} variant="outline" size="sm" className="w-fit rounded-full">
           Self-hosting guide
           <ArrowUpRightIcon strokeWidth={1.75} />
-        </Link>
-      </Button>
+        </Button>
     </div>
   );
 }

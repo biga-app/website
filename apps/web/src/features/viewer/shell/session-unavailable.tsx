@@ -108,16 +108,12 @@ export function SessionUnavailable({
                                 <JoinForm tone="default" />
                             </div>
                             <div className="mt-6 flex flex-wrap gap-2">
-                                <Button asChild variant="outline" size="sm">
-                                    <Link href="/docs#getting-started" prefetch={false} target={linkTarget}>
+                                <Button render={<Link href="/docs#getting-started" prefetch={false} target={linkTarget} />} variant="outline" size="sm">
                                         Start your own session
-                                    </Link>
-                                </Button>
-                                <Button asChild variant="ghost" size="sm">
-                                    <Link href="/" prefetch={false} target={linkTarget}>
+                                    </Button>
+                                <Button render={<Link href="/" prefetch={false} target={linkTarget} />} variant="ghost" size="sm">
                                         Go to the homepage
-                                    </Link>
-                                </Button>
+                                    </Button>
                             </div>
                         </>
                     ) : (
@@ -128,11 +124,9 @@ export function SessionUnavailable({
                                     Try again
                                 </Button>
                             )}
-                            <Button asChild variant="ghost" size="sm">
-                                <Link href="/" prefetch={false} target={linkTarget}>
+                            <Button render={<Link href="/" prefetch={false} target={linkTarget} />} variant="ghost" size="sm">
                                     Go to the homepage
-                                </Link>
-                            </Button>
+                                </Button>
                         </div>
                     )}
                 </div>

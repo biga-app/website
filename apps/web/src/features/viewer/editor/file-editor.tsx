@@ -44,7 +44,7 @@ import { cn } from "@/lib/utils";
 
 import { useViewerView } from "../runtime/navigation-context";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
-import { FileHistorySheet } from "./file-history-sheet";
+import { LazyFileHistorySheet } from "./lazy-file-history-sheet";
 import { FollowPausedPill } from "./follow-paused-pill";
 import { useBlob } from "./use-blob";
 import { useFileRevisionCount } from "./use-file-revision-count";
@@ -177,48 +177,49 @@ export function FileEditor({ path }: { path: string }) {
                 <FollowPausedPill />
                 <div className="flex shrink-0 items-center gap-0.5 border-s ps-1.5 pe-1.5">
                     <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
+                        <TooltipTrigger render={<Button variant="ghost"
                                 size="xs"
                                 aria-pressed={comparing}
                                 disabled={binary || deleted}
                                 onClick={() => setBase(base ? null : { kind: "start" })}
-                                className={cn("text-muted-foreground hover:text-foreground", comparing && "bg-accent text-foreground")}
-                            >
+                                className={cn("text-muted-foreground hover:text-foreground", comparing && "bg-accent text-foreground")} />}>
                                 <GitCompareArrowsIcon className="size-3.5" />
                                 <span className="hidden @lg:inline">Compare</span>
-                            </Button>
-                        </TooltipTrigger>
+                            </TooltipTrigger>
                         <TooltipContent>{comparing ? "Stop comparing" : "Compare with an earlier version"}</TooltipContent>
                     </Tooltip>
                     <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
+                        <TooltipTrigger render={<Button variant="ghost"
                                 size="xs"
                                 disabled={deleted}
                                 aria-label={revisionCount ? `File history, ${pluralize(revisionCount, "revision")}` : "File history"}
                                 onClick={() => setHistoryOpen(true)}
-                                className="text-muted-foreground hover:text-foreground"
-                            >
+                                className="text-muted-foreground hover:text-foreground" />}>
                                 <HistoryIcon className="size-3.5" />
                                 {revisionCount !== null && revisionCount > 1 && (
                                     <span className="text-[11px] tabular-nums">{revisionCount > 99 ? "99+" : revisionCount}</span>
                                 )}
-                            </Button>
-                        </TooltipTrigger>
+                            </TooltipTrigger>
                         <TooltipContent>File history</TooltipContent>
                     </Tooltip>
                     <CopyButton text={content} label="Copy file contents" disabled={binary || deleted || !content} />
                     <DropdownMenu>
                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon-xs" aria-label="More file actions" className="text-muted-foreground hover:text-foreground">
-                                        <EllipsisIcon />
-                                    </Button>
-                                </DropdownMenuTrigger>
+                            <TooltipTrigger
+                                render={
+                                    <DropdownMenuTrigger
+                                        render={
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                aria-label="More file actions"
+                                                className="text-muted-foreground hover:text-foreground"
+                                            />
+                                        }
+                                    />
+                                }
+                            >
+                                <EllipsisIcon />
                             </TooltipTrigger>
                             <TooltipContent>More actions</TooltipContent>
                         </Tooltip>
@@ -230,20 +231,20 @@ export function FileEditor({ path }: { path: string }) {
                                 Wrap long lines
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onSelect={() => void copyWithToast(path, "path")}>
+                            <DropdownMenuItem onClick={() => void copyWithToast(path, "path")}>
                                 <LinkIcon />
                                 Copy path
                             </DropdownMenuItem>
-                            <DropdownMenuItem disabled={binary || deleted || !content} onSelect={() => downloadText(path, content)}>
+                            <DropdownMenuItem disabled={binary || deleted || !content} onClick={() => downloadText(path, content)}>
                                 <DownloadIcon />
                                 Download {name}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem disabled={tabs.length < 2} onSelect={() => workspace.getState().closeOthers(path)}>
+                            <DropdownMenuItem disabled={tabs.length < 2} onClick={() => workspace.getState().closeOthers(path)}>
                                 Close other tabs
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onSelect={() => {
+                                onClick={() => {
                                     workspace.getState().closeAll();
                                     showLive("replace");
                                 }}
@@ -271,9 +272,8 @@ export function FileEditor({ path }: { path: string }) {
                             <ChevronDownIcon className="text-muted-foreground size-3" />
                         </Button>
                         <ToggleGroup
-                            type="single"
-                            value={diffLayout}
-                            onValueChange={(value) => {
+                            value={[diffLayout]}
+                            onValueChange={([value]) => {
                                 if (value === "unified" || value === "split") useViewerPrefsStore.getState().setDiffLayout(value);
                             }}
                             aria-label="Diff layout"
@@ -300,7 +300,7 @@ export function FileEditor({ path }: { path: string }) {
                 <span className="ms-auto">{languageLabel(languageForPath(path))}</span>
             </footer>
 
-            <FileHistorySheet
+            <LazyFileHistorySheet
                 path={path}
                 open={historyOpen}
                 onOpenChange={setHistoryOpen}

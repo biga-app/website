@@ -75,9 +75,7 @@ export function FollowToggle() {
 
     return (
         <Tooltip>
-            <TooltipTrigger asChild>
-                <Button
-                    variant="ghost"
+            <TooltipTrigger render={<Button variant="ghost"
                     size="xs"
                     aria-pressed={follow}
                     onClick={() => useViewerPrefsStore.getState().setFollow(!follow)}
@@ -85,12 +83,10 @@ export function FollowToggle() {
                         follow
                             ? "bg-biga/10 text-biga hover:bg-biga/15 hover:text-biga"
                             : "text-muted-foreground hover:text-foreground"
-                    )}
-                >
+                    )} />}>
                     <LocateFixedIcon className="size-3.5" />
                     <span className="max-md:sr-only">Follow</span>
-                </Button>
-            </TooltipTrigger>
+                </TooltipTrigger>
             <TooltipContent>
                 {follow ? "Following: each saved file opens automatically" : "Open each file as it's saved"}
             </TooltipContent>
@@ -105,17 +101,13 @@ export function CopyLinkButton({ sessionId, checkpointSeq }: { sessionId: string
     return (
         <>
             <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        variant="ghost"
+                <TooltipTrigger render={<Button variant="ghost"
                         size="xs"
                         onClick={() => void copy(shareUrlFor(sessionId, checkpointSeq, shareKey))}
-                        className="text-muted-foreground hover:text-foreground"
-                    >
+                        className="text-muted-foreground hover:text-foreground" />}>
                         {copied ? <CopyGlyph copied /> : <LinkIcon className="size-3.5" />}
                         <span className="max-sm:sr-only">{copied ? "Copied" : checkpointSeq === undefined ? "Copy link" : "Copy checkpoint link"}</span>
-                    </Button>
-                </TooltipTrigger>
+                    </TooltipTrigger>
                 <TooltipContent>{checkpointSeq === undefined ? "Copy the share link for this session" : "Copy the share link for this checkpoint"}</TooltipContent>
             </Tooltip>
             <span aria-live="polite" className="sr-only">

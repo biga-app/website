@@ -14,7 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { displayTitle } from "@/lib/session-title";
 
 import { EditorPane } from "../editor/editor-pane";
-import { QuickOpen } from "../quick-open/quick-open";
+import { LazyQuickOpen } from "../quick-open/lazy-quick-open";
 import { useRuntime, useStoreValue } from "../runtime/runtime-provider";
 import { useFollow } from "../runtime/use-follow";
 import { useUrlSync } from "../runtime/use-url-sync";
@@ -175,7 +175,7 @@ function LoadedFrame({ defaultSidebarSize }: { defaultSidebarSize: number }) {
                     </div>
                 </SheetContent>
             </Sheet>
-            <QuickOpen
+            <LazyQuickOpen
                 open={quickOpen}
                 onOpenChange={setQuickOpen}
                 onOpenFile={(path) => {

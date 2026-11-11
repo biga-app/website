@@ -27,18 +27,14 @@ export function Install({ siteUrl }: { siteUrl: string }) {
 
           <div className="mt-2 flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="rounded-full">
-                <a href={CLI_REPO_URL} target="_blank" rel="noreferrer">
+              <Button render={<a href={CLI_REPO_URL} target="_blank" rel="noreferrer" />} size="lg" className="rounded-full">
                   <GitHubGlyph className="size-4" />
                   Star on GitHub
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full">
-                <Link href="/docs">
+                </Button>
+              <Button render={<Link href="/docs" />} variant="outline" size="lg" className="rounded-full">
                   <BookOpenIcon strokeWidth={1.75} />
                   Read the docs
-                </Link>
-              </Button>
+                </Button>
             </div>
             <Annotation direction="up" className="ml-2">
               MIT licensed. Issues and PRs welcome

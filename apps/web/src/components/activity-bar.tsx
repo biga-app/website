@@ -34,9 +34,7 @@ export function ActivityBar({
                 const badge = itemView === "timeline" && unseenTimeline && !active;
                 return (
                     <Tooltip key={itemView}>
-                        <TooltipTrigger asChild>
-                            <button
-                                type="button"
+                        <TooltipTrigger render={<button type="button"
                                 aria-label={badge ? `${label}, new checkpoints` : label}
                                 aria-pressed={active}
                                 onClick={() => onChange(itemView)}
@@ -45,8 +43,7 @@ export function ActivityBar({
                                     active
                                         ? "text-foreground"
                                         : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-                                )}
-                            >
+                                )} />}>
                                 <span
                                     aria-hidden
                                     className={cn(
@@ -61,8 +58,7 @@ export function ActivityBar({
                                         className="bg-biga ring-sidebar absolute top-1.5 right-1.5 size-2 rounded-full ring-2 motion-safe:animate-in motion-safe:zoom-in-50"
                                     />
                                 )}
-                            </button>
-                        </TooltipTrigger>
+                            </TooltipTrigger>
                         <TooltipContent side="right">{label}</TooltipContent>
                     </Tooltip>
                 );

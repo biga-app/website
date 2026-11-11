@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Slot } from "radix-ui";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -54,7 +55,7 @@ const typographyVariants = cva("", {
 
 type Variant = NonNullable<VariantProps<typeof typographyVariants>["variant"]>;
 
-const ELEMENT: Record<Variant, React.ElementType> = {
+const ELEMENT: Record<Variant, keyof React.JSX.IntrinsicElements> = {
   display: "h1",
   h2: "h2",
   h3: "h3",
@@ -67,31 +68,31 @@ const ELEMENT: Record<Variant, React.ElementType> = {
   code: "code",
 };
 
-type TypographyProps = React.HTMLAttributes<HTMLElement> &
+type TypographyProps = useRender.ComponentProps<"p"> &
   VariantProps<typeof typographyVariants> & {
-    /** Render a different element with the same role, e.g. a `display` set as an `h2`. */
-    as?: React.ElementType;
-    /** Merge the role onto the single child instead of rendering a wrapper. */
-    asChild?: boolean;
+    as?: keyof React.JSX.IntrinsicElements;
   };
 
 function Typography({
   variant = "body",
   tone,
   as,
-  asChild = false,
+  render,
   className,
   ...props
 }: TypographyProps) {
-  const Comp = asChild ? Slot.Slot : (as ?? ELEMENT[variant ?? "body"]);
-  return (
-    <Comp
-      data-slot="typography"
-      data-variant={variant}
-      className={cn(typographyVariants({ variant, tone }), className)}
-      {...props}
-    />
-  );
+  const role = variant ?? "body";
+  return useRender({
+    defaultTagName: as ?? ELEMENT[role],
+    render,
+    props: mergeProps<"p">(
+      {
+        className: cn(typographyVariants({ variant, tone }), className),
+      },
+      props
+    ),
+    state: { slot: "typography", variant: role },
+  });
 }
 
 /**

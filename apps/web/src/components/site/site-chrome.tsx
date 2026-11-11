@@ -14,9 +14,7 @@ import { cn } from "@/lib/utils";
 /** A header link: a shadcn link-variant button, quiet until it is hovered. */
 function NavLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Button asChild variant="link" size="sm" className="text-muted-foreground hover:text-foreground font-body px-3">
-      <Link href={href}>{children}</Link>
-    </Button>
+    <Button render={<Link href={href} />} variant="link" size="sm" className="text-muted-foreground hover:text-foreground font-body px-3">{children}</Button>
   );
 }
 
@@ -24,17 +22,11 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
 function FooterLink({ href, external, children }: { href: string; external: boolean; children: ReactNode }) {
   return (
     <Button
-      asChild
+      render={external ? <a href={href} target="_blank" rel="noreferrer" /> : <Link href={href} />}
       variant="link"
       className="text-muted-foreground hover:text-foreground font-body h-auto justify-start p-0 text-sm font-normal"
     >
-      {external ? (
-        <a href={href} target="_blank" rel="noreferrer">
-          {children}
-        </a>
-      ) : (
-        <Link href={href}>{children}</Link>
-      )}
+      {children}
     </Button>
   );
 }
@@ -47,14 +39,7 @@ function FooterLink({ href, external, children }: { href: string; external: bool
 export function SiteHeader() {
   return (
     <>
-      <Button
-        asChild
-        variant="secondary"
-        size="sm"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:shadow-md"
-      >
-        <a href="#content">Skip to content</a>
-      </Button>
+      <Button render={<a href="#content" />} variant="secondary" size="sm" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:shadow-md">Skip to content</Button>
       <header className="biga-glass border-rail sticky top-0 z-40 border-b">
         <Frame columnClassName={cn(INSET, "flex h-14 items-center gap-2")}>
           <Link
@@ -75,17 +60,10 @@ export function SiteHeader() {
 
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <NavLink href="/docs">Docs</NavLink>
-            <Button
-              asChild
-              variant="outline"
-              size="icon"
-              className="border-rail text-muted-foreground hover:text-foreground rounded-full shadow-none"
-            >
-              <a href={CLI_REPO_URL} target="_blank" rel="noreferrer">
+            <Button render={<a href={CLI_REPO_URL} target="_blank" rel="noreferrer" />} variant="outline" size="icon" className="border-rail text-muted-foreground hover:text-foreground rounded-full shadow-none">
                 <GitHubGlyph className="size-4" />
                 <span className="sr-only">biga on GitHub</span>
-              </a>
-            </Button>
+              </Button>
             <ThemeSwitch />
           </div>
         </Frame>

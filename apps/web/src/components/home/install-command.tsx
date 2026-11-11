@@ -98,7 +98,7 @@ const TAB_TONES = {
   terminal: {
     list: "bg-white/8",
     trigger:
-      "text-white/60 hover:text-white focus-visible:ring-white/30 focus-visible:outline-none data-[state=active]:bg-white/12 data-[state=active]:text-white data-[state=active]:shadow-none dark:text-white/60 dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-white/12 dark:data-[state=active]:text-white",
+      "text-white/60 hover:text-white focus-visible:ring-white/30 focus-visible:outline-none data-active:bg-white/12 data-active:text-white data-active:shadow-none dark:text-white/60 dark:data-active:border-transparent dark:data-active:bg-white/12 dark:data-active:text-white",
   },
 } as const;
 

@@ -506,12 +506,7 @@ export default function BrandPage() {
             <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {DOWNLOADS.map((item) => (
                 <li key={item.file}>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="border-rail group h-auto w-full justify-between gap-4 rounded-xl p-4 text-left font-normal whitespace-normal shadow-none"
-                  >
-                    <a href={`/brand/${item.file}`} download>
+                  <Button render={<a href={`/brand/${item.file}`} download />} variant="outline" className="border-rail group h-auto w-full justify-between gap-4 rounded-xl p-4 text-left font-normal whitespace-normal shadow-none">
                       <span className="flex flex-col gap-1">
                         <span className="font-body text-sm font-semibold">{item.label}</span>
                         <span className="text-muted-foreground font-body text-xs">{item.note}</span>
@@ -524,8 +519,7 @@ export default function BrandPage() {
                         className="text-muted-foreground group-hover:text-foreground size-4 shrink-0 transition-colors"
                         strokeWidth={1.75}
                       />
-                    </a>
-                  </Button>
+                    </Button>
                 </li>
               ))}
             </ul>

@@ -32,12 +32,10 @@ export function Hero({ siteUrl }: { siteUrl: string }) {
               <InstallCommand />
             </div>
 
-            <Button asChild variant="outline" size="lg" className="mt-6 rounded-full">
-              <Link href="#how">
+            <Button render={<Link href="#how" />} variant="outline" size="lg" className="mt-6 rounded-full">
                 <ArrowDownIcon strokeWidth={1.75} />
                 Watch it run
-              </Link>
-            </Button>
+              </Button>
           </div>
 
           <div className="biga-rise min-w-0 [animation-delay:120ms]">

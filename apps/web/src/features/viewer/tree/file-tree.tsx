@@ -291,40 +291,41 @@ export function FileTree({
         <div className="flex h-full flex-col">
             {header}
             <ScrollArea className="min-h-0 flex-1" viewportRef={parentRef}>
-                <ContextMenu>
-                    <ContextMenuTrigger asChild>
-                        <div
-                            role="tree"
-                            aria-labelledby="files-heading"
-                            dir="ltr"
-                            className="relative w-full pb-2"
-                            style={{ height: `${virtualizer.getTotalSize()}px` }}
-                            onPointerOver={(event) => {
-                                const path = rowPath(event.target);
-                                if (path !== undefined) runtime.prefetchFile(path);
-                            }}
-                            onPointerOut={(event) => {
-                                const path = rowPath(event.target);
-                                if (path !== undefined) runtime.cancelPrefetch(path);
-                            }}
-                            onFocus={(event) => {
-                                const path = rowPath(event.target);
-                                if (path !== undefined) runtime.prefetchFile(path);
-                            }}
-                            onBlur={(event) => {
-                                const path = rowPath(event.target);
-                                if (path !== undefined) runtime.cancelPrefetch(path);
-                            }}
-                            onContextMenu={(event) => {
-                                const path = rowPath(event.target);
-                                const entry = path === undefined ? undefined : reader.entry(path);
-                                if (path === undefined || !entry || entry.kind === KIND_DIRECTORY || entry.kind === KIND_IGNORED) {
-                                    event.preventDefault();
-                                    return;
-                                }
-                                setMenuPath(path);
-                            }}
-                        >
+                <ContextMenu
+                    onOpenChange={(open, details) => {
+                        if (!open) return;
+                        const path = details.event.target ? rowPath(details.event.target) : undefined;
+                        const entry = path === undefined ? undefined : reader.entry(path);
+                        if (path === undefined || !entry || entry.kind === KIND_DIRECTORY || entry.kind === KIND_IGNORED) {
+                            details.cancel();
+                            return;
+                        }
+                        setMenuPath(path);
+                    }}
+                >
+                    <ContextMenuTrigger
+                        role="tree"
+                        aria-labelledby="files-heading"
+                        dir="ltr"
+                        className="relative w-full pb-2"
+                        style={{ height: `${virtualizer.getTotalSize()}px` }}
+                        onPointerOver={(event) => {
+                            const path = rowPath(event.target);
+                            if (path !== undefined) runtime.prefetchFile(path);
+                        }}
+                        onPointerOut={(event) => {
+                            const path = rowPath(event.target);
+                            if (path !== undefined) runtime.cancelPrefetch(path);
+                        }}
+                        onFocus={(event) => {
+                            const path = rowPath(event.target);
+                            if (path !== undefined) runtime.prefetchFile(path);
+                        }}
+                        onBlur={(event) => {
+                            const path = rowPath(event.target);
+                            if (path !== undefined) runtime.cancelPrefetch(path);
+                        }}
+                    >
                             {virtualizer.getVirtualItems().map((virtualRow) => {
                                 const path = rows[virtualRow.index];
                                 const entry = path === undefined ? undefined : reader.entry(path);
@@ -348,24 +349,23 @@ export function FileTree({
                                     />
                                 );
                             })}
-                        </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent className="w-52">
-                        <ContextMenuItem onSelect={() => menuPath && void copyWithToast(menuPath, "path")}>
+                        <ContextMenuItem onClick={() => menuPath && void copyWithToast(menuPath, "path")}>
                             <CopyIcon />
                             Copy path
                         </ContextMenuItem>
-                        <ContextMenuItem onSelect={() => menuPath && void copyFileContent(runtime, menuPath)}>
+                        <ContextMenuItem onClick={() => menuPath && void copyFileContent(runtime, menuPath)}>
                             <FileTextIcon />
                             Copy contents
                         </ContextMenuItem>
-                        <ContextMenuItem onSelect={() => menuPath && void downloadFile(runtime, menuPath)}>
+                        <ContextMenuItem onClick={() => menuPath && void downloadFile(runtime, menuPath)}>
                             <DownloadIcon />
                             Download
                         </ContextMenuItem>
                         <ContextMenuSeparator />
                         <ContextMenuItem
-                            onSelect={() => menuPath && void revealInTimeline(runtime, (seq, file) => openCheckpoint(seq, file, "push"), menuPath)}
+                            onClick={() => menuPath && void revealInTimeline(runtime, (seq, file) => openCheckpoint(seq, file, "push"), menuPath)}
                         >
                             <ClockIcon />
                             Show in timeline

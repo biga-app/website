@@ -508,9 +508,7 @@ function Steps({ chapter, progress, seek, control }: AutopilotChaptersApi) {
   return (
     <div className="mb-6 flex items-start gap-4 sm:mb-8 sm:gap-6">
       <ToggleGroup
-        type="single"
-        value={String(chapter)}
-        // Each step's own click seeks, so choosing the playing one replays it.
+        value={[String(chapter)]}
         onValueChange={() => {}}
         aria-label="Chapters"
         className="grid h-auto min-w-0 flex-1 grid-cols-2 items-start gap-x-5 gap-y-5 rounded-none bg-transparent p-0 md:grid-cols-4 md:gap-x-6 pointer-coarse:h-auto"
@@ -521,7 +519,7 @@ function Steps({ chapter, progress, seek, control }: AutopilotChaptersApi) {
             value={String(i)}
             aria-label={`${i + 1}. ${step.title}`}
             onClick={() => seek(i)}
-            className="h-auto w-full flex-col items-stretch justify-start gap-0 rounded-md px-0 pt-1 pb-1.5 text-left whitespace-normal opacity-60 transition-opacity hover:opacity-90 data-[state=on]:bg-transparent data-[state=on]:opacity-100 data-[state=on]:shadow-none"
+            className="h-auto w-full flex-col items-stretch justify-start gap-0 rounded-md px-0 pt-1 pb-1.5 text-left whitespace-normal opacity-60 transition-opacity hover:opacity-90 data-pressed:bg-transparent data-pressed:opacity-100 data-pressed:shadow-none"
           >
             <span aria-hidden className="bg-foreground/10 block h-[3px] overflow-hidden rounded-full">
               <motion.span

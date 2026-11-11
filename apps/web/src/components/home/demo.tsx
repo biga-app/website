@@ -35,13 +35,11 @@ export function Demo({ siteUrl, sessionPath }: { siteUrl: string; sessionPath: s
               {host}
               {sessionPath}
             </span>
-            <Button asChild variant="secondary" size="xs" className="font-body ml-auto shrink-0 gap-1 rounded-full">
-              <Link href={sessionPath}>
+            <Button render={<Link href={sessionPath} />} variant="secondary" size="xs" className="font-body ml-auto shrink-0 gap-1 rounded-full">
                 <span className="hidden sm:inline">Open full screen</span>
                 <span className="sm:hidden">Open</span>
                 <ArrowUpRightIcon strokeWidth={1.75} />
-              </Link>
-            </Button>
+              </Button>
           </div>
           <ViewerFrame src={`${sessionPath}?embed=1`} title="biga viewer, playing back a recorded broadcast of this repository" />
         </div>

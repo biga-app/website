@@ -17,12 +17,8 @@ export default function NotFound() {
           session may have ended and been deleted.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Button asChild size="sm">
-            <Link href="/">Go to the homepage</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/docs">Read the docs</Link>
-          </Button>
+          <Button render={<Link href="/" />} size="sm">Go to the homepage</Button>
+          <Button render={<Link href="/docs" />} variant="outline" size="sm">Read the docs</Button>
         </div>
 
         <div className="mt-10 border-t pt-6">
