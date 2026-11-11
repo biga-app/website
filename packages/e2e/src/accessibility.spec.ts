@@ -161,10 +161,11 @@ test("the landing page holds still when the visitor prefers reduced motion", asy
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
     await page.goto("/");
-    await expect(page.getByRole("log", { name: "What the biga command prints" })).toBeVisible();
-    const before = await page.getByRole("log", { name: "What the biga command prints" }).innerText();
-    await page.waitForTimeout(5000);
-    expect(await page.getByRole("log", { name: "What the biga command prints" }).innerText()).toBe(before);
+    const latest = page.getByRole("log", { name: "Latest checkpoint" });
+    await expect(latest).toContainText("checkpoint #", { timeout: 30_000 });
+    const before = await latest.innerText();
+    await page.waitForTimeout(6000);
+    expect(await latest.innerText()).toBe(before);
     await context.close();
 });
 
